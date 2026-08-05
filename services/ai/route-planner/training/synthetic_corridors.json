@@ -1,0 +1,1802 @@
+[
+  {
+    "corridor_id": "darat-000",
+    "transport_mode": "darat",
+    "distance_km": 309.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 6.88,
+    "base_delay_hours": 2.54,
+    "base_damage_rate": 0.0805
+  },
+  {
+    "corridor_id": "darat-001",
+    "transport_mode": "darat",
+    "distance_km": 120.7,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 2.68,
+    "base_delay_hours": 4.59,
+    "base_damage_rate": 0.0712
+  },
+  {
+    "corridor_id": "darat-002",
+    "transport_mode": "darat",
+    "distance_km": 422.7,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 9.39,
+    "base_delay_hours": 7.14,
+    "base_damage_rate": 0.0906
+  },
+  {
+    "corridor_id": "darat-003",
+    "transport_mode": "darat",
+    "distance_km": 482.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 10.73,
+    "base_delay_hours": 7.8,
+    "base_damage_rate": 0.0949
+  },
+  {
+    "corridor_id": "darat-004",
+    "transport_mode": "darat",
+    "distance_km": 63.8,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 1.42,
+    "base_delay_hours": 3.97,
+    "base_damage_rate": 0.0704
+  },
+  {
+    "corridor_id": "darat-005",
+    "transport_mode": "darat",
+    "distance_km": 100.5,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 2.23,
+    "base_delay_hours": 0.11,
+    "base_damage_rate": 0.0672
+  },
+  {
+    "corridor_id": "darat-006",
+    "transport_mode": "darat",
+    "distance_km": 273.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 6.08,
+    "base_delay_hours": 3.98,
+    "base_damage_rate": 0.0902
+  },
+  {
+    "corridor_id": "darat-007",
+    "transport_mode": "darat",
+    "distance_km": 200.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.45,
+    "base_delay_hours": 3.59,
+    "base_damage_rate": 0.0739
+  },
+  {
+    "corridor_id": "darat-008",
+    "transport_mode": "darat",
+    "distance_km": 247.1,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 5.49,
+    "base_delay_hours": 5.34,
+    "base_damage_rate": 0.0864
+  },
+  {
+    "corridor_id": "darat-009",
+    "transport_mode": "darat",
+    "distance_km": 137.6,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 3.06,
+    "base_delay_hours": 2.32,
+    "base_damage_rate": 0.0739
+  },
+  {
+    "corridor_id": "darat-010",
+    "transport_mode": "darat",
+    "distance_km": 462.7,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 10.28,
+    "base_delay_hours": 4.58,
+    "base_damage_rate": 0.0952
+  },
+  {
+    "corridor_id": "darat-011",
+    "transport_mode": "darat",
+    "distance_km": 430.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 9.58,
+    "base_delay_hours": 7.02,
+    "base_damage_rate": 0.1066
+  },
+  {
+    "corridor_id": "darat-012",
+    "transport_mode": "darat",
+    "distance_km": 261.8,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 5.82,
+    "base_delay_hours": 3.84,
+    "base_damage_rate": 0.0771
+  },
+  {
+    "corridor_id": "darat-013",
+    "transport_mode": "darat",
+    "distance_km": 550.3,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 12.23,
+    "base_delay_hours": 5.47,
+    "base_damage_rate": 0.1016
+  },
+  {
+    "corridor_id": "darat-014",
+    "transport_mode": "darat",
+    "distance_km": 346.8,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 7.71,
+    "base_delay_hours": 6.3,
+    "base_damage_rate": 0.0835
+  },
+  {
+    "corridor_id": "darat-015",
+    "transport_mode": "darat",
+    "distance_km": 137.0,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 3.04,
+    "base_delay_hours": 2.54,
+    "base_damage_rate": 0.071
+  },
+  {
+    "corridor_id": "darat-016",
+    "transport_mode": "darat",
+    "distance_km": 323.6,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 7.19,
+    "base_delay_hours": 4.92,
+    "base_damage_rate": 0.0824
+  },
+  {
+    "corridor_id": "darat-017",
+    "transport_mode": "darat",
+    "distance_km": 127.8,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 2.84,
+    "base_delay_hours": 3.84,
+    "base_damage_rate": 0.0841
+  },
+  {
+    "corridor_id": "darat-018",
+    "transport_mode": "darat",
+    "distance_km": 462.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 10.27,
+    "base_delay_hours": 4.25,
+    "base_damage_rate": 0.0907
+  },
+  {
+    "corridor_id": "darat-019",
+    "transport_mode": "darat",
+    "distance_km": 241.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 5.36,
+    "base_delay_hours": 6.09,
+    "base_damage_rate": 0.0769
+  },
+  {
+    "corridor_id": "darat-020",
+    "transport_mode": "darat",
+    "distance_km": 219.7,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.88,
+    "base_delay_hours": 4.12,
+    "base_damage_rate": 0.0773
+  },
+  {
+    "corridor_id": "darat-021",
+    "transport_mode": "darat",
+    "distance_km": 155.2,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 3.45,
+    "base_delay_hours": 1.0,
+    "base_damage_rate": 0.0768
+  },
+  {
+    "corridor_id": "darat-022",
+    "transport_mode": "darat",
+    "distance_km": 588.3,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 13.07,
+    "base_delay_hours": 8.45,
+    "base_damage_rate": 0.1162
+  },
+  {
+    "corridor_id": "darat-023",
+    "transport_mode": "darat",
+    "distance_km": 224.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.99,
+    "base_delay_hours": 5.1,
+    "base_damage_rate": 0.096
+  },
+  {
+    "corridor_id": "darat-024",
+    "transport_mode": "darat",
+    "distance_km": 185.2,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.12,
+    "base_delay_hours": 7.15,
+    "base_damage_rate": 0.0919
+  },
+  {
+    "corridor_id": "darat-025",
+    "transport_mode": "darat",
+    "distance_km": 195.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.34,
+    "base_delay_hours": 1.74,
+    "base_damage_rate": 0.0747
+  },
+  {
+    "corridor_id": "darat-026",
+    "transport_mode": "darat",
+    "distance_km": 362.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 8.06,
+    "base_delay_hours": 5.3,
+    "base_damage_rate": 0.0911
+  },
+  {
+    "corridor_id": "darat-027",
+    "transport_mode": "darat",
+    "distance_km": 322.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 7.18,
+    "base_delay_hours": 1.13,
+    "base_damage_rate": 0.0886
+  },
+  {
+    "corridor_id": "darat-028",
+    "transport_mode": "darat",
+    "distance_km": 333.7,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 7.42,
+    "base_delay_hours": 4.67,
+    "base_damage_rate": 0.0932
+  },
+  {
+    "corridor_id": "darat-029",
+    "transport_mode": "darat",
+    "distance_km": 338.0,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 7.51,
+    "base_delay_hours": 6.36,
+    "base_damage_rate": 0.0841
+  },
+  {
+    "corridor_id": "darat-030",
+    "transport_mode": "darat",
+    "distance_km": 1119.5,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 24.88,
+    "base_delay_hours": 15.87,
+    "base_damage_rate": 0.1538
+  },
+  {
+    "corridor_id": "darat-031",
+    "transport_mode": "darat",
+    "distance_km": 188.1,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.18,
+    "base_delay_hours": 4.23,
+    "base_damage_rate": 0.0731
+  },
+  {
+    "corridor_id": "darat-032",
+    "transport_mode": "darat",
+    "distance_km": 174.7,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 3.88,
+    "base_delay_hours": 7.5,
+    "base_damage_rate": 0.0748
+  },
+  {
+    "corridor_id": "darat-033",
+    "transport_mode": "darat",
+    "distance_km": 141.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 3.14,
+    "base_delay_hours": 4.05,
+    "base_damage_rate": 0.0856
+  },
+  {
+    "corridor_id": "darat-034",
+    "transport_mode": "darat",
+    "distance_km": 384.8,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 8.55,
+    "base_delay_hours": 5.52,
+    "base_damage_rate": 0.0849
+  },
+  {
+    "corridor_id": "darat-035",
+    "transport_mode": "darat",
+    "distance_km": 551.0,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 12.24,
+    "base_delay_hours": 5.76,
+    "base_damage_rate": 0.1051
+  },
+  {
+    "corridor_id": "darat-036",
+    "transport_mode": "darat",
+    "distance_km": 230.8,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 5.13,
+    "base_delay_hours": 1.73,
+    "base_damage_rate": 0.0745
+  },
+  {
+    "corridor_id": "darat-037",
+    "transport_mode": "darat",
+    "distance_km": 138.8,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 3.09,
+    "base_delay_hours": 2.65,
+    "base_damage_rate": 0.0794
+  },
+  {
+    "corridor_id": "darat-038",
+    "transport_mode": "darat",
+    "distance_km": 140.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 3.12,
+    "base_delay_hours": 4.96,
+    "base_damage_rate": 0.0781
+  },
+  {
+    "corridor_id": "darat-039",
+    "transport_mode": "darat",
+    "distance_km": 394.2,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 8.76,
+    "base_delay_hours": 5.47,
+    "base_damage_rate": 0.0908
+  },
+  {
+    "corridor_id": "darat-040",
+    "transport_mode": "darat",
+    "distance_km": 420.6,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 9.35,
+    "base_delay_hours": 8.23,
+    "base_damage_rate": 0.0941
+  },
+  {
+    "corridor_id": "darat-041",
+    "transport_mode": "darat",
+    "distance_km": 365.6,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 8.13,
+    "base_delay_hours": 4.21,
+    "base_damage_rate": 0.0873
+  },
+  {
+    "corridor_id": "darat-042",
+    "transport_mode": "darat",
+    "distance_km": 156.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 3.49,
+    "base_delay_hours": 6.72,
+    "base_damage_rate": 0.0811
+  },
+  {
+    "corridor_id": "darat-043",
+    "transport_mode": "darat",
+    "distance_km": 294.1,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 6.54,
+    "base_delay_hours": 5.47,
+    "base_damage_rate": 0.0858
+  },
+  {
+    "corridor_id": "darat-044",
+    "transport_mode": "darat",
+    "distance_km": 271.3,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 6.03,
+    "base_delay_hours": 2.49,
+    "base_damage_rate": 0.0807
+  },
+  {
+    "corridor_id": "darat-045",
+    "transport_mode": "darat",
+    "distance_km": 291.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 6.47,
+    "base_delay_hours": 4.71,
+    "base_damage_rate": 0.0815
+  },
+  {
+    "corridor_id": "darat-046",
+    "transport_mode": "darat",
+    "distance_km": 460.1,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 10.22,
+    "base_delay_hours": 6.13,
+    "base_damage_rate": 0.0978
+  },
+  {
+    "corridor_id": "darat-047",
+    "transport_mode": "darat",
+    "distance_km": 292.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 6.5,
+    "base_delay_hours": 5.58,
+    "base_damage_rate": 0.0942
+  },
+  {
+    "corridor_id": "darat-048",
+    "transport_mode": "darat",
+    "distance_km": 402.1,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 8.94,
+    "base_delay_hours": 5.9,
+    "base_damage_rate": 0.0866
+  },
+  {
+    "corridor_id": "darat-049",
+    "transport_mode": "darat",
+    "distance_km": 262.1,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 5.82,
+    "base_delay_hours": 8.09,
+    "base_damage_rate": 0.0863
+  },
+  {
+    "corridor_id": "darat-050",
+    "transport_mode": "darat",
+    "distance_km": 306.1,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 6.8,
+    "base_delay_hours": 6.72,
+    "base_damage_rate": 0.0849
+  },
+  {
+    "corridor_id": "darat-051",
+    "transport_mode": "darat",
+    "distance_km": 388.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 8.64,
+    "base_delay_hours": 3.53,
+    "base_damage_rate": 0.0959
+  },
+  {
+    "corridor_id": "darat-052",
+    "transport_mode": "darat",
+    "distance_km": 90.1,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 2.0,
+    "base_delay_hours": 4.4,
+    "base_damage_rate": 0.0927
+  },
+  {
+    "corridor_id": "darat-053",
+    "transport_mode": "darat",
+    "distance_km": 199.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.44,
+    "base_delay_hours": 1.65,
+    "base_damage_rate": 0.0755
+  },
+  {
+    "corridor_id": "darat-054",
+    "transport_mode": "darat",
+    "distance_km": 179.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.0,
+    "base_delay_hours": 1.77,
+    "base_damage_rate": 0.0789
+  },
+  {
+    "corridor_id": "darat-055",
+    "transport_mode": "darat",
+    "distance_km": 159.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 3.55,
+    "base_delay_hours": 2.29,
+    "base_damage_rate": 0.0932
+  },
+  {
+    "corridor_id": "darat-056",
+    "transport_mode": "darat",
+    "distance_km": 206.2,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.58,
+    "base_delay_hours": 4.21,
+    "base_damage_rate": 0.0873
+  },
+  {
+    "corridor_id": "darat-057",
+    "transport_mode": "darat",
+    "distance_km": 711.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 15.82,
+    "base_delay_hours": 10.3,
+    "base_damage_rate": 0.1097
+  },
+  {
+    "corridor_id": "darat-058",
+    "transport_mode": "darat",
+    "distance_km": 136.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 3.03,
+    "base_delay_hours": 2.22,
+    "base_damage_rate": 0.0796
+  },
+  {
+    "corridor_id": "darat-059",
+    "transport_mode": "darat",
+    "distance_km": 492.4,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 10.94,
+    "base_delay_hours": 7.46,
+    "base_damage_rate": 0.0946
+  },
+  {
+    "corridor_id": "darat-060",
+    "transport_mode": "darat",
+    "distance_km": 77.0,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 1.71,
+    "base_delay_hours": 4.77,
+    "base_damage_rate": 0.0661
+  },
+  {
+    "corridor_id": "darat-061",
+    "transport_mode": "darat",
+    "distance_km": 197.8,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.39,
+    "base_delay_hours": 2.33,
+    "base_damage_rate": 0.0798
+  },
+  {
+    "corridor_id": "darat-062",
+    "transport_mode": "darat",
+    "distance_km": 280.2,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 6.23,
+    "base_delay_hours": 6.52,
+    "base_damage_rate": 0.0846
+  },
+  {
+    "corridor_id": "darat-063",
+    "transport_mode": "darat",
+    "distance_km": 376.8,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 8.37,
+    "base_delay_hours": 1.76,
+    "base_damage_rate": 0.1013
+  },
+  {
+    "corridor_id": "darat-064",
+    "transport_mode": "darat",
+    "distance_km": 411.3,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 9.14,
+    "base_delay_hours": 2.91,
+    "base_damage_rate": 0.0878
+  },
+  {
+    "corridor_id": "darat-065",
+    "transport_mode": "darat",
+    "distance_km": 435.6,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 9.68,
+    "base_delay_hours": 7.4,
+    "base_damage_rate": 0.1021
+  },
+  {
+    "corridor_id": "darat-066",
+    "transport_mode": "darat",
+    "distance_km": 195.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.35,
+    "base_delay_hours": 3.01,
+    "base_damage_rate": 0.081
+  },
+  {
+    "corridor_id": "darat-067",
+    "transport_mode": "darat",
+    "distance_km": 180.9,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.02,
+    "base_delay_hours": 4.27,
+    "base_damage_rate": 0.0813
+  },
+  {
+    "corridor_id": "darat-068",
+    "transport_mode": "darat",
+    "distance_km": 455.8,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 10.13,
+    "base_delay_hours": 8.2,
+    "base_damage_rate": 0.0941
+  },
+  {
+    "corridor_id": "darat-069",
+    "transport_mode": "darat",
+    "distance_km": 218.7,
+    "wave_exposure_tier": "None",
+    "baseline_transit_hours": 4.86,
+    "base_delay_hours": 5.85,
+    "base_damage_rate": 0.0734
+  },
+  {
+    "corridor_id": "laut-000",
+    "transport_mode": "laut",
+    "distance_km": 963.7,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 44.52,
+    "base_delay_hours": 19.86,
+    "base_damage_rate": 0.2566
+  },
+  {
+    "corridor_id": "laut-001",
+    "transport_mode": "laut",
+    "distance_km": 1682.6,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 68.78,
+    "base_delay_hours": 25.21,
+    "base_damage_rate": 0.3261
+  },
+  {
+    "corridor_id": "laut-002",
+    "transport_mode": "laut",
+    "distance_km": 1167.7,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 51.41,
+    "base_delay_hours": 27.4,
+    "base_damage_rate": 0.36
+  },
+  {
+    "corridor_id": "laut-003",
+    "transport_mode": "laut",
+    "distance_km": 478.0,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 28.13,
+    "base_delay_hours": 22.62,
+    "base_damage_rate": 0.2693
+  },
+  {
+    "corridor_id": "laut-004",
+    "transport_mode": "laut",
+    "distance_km": 3992.2,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 146.72,
+    "base_delay_hours": 49.12,
+    "base_damage_rate": 0.3181
+  },
+  {
+    "corridor_id": "laut-005",
+    "transport_mode": "laut",
+    "distance_km": 1320.8,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 56.57,
+    "base_delay_hours": 21.0,
+    "base_damage_rate": 0.2383
+  },
+  {
+    "corridor_id": "laut-006",
+    "transport_mode": "laut",
+    "distance_km": 661.8,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 34.33,
+    "base_delay_hours": 15.43,
+    "base_damage_rate": 0.146
+  },
+  {
+    "corridor_id": "laut-007",
+    "transport_mode": "laut",
+    "distance_km": 992.0,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 45.48,
+    "base_delay_hours": 18.2,
+    "base_damage_rate": 0.2522
+  },
+  {
+    "corridor_id": "laut-008",
+    "transport_mode": "laut",
+    "distance_km": 623.5,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 33.04,
+    "base_delay_hours": 11.16,
+    "base_damage_rate": 0.1549
+  },
+  {
+    "corridor_id": "laut-009",
+    "transport_mode": "laut",
+    "distance_km": 3381.2,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 126.11,
+    "base_delay_hours": 47.31,
+    "base_damage_rate": 0.3822
+  },
+  {
+    "corridor_id": "laut-010",
+    "transport_mode": "laut",
+    "distance_km": 2923.1,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 110.65,
+    "base_delay_hours": 39.64,
+    "base_damage_rate": 0.322
+  },
+  {
+    "corridor_id": "laut-011",
+    "transport_mode": "laut",
+    "distance_km": 216.2,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 19.3,
+    "base_delay_hours": 14.99,
+    "base_damage_rate": 0.2349
+  },
+  {
+    "corridor_id": "laut-012",
+    "transport_mode": "laut",
+    "distance_km": 90.9,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 15.07,
+    "base_delay_hours": 5.88,
+    "base_damage_rate": 0.094
+  },
+  {
+    "corridor_id": "laut-013",
+    "transport_mode": "laut",
+    "distance_km": 3938.8,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 144.93,
+    "base_delay_hours": 50.19,
+    "base_damage_rate": 0.3255
+  },
+  {
+    "corridor_id": "laut-014",
+    "transport_mode": "laut",
+    "distance_km": 1014.7,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 46.24,
+    "base_delay_hours": 16.25,
+    "base_damage_rate": 0.2609
+  },
+  {
+    "corridor_id": "laut-015",
+    "transport_mode": "laut",
+    "distance_km": 1397.9,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 59.18,
+    "base_delay_hours": 29.65,
+    "base_damage_rate": 0.3806
+  },
+  {
+    "corridor_id": "laut-016",
+    "transport_mode": "laut",
+    "distance_km": 1241.1,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 53.88,
+    "base_delay_hours": 24.82,
+    "base_damage_rate": 0.3514
+  },
+  {
+    "corridor_id": "laut-017",
+    "transport_mode": "laut",
+    "distance_km": 964.6,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 44.55,
+    "base_delay_hours": 19.12,
+    "base_damage_rate": 0.2588
+  },
+  {
+    "corridor_id": "laut-018",
+    "transport_mode": "laut",
+    "distance_km": 1980.3,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 78.83,
+    "base_delay_hours": 31.76,
+    "base_damage_rate": 0.3939
+  },
+  {
+    "corridor_id": "laut-019",
+    "transport_mode": "laut",
+    "distance_km": 2305.5,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 89.81,
+    "base_delay_hours": 38.6,
+    "base_damage_rate": 0.3794
+  },
+  {
+    "corridor_id": "laut-020",
+    "transport_mode": "laut",
+    "distance_km": 1449.4,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 60.91,
+    "base_delay_hours": 17.12,
+    "base_damage_rate": 0.2418
+  },
+  {
+    "corridor_id": "laut-021",
+    "transport_mode": "laut",
+    "distance_km": 2599.4,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 99.72,
+    "base_delay_hours": 37.38,
+    "base_damage_rate": 0.3775
+  },
+  {
+    "corridor_id": "laut-022",
+    "transport_mode": "laut",
+    "distance_km": 2951.9,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 111.62,
+    "base_delay_hours": 41.64,
+    "base_damage_rate": 0.3842
+  },
+  {
+    "corridor_id": "laut-023",
+    "transport_mode": "laut",
+    "distance_km": 1054.7,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 47.59,
+    "base_delay_hours": 18.72,
+    "base_damage_rate": 0.2845
+  },
+  {
+    "corridor_id": "laut-024",
+    "transport_mode": "laut",
+    "distance_km": 1397.4,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 59.16,
+    "base_delay_hours": 26.16,
+    "base_damage_rate": 0.3664
+  },
+  {
+    "corridor_id": "laut-025",
+    "transport_mode": "laut",
+    "distance_km": 3142.5,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 118.05,
+    "base_delay_hours": 41.58,
+    "base_damage_rate": 0.3208
+  },
+  {
+    "corridor_id": "laut-026",
+    "transport_mode": "laut",
+    "distance_km": 186.6,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 18.3,
+    "base_delay_hours": 7.19,
+    "base_damage_rate": 0.1082
+  },
+  {
+    "corridor_id": "laut-027",
+    "transport_mode": "laut",
+    "distance_km": 518.1,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 29.49,
+    "base_delay_hours": 21.88,
+    "base_damage_rate": 0.2735
+  },
+  {
+    "corridor_id": "laut-028",
+    "transport_mode": "laut",
+    "distance_km": 1066.5,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 47.99,
+    "base_delay_hours": 14.93,
+    "base_damage_rate": 0.1943
+  },
+  {
+    "corridor_id": "laut-029",
+    "transport_mode": "laut",
+    "distance_km": 773.3,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 38.1,
+    "base_delay_hours": 14.93,
+    "base_damage_rate": 0.2306
+  },
+  {
+    "corridor_id": "laut-030",
+    "transport_mode": "laut",
+    "distance_km": 2377.9,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 92.25,
+    "base_delay_hours": 35.73,
+    "base_damage_rate": 0.3876
+  },
+  {
+    "corridor_id": "laut-031",
+    "transport_mode": "laut",
+    "distance_km": 1766.8,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 71.63,
+    "base_delay_hours": 31.43,
+    "base_damage_rate": 0.3219
+  },
+  {
+    "corridor_id": "laut-032",
+    "transport_mode": "laut",
+    "distance_km": 751.6,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 37.36,
+    "base_delay_hours": 16.02,
+    "base_damage_rate": 0.1557
+  },
+  {
+    "corridor_id": "laut-033",
+    "transport_mode": "laut",
+    "distance_km": 1214.7,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 52.99,
+    "base_delay_hours": 19.73,
+    "base_damage_rate": 0.2224
+  },
+  {
+    "corridor_id": "laut-034",
+    "transport_mode": "laut",
+    "distance_km": 533.8,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 30.01,
+    "base_delay_hours": 13.24,
+    "base_damage_rate": 0.1288
+  },
+  {
+    "corridor_id": "laut-035",
+    "transport_mode": "laut",
+    "distance_km": 1287.7,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 55.46,
+    "base_delay_hours": 17.05,
+    "base_damage_rate": 0.2184
+  },
+  {
+    "corridor_id": "laut-036",
+    "transport_mode": "laut",
+    "distance_km": 972.8,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 44.83,
+    "base_delay_hours": 20.83,
+    "base_damage_rate": 0.2496
+  },
+  {
+    "corridor_id": "laut-037",
+    "transport_mode": "laut",
+    "distance_km": 2902.7,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 109.96,
+    "base_delay_hours": 38.0,
+    "base_damage_rate": 0.3235
+  },
+  {
+    "corridor_id": "laut-038",
+    "transport_mode": "laut",
+    "distance_km": 607.4,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 32.5,
+    "base_delay_hours": 8.95,
+    "base_damage_rate": 0.1501
+  },
+  {
+    "corridor_id": "laut-039",
+    "transport_mode": "laut",
+    "distance_km": 115.4,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 15.89,
+    "base_delay_hours": 2.59,
+    "base_damage_rate": 0.0938
+  },
+  {
+    "corridor_id": "laut-040",
+    "transport_mode": "laut",
+    "distance_km": 542.9,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 30.32,
+    "base_delay_hours": 16.15,
+    "base_damage_rate": 0.2708
+  },
+  {
+    "corridor_id": "laut-041",
+    "transport_mode": "laut",
+    "distance_km": 1363.1,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 58.0,
+    "base_delay_hours": 20.19,
+    "base_damage_rate": 0.2279
+  },
+  {
+    "corridor_id": "laut-042",
+    "transport_mode": "laut",
+    "distance_km": 1063.5,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 47.89,
+    "base_delay_hours": 21.64,
+    "base_damage_rate": 0.2808
+  },
+  {
+    "corridor_id": "laut-043",
+    "transport_mode": "laut",
+    "distance_km": 2194.6,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 86.06,
+    "base_delay_hours": 38.54,
+    "base_damage_rate": 0.3883
+  },
+  {
+    "corridor_id": "laut-044",
+    "transport_mode": "laut",
+    "distance_km": 1601.0,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 66.03,
+    "base_delay_hours": 26.98,
+    "base_damage_rate": 0.3883
+  },
+  {
+    "corridor_id": "laut-045",
+    "transport_mode": "laut",
+    "distance_km": 728.9,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 36.6,
+    "base_delay_hours": 18.79,
+    "base_damage_rate": 0.2267
+  },
+  {
+    "corridor_id": "laut-046",
+    "transport_mode": "laut",
+    "distance_km": 1231.3,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 53.55,
+    "base_delay_hours": 21.48,
+    "base_damage_rate": 0.2824
+  },
+  {
+    "corridor_id": "laut-047",
+    "transport_mode": "laut",
+    "distance_km": 127.9,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 16.32,
+    "base_delay_hours": 7.79,
+    "base_damage_rate": 0.1099
+  },
+  {
+    "corridor_id": "laut-048",
+    "transport_mode": "laut",
+    "distance_km": 805.0,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 39.17,
+    "base_delay_hours": 14.17,
+    "base_damage_rate": 0.158
+  },
+  {
+    "corridor_id": "laut-049",
+    "transport_mode": "laut",
+    "distance_km": 3867.5,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 142.52,
+    "base_delay_hours": 51.7,
+    "base_damage_rate": 0.3848
+  },
+  {
+    "corridor_id": "laut-050",
+    "transport_mode": "laut",
+    "distance_km": 1979.6,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 78.81,
+    "base_delay_hours": 27.3,
+    "base_damage_rate": 0.3136
+  },
+  {
+    "corridor_id": "laut-051",
+    "transport_mode": "laut",
+    "distance_km": 1050.0,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 47.43,
+    "base_delay_hours": 18.49,
+    "base_damage_rate": 0.1977
+  },
+  {
+    "corridor_id": "laut-052",
+    "transport_mode": "laut",
+    "distance_km": 2810.3,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 106.84,
+    "base_delay_hours": 41.79,
+    "base_damage_rate": 0.3833
+  },
+  {
+    "corridor_id": "laut-053",
+    "transport_mode": "laut",
+    "distance_km": 2656.1,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 101.64,
+    "base_delay_hours": 38.92,
+    "base_damage_rate": 0.3854
+  },
+  {
+    "corridor_id": "laut-054",
+    "transport_mode": "laut",
+    "distance_km": 604.4,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 32.4,
+    "base_delay_hours": 10.79,
+    "base_damage_rate": 0.1441
+  },
+  {
+    "corridor_id": "laut-055",
+    "transport_mode": "laut",
+    "distance_km": 1182.8,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 51.92,
+    "base_delay_hours": 23.87,
+    "base_damage_rate": 0.3601
+  },
+  {
+    "corridor_id": "laut-056",
+    "transport_mode": "laut",
+    "distance_km": 1602.8,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 66.09,
+    "base_delay_hours": 21.3,
+    "base_damage_rate": 0.3194
+  },
+  {
+    "corridor_id": "laut-057",
+    "transport_mode": "laut",
+    "distance_km": 538.8,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 30.18,
+    "base_delay_hours": 15.18,
+    "base_damage_rate": 0.2137
+  },
+  {
+    "corridor_id": "laut-058",
+    "transport_mode": "laut",
+    "distance_km": 613.0,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 32.69,
+    "base_delay_hours": 14.48,
+    "base_damage_rate": 0.2212
+  },
+  {
+    "corridor_id": "laut-059",
+    "transport_mode": "laut",
+    "distance_km": 2374.5,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 92.13,
+    "base_delay_hours": 36.25,
+    "base_damage_rate": 0.318
+  },
+  {
+    "corridor_id": "laut-060",
+    "transport_mode": "laut",
+    "distance_km": 2132.7,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 83.97,
+    "base_delay_hours": 32.91,
+    "base_damage_rate": 0.3908
+  },
+  {
+    "corridor_id": "laut-061",
+    "transport_mode": "laut",
+    "distance_km": 1042.8,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 47.19,
+    "base_delay_hours": 19.98,
+    "base_damage_rate": 0.2626
+  },
+  {
+    "corridor_id": "laut-062",
+    "transport_mode": "laut",
+    "distance_km": 1312.2,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 56.28,
+    "base_delay_hours": 24.16,
+    "base_damage_rate": 0.3587
+  },
+  {
+    "corridor_id": "laut-063",
+    "transport_mode": "laut",
+    "distance_km": 3392.1,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 126.47,
+    "base_delay_hours": 40.24,
+    "base_damage_rate": 0.317
+  },
+  {
+    "corridor_id": "laut-064",
+    "transport_mode": "laut",
+    "distance_km": 2282.1,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 89.01,
+    "base_delay_hours": 33.27,
+    "base_damage_rate": 0.3238
+  },
+  {
+    "corridor_id": "laut-065",
+    "transport_mode": "laut",
+    "distance_km": 3771.6,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 139.28,
+    "base_delay_hours": 46.51,
+    "base_damage_rate": 0.3175
+  },
+  {
+    "corridor_id": "laut-066",
+    "transport_mode": "laut",
+    "distance_km": 198.8,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 18.71,
+    "base_delay_hours": 12.8,
+    "base_damage_rate": 0.2353
+  },
+  {
+    "corridor_id": "laut-067",
+    "transport_mode": "laut",
+    "distance_km": 723.1,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 36.4,
+    "base_delay_hours": 14.56,
+    "base_damage_rate": 0.2206
+  },
+  {
+    "corridor_id": "laut-068",
+    "transport_mode": "laut",
+    "distance_km": 1351.2,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 57.6,
+    "base_delay_hours": 25.16,
+    "base_damage_rate": 0.3661
+  },
+  {
+    "corridor_id": "laut-069",
+    "transport_mode": "laut",
+    "distance_km": 1885.5,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 75.63,
+    "base_delay_hours": 31.56,
+    "base_damage_rate": 0.3885
+  },
+  {
+    "corridor_id": "laut-070",
+    "transport_mode": "laut",
+    "distance_km": 2496.9,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 96.26,
+    "base_delay_hours": 31.11,
+    "base_damage_rate": 0.2403
+  },
+  {
+    "corridor_id": "laut-071",
+    "transport_mode": "laut",
+    "distance_km": 646.8,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 33.83,
+    "base_delay_hours": 14.44,
+    "base_damage_rate": 0.158
+  },
+  {
+    "corridor_id": "laut-072",
+    "transport_mode": "laut",
+    "distance_km": 1768.6,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 71.68,
+    "base_delay_hours": 22.92,
+    "base_damage_rate": 0.3172
+  },
+  {
+    "corridor_id": "laut-073",
+    "transport_mode": "laut",
+    "distance_km": 1515.4,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 63.14,
+    "base_delay_hours": 27.92,
+    "base_damage_rate": 0.3185
+  },
+  {
+    "corridor_id": "laut-074",
+    "transport_mode": "laut",
+    "distance_km": 908.5,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 42.66,
+    "base_delay_hours": 15.98,
+    "base_damage_rate": 0.1817
+  },
+  {
+    "corridor_id": "laut-075",
+    "transport_mode": "laut",
+    "distance_km": 995.3,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 45.59,
+    "base_delay_hours": 15.78,
+    "base_damage_rate": 0.1901
+  },
+  {
+    "corridor_id": "laut-076",
+    "transport_mode": "laut",
+    "distance_km": 1019.8,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 46.42,
+    "base_delay_hours": 21.6,
+    "base_damage_rate": 0.2614
+  },
+  {
+    "corridor_id": "laut-077",
+    "transport_mode": "laut",
+    "distance_km": 1058.8,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 47.73,
+    "base_delay_hours": 16.29,
+    "base_damage_rate": 0.3308
+  },
+  {
+    "corridor_id": "laut-078",
+    "transport_mode": "laut",
+    "distance_km": 3894.5,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 143.43,
+    "base_delay_hours": 47.69,
+    "base_damage_rate": 0.2429
+  },
+  {
+    "corridor_id": "laut-079",
+    "transport_mode": "laut",
+    "distance_km": 462.8,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 27.62,
+    "base_delay_hours": 10.89,
+    "base_damage_rate": 0.1248
+  },
+  {
+    "corridor_id": "kombinasi-000",
+    "transport_mode": "kombinasi",
+    "distance_km": 3120.8,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 114.82,
+    "base_delay_hours": 48.31,
+    "base_damage_rate": 0.3985
+  },
+  {
+    "corridor_id": "kombinasi-001",
+    "transport_mode": "kombinasi",
+    "distance_km": 980.1,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 42.56,
+    "base_delay_hours": 18.59,
+    "base_damage_rate": 0.2783
+  },
+  {
+    "corridor_id": "kombinasi-002",
+    "transport_mode": "kombinasi",
+    "distance_km": 2549.6,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 95.19,
+    "base_delay_hours": 37.49,
+    "base_damage_rate": 0.3449
+  },
+  {
+    "corridor_id": "kombinasi-003",
+    "transport_mode": "kombinasi",
+    "distance_km": 2801.7,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 103.55,
+    "base_delay_hours": 43.11,
+    "base_damage_rate": 0.4069
+  },
+  {
+    "corridor_id": "kombinasi-004",
+    "transport_mode": "kombinasi",
+    "distance_km": 1133.6,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 47.66,
+    "base_delay_hours": 26.42,
+    "base_damage_rate": 0.3698
+  },
+  {
+    "corridor_id": "kombinasi-005",
+    "transport_mode": "kombinasi",
+    "distance_km": 3073.9,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 113.55,
+    "base_delay_hours": 44.04,
+    "base_damage_rate": 0.3435
+  },
+  {
+    "corridor_id": "kombinasi-006",
+    "transport_mode": "kombinasi",
+    "distance_km": 1974.1,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 76.25,
+    "base_delay_hours": 35.45,
+    "base_damage_rate": 0.3997
+  },
+  {
+    "corridor_id": "kombinasi-007",
+    "transport_mode": "kombinasi",
+    "distance_km": 1443.5,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 58.57,
+    "base_delay_hours": 23.98,
+    "base_damage_rate": 0.2571
+  },
+  {
+    "corridor_id": "kombinasi-008",
+    "transport_mode": "kombinasi",
+    "distance_km": 1040.0,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 43.77,
+    "base_delay_hours": 27.89,
+    "base_damage_rate": 0.3561
+  },
+  {
+    "corridor_id": "kombinasi-009",
+    "transport_mode": "kombinasi",
+    "distance_km": 4031.6,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 146.16,
+    "base_delay_hours": 58.62,
+    "base_damage_rate": 0.3993
+  },
+  {
+    "corridor_id": "kombinasi-010",
+    "transport_mode": "kombinasi",
+    "distance_km": 947.5,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 40.48,
+    "base_delay_hours": 26.34,
+    "base_damage_rate": 0.3554
+  },
+  {
+    "corridor_id": "kombinasi-011",
+    "transport_mode": "kombinasi",
+    "distance_km": 2276.4,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 86.73,
+    "base_delay_hours": 33.8,
+    "base_damage_rate": 0.2666
+  },
+  {
+    "corridor_id": "kombinasi-012",
+    "transport_mode": "kombinasi",
+    "distance_km": 1941.1,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 75.68,
+    "base_delay_hours": 35.87,
+    "base_damage_rate": 0.3957
+  },
+  {
+    "corridor_id": "kombinasi-013",
+    "transport_mode": "kombinasi",
+    "distance_km": 1135.2,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 49.39,
+    "base_delay_hours": 22.38,
+    "base_damage_rate": 0.3038
+  },
+  {
+    "corridor_id": "kombinasi-014",
+    "transport_mode": "kombinasi",
+    "distance_km": 803.9,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 37.4,
+    "base_delay_hours": 20.84,
+    "base_damage_rate": 0.2584
+  },
+  {
+    "corridor_id": "kombinasi-015",
+    "transport_mode": "kombinasi",
+    "distance_km": 951.8,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 41.98,
+    "base_delay_hours": 22.1,
+    "base_damage_rate": 0.2032
+  },
+  {
+    "corridor_id": "kombinasi-016",
+    "transport_mode": "kombinasi",
+    "distance_km": 1168.5,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 49.44,
+    "base_delay_hours": 20.6,
+    "base_damage_rate": 0.2284
+  },
+  {
+    "corridor_id": "kombinasi-017",
+    "transport_mode": "kombinasi",
+    "distance_km": 1414.4,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 57.43,
+    "base_delay_hours": 29.07,
+    "base_damage_rate": 0.3327
+  },
+  {
+    "corridor_id": "kombinasi-018",
+    "transport_mode": "kombinasi",
+    "distance_km": 1726.8,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 66.4,
+    "base_delay_hours": 31.43,
+    "base_damage_rate": 0.3958
+  },
+  {
+    "corridor_id": "kombinasi-019",
+    "transport_mode": "kombinasi",
+    "distance_km": 1727.7,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 67.78,
+    "base_delay_hours": 37.88,
+    "base_damage_rate": 0.4003
+  },
+  {
+    "corridor_id": "kombinasi-020",
+    "transport_mode": "kombinasi",
+    "distance_km": 1749.6,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 69.33,
+    "base_delay_hours": 31.3,
+    "base_damage_rate": 0.3968
+  },
+  {
+    "corridor_id": "kombinasi-021",
+    "transport_mode": "kombinasi",
+    "distance_km": 745.2,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 35.07,
+    "base_delay_hours": 21.72,
+    "base_damage_rate": 0.2514
+  },
+  {
+    "corridor_id": "kombinasi-022",
+    "transport_mode": "kombinasi",
+    "distance_km": 833.5,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 37.71,
+    "base_delay_hours": 20.35,
+    "base_damage_rate": 0.1854
+  },
+  {
+    "corridor_id": "kombinasi-023",
+    "transport_mode": "kombinasi",
+    "distance_km": 2211.4,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 84.55,
+    "base_delay_hours": 33.0,
+    "base_damage_rate": 0.3363
+  },
+  {
+    "corridor_id": "kombinasi-024",
+    "transport_mode": "kombinasi",
+    "distance_km": 1110.8,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 46.85,
+    "base_delay_hours": 22.35,
+    "base_damage_rate": 0.3104
+  },
+  {
+    "corridor_id": "kombinasi-025",
+    "transport_mode": "kombinasi",
+    "distance_km": 359.3,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 20.31,
+    "base_delay_hours": 10.84,
+    "base_damage_rate": 0.1322
+  },
+  {
+    "corridor_id": "kombinasi-026",
+    "transport_mode": "kombinasi",
+    "distance_km": 3434.4,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 124.54,
+    "base_delay_hours": 52.91,
+    "base_damage_rate": 0.3961
+  },
+  {
+    "corridor_id": "kombinasi-027",
+    "transport_mode": "kombinasi",
+    "distance_km": 2767.9,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 102.4,
+    "base_delay_hours": 38.43,
+    "base_damage_rate": 0.3388
+  },
+  {
+    "corridor_id": "kombinasi-028",
+    "transport_mode": "kombinasi",
+    "distance_km": 2667.2,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 99.74,
+    "base_delay_hours": 37.81,
+    "base_damage_rate": 0.2716
+  },
+  {
+    "corridor_id": "kombinasi-029",
+    "transport_mode": "kombinasi",
+    "distance_km": 2928.6,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 108.96,
+    "base_delay_hours": 42.42,
+    "base_damage_rate": 0.34
+  },
+  {
+    "corridor_id": "kombinasi-030",
+    "transport_mode": "kombinasi",
+    "distance_km": 2074.5,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 79.67,
+    "base_delay_hours": 34.35,
+    "base_damage_rate": 0.3378
+  },
+  {
+    "corridor_id": "kombinasi-031",
+    "transport_mode": "kombinasi",
+    "distance_km": 1066.9,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 47.06,
+    "base_delay_hours": 27.86,
+    "base_damage_rate": 0.3651
+  },
+  {
+    "corridor_id": "kombinasi-032",
+    "transport_mode": "kombinasi",
+    "distance_km": 892.2,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 38.41,
+    "base_delay_hours": 23.11,
+    "base_damage_rate": 0.2816
+  },
+  {
+    "corridor_id": "kombinasi-033",
+    "transport_mode": "kombinasi",
+    "distance_km": 4072.2,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 147.89,
+    "base_delay_hours": 53.96,
+    "base_damage_rate": 0.2704
+  },
+  {
+    "corridor_id": "kombinasi-034",
+    "transport_mode": "kombinasi",
+    "distance_km": 549.3,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 28.3,
+    "base_delay_hours": 15.99,
+    "base_damage_rate": 0.1512
+  },
+  {
+    "corridor_id": "kombinasi-035",
+    "transport_mode": "kombinasi",
+    "distance_km": 2044.7,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 79.75,
+    "base_delay_hours": 33.19,
+    "base_damage_rate": 0.406
+  },
+  {
+    "corridor_id": "kombinasi-036",
+    "transport_mode": "kombinasi",
+    "distance_km": 1256.9,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 52.51,
+    "base_delay_hours": 25.4,
+    "base_damage_rate": 0.3833
+  },
+  {
+    "corridor_id": "kombinasi-037",
+    "transport_mode": "kombinasi",
+    "distance_km": 2861.2,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 106.19,
+    "base_delay_hours": 40.92,
+    "base_damage_rate": 0.3373
+  },
+  {
+    "corridor_id": "kombinasi-038",
+    "transport_mode": "kombinasi",
+    "distance_km": 319.4,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 20.15,
+    "base_delay_hours": 13.95,
+    "base_damage_rate": 0.129
+  },
+  {
+    "corridor_id": "kombinasi-039",
+    "transport_mode": "kombinasi",
+    "distance_km": 1759.6,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 69.09,
+    "base_delay_hours": 29.53,
+    "base_damage_rate": 0.2723
+  },
+  {
+    "corridor_id": "kombinasi-040",
+    "transport_mode": "kombinasi",
+    "distance_km": 3090.1,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 115.01,
+    "base_delay_hours": 48.44,
+    "base_damage_rate": 0.4023
+  },
+  {
+    "corridor_id": "kombinasi-041",
+    "transport_mode": "kombinasi",
+    "distance_km": 1085.9,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 45.41,
+    "base_delay_hours": 21.71,
+    "base_damage_rate": 0.224
+  },
+  {
+    "corridor_id": "kombinasi-042",
+    "transport_mode": "kombinasi",
+    "distance_km": 3062.1,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 113.5,
+    "base_delay_hours": 43.4,
+    "base_damage_rate": 0.3427
+  },
+  {
+    "corridor_id": "kombinasi-043",
+    "transport_mode": "kombinasi",
+    "distance_km": 1581.0,
+    "wave_exposure_tier": "Low",
+    "baseline_transit_hours": 63.25,
+    "base_delay_hours": 25.06,
+    "base_damage_rate": 0.2681
+  },
+  {
+    "corridor_id": "kombinasi-044",
+    "transport_mode": "kombinasi",
+    "distance_km": 2643.5,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 98.85,
+    "base_delay_hours": 38.68,
+    "base_damage_rate": 0.3419
+  },
+  {
+    "corridor_id": "kombinasi-045",
+    "transport_mode": "kombinasi",
+    "distance_km": 1344.9,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 54.09,
+    "base_delay_hours": 31.26,
+    "base_damage_rate": 0.3808
+  },
+  {
+    "corridor_id": "kombinasi-046",
+    "transport_mode": "kombinasi",
+    "distance_km": 1112.1,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 46.41,
+    "base_delay_hours": 30.57,
+    "base_damage_rate": 0.3635
+  },
+  {
+    "corridor_id": "kombinasi-047",
+    "transport_mode": "kombinasi",
+    "distance_km": 1197.0,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 50.35,
+    "base_delay_hours": 23.63,
+    "base_damage_rate": 0.3158
+  },
+  {
+    "corridor_id": "kombinasi-048",
+    "transport_mode": "kombinasi",
+    "distance_km": 3887.4,
+    "wave_exposure_tier": "High",
+    "baseline_transit_hours": 140.52,
+    "base_delay_hours": 57.02,
+    "base_damage_rate": 0.3952
+  },
+  {
+    "corridor_id": "kombinasi-049",
+    "transport_mode": "kombinasi",
+    "distance_km": 1073.4,
+    "wave_exposure_tier": "Medium",
+    "baseline_transit_hours": 47.29,
+    "base_delay_hours": 24.25,
+    "base_damage_rate": 0.2947
+  }
+]

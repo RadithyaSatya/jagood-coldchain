@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+services/ai/route-planner/.env
+services/ai/route-planner/app_cache.db
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Docker / infrastructure
+infrastructure/.env
+
+# OS
+.DS_Store
+Thumbs.db

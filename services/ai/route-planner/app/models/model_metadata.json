@@ -1,0 +1,39 @@
+{
+  "feature_columns": [
+    "commodity_type",
+    "transport_mode",
+    "weather_condition",
+    "wave_category",
+    "commodity_temp_ideal_c",
+    "commodity_shelf_life_hours",
+    "commodity_delay_tolerance_hours",
+    "distance_km",
+    "estimated_duration_hours",
+    "wave_height_m",
+    "wind_speed_kmh",
+    "port_status_flag",
+    "historical_delay_avg_hours",
+    "historical_damage_rate",
+    "departure_hour"
+  ],
+  "class_order": [
+    "Low",
+    "Medium",
+    "High"
+  ],
+  "tau_high": 0.9997809529304504,
+  "high_upweight": 1.75,
+  "target_recall_high": 0.8,
+  "validation_recall_high": 0.9923664122137404,
+  "train_rows": 9361,
+  "val_rows": 1652,
+  "test_rows": 2754,
+  "train_date_range": [
+    "2024-08-05 00:00:00",
+    "2025-12-09 00:00:00"
+  ],
+  "test_date_range": [
+    "2026-03-04 00:00:00",
+    "2026-07-25 00:00:00"
+  ]
+}
