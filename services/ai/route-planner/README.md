@@ -60,10 +60,38 @@ hard-blocking it).
 - **`port_status_flag`** is a proxy derived from BMKG wave-category
   forecasts, not an official real-time port operational status (no public
   Inaportnet API exists for this).
+- **`port_ambient_temp_c`** (real BMKG air temperature at the hotter
+  embark/disembark port) is a proxy for reefer/equipment stress risk during
+  port dwell time -- it is *not* the cargo's actual temperature, and there is
+  no data source for real refrigeration-unit reliability. Its contribution to
+  the model is intentionally modest (feature importance ~0.001-0.0014) for
+  this reason; land-only routes get a neutral default (30.0C) that adds no
+  risk.
 - The public OpenRouteService instance has occasional road-graph data gaps
   in Indonesia (observed: a 13km Jakarta hop resolving to a 1500km+ detour).
   Route legs are sanity-checked against straight-line distance and replaced
   with a distance-based estimate when implausible; affected candidates are
   marked `"data_quality": "estimated"` in the API response.
+- **`risk_explanation_summary`/`risk_explanation_factors`** (FR-8, per-route
+  explainability) are generated from SHAP values computed in the model's raw
+  margin (pre-softmax) space, then combined with the same 0.5/1.0 weights as
+  `risk_probability`. This is a practical approximation for ranking *which*
+  features drove a multi-class tree model's prediction and in which
+  direction -- margin-space contributions don't sum linearly into a
+  probability-space metric the way they do in margin space itself, so treat
+  it as a qualitative explanation, not an exact probability decomposition.
 - BMKG and OpenRouteService responses are cached (Postgres, a few hours TTL)
   to stay within free-tier rate limits during a live demo.
+- **`cold_chain_equipment: "pasif"`** (no active reefer) simulates cargo
+  temperature against real Open-Meteo ambient air temperature along the
+  route (exponential heat-transfer model, Q10=2.5 shelf-life acceleration
+  above the commodity's ideal temp). This is the physically-appropriate case
+  for the Q10 principle -- unlike `port_ambient_temp_c` above, cargo
+  temperature genuinely tracks ambient conditions here since there's no
+  active cooling. Default remains `"reefer"` (today's behavior, unaffected,
+  zero added latency/external-API risk). Assumptions worth flagging: initial
+  cargo temp is assumed at the commodity's ideal on departure (proper
+  pre-cooling), insulation quality (`baik`/`sedang`/`buruk`) maps to a fixed
+  heat-transfer constant rather than a measured value, and no ice-pack/
+  phase-change reserve is modeled (a real passive cooler with ice packs
+  would resist warming longer than this model predicts).

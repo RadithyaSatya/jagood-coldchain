@@ -123,60 +123,77 @@ def _entry_to_conditions(entry: dict) -> dict:
     }
 
 
+def _entry_to_ambient_temp(entry: dict) -> float | None:
+    """Only the pelabuhan (port) endpoint carries temp_min/temp_max -- perairan
+    (open water) entries don't, so this returns None there."""
+    temp_min, temp_max = entry.get("temp_min"), entry.get("temp_max")
+    if temp_min is None or temp_max is None:
+        return None
+    return (temp_min + temp_max) / 2
+
+
 async def get_port_conditions(client: httpx.AsyncClient, port: Port, target_time: dt.datetime) -> dict:
     pelabuhan_index = await get_pelabuhan_file_index(client)
     filename = find_nearest_pelabuhan_file(port.lat, port.lon, pelabuhan_index)
     data = await _fetch_json_cached(client, f"/pelabuhan/{filename}", f"pelabuhan:{filename}", settings.bmkg_cache_ttl_seconds)
     entry = select_forecast_entry(data["data"], target_time)
-    return _entry_to_conditions(entry)
+    conditions = _entry_to_conditions(entry)
+    conditions["ambient_temp_c"] = _entry_to_ambient_temp(entry)
+    return conditions
+
+
+_DEFAULT_SEA_CONDITIONS = {
+    "weather_condition": "Cerah",
+    "wave_category": "Tenang",
+    "wave_height_m": 0.0,
+    "wind_speed_kmh": 0.0,
+    "port_status_flag": 1,
+    "hotspot_lat": None,
+    "hotspot_lon": None,
+}
 
 
 async def get_sea_leg_conditions(
     client: httpx.AsyncClient, waypoints: list[tuple[float, float]], target_time: dt.datetime
 ) -> dict:
     """Worst-case aggregation across every maritime region a sea leg's sampled
-    waypoints (lat, lon) fall into."""
+    waypoints (lat, lon) fall into. Also pinpoints the (lat, lon) of whichever
+    sampled waypoint carried the worst wave category, so the frontend can plot
+    exactly where along the route the risk is, not just report a route-level
+    number."""
     regions_geojson = await get_perairan_regions_geojson(client)
     file_index = await get_perairan_file_index(client)
 
-    codes = {find_region_code_for_point(lat, lon, regions_geojson) for lat, lon in waypoints}
-    codes.discard(None)
+    code_cache: dict[str, dict] = {}
+    point_conditions: list[tuple[float, float, dict]] = []
 
-    if not codes:
-        return {
-            "weather_condition": "Cerah",
-            "wave_category": "Tenang",
-            "wave_height_m": 0.0,
-            "wind_speed_kmh": 0.0,
-            "port_status_flag": 1,
-        }
-
-    conditions = []
-    for code in codes:
-        filename = file_index.get(code)
-        if filename is None:
+    for lat, lon in waypoints:
+        code = find_region_code_for_point(lat, lon, regions_geojson)
+        if code is None:
             continue
-        data = await _fetch_json_cached(
-            client, f"/perairan/{filename}", f"perairan:{filename}", settings.bmkg_cache_ttl_seconds
-        )
-        entry = select_forecast_entry(data["data"], target_time)
-        conditions.append(_entry_to_conditions(entry))
+        if code not in code_cache:
+            filename = file_index.get(code)
+            if filename is None:
+                continue
+            data = await _fetch_json_cached(
+                client, f"/perairan/{filename}", f"perairan:{filename}", settings.bmkg_cache_ttl_seconds
+            )
+            entry = select_forecast_entry(data["data"], target_time)
+            code_cache[code] = _entry_to_conditions(entry)
+        point_conditions.append((lat, lon, code_cache[code]))
 
-    if not conditions:
-        return {
-            "weather_condition": "Cerah",
-            "wave_category": "Tenang",
-            "wave_height_m": 0.0,
-            "wind_speed_kmh": 0.0,
-            "port_status_flag": 1,
-        }
+    if not point_conditions:
+        return dict(_DEFAULT_SEA_CONDITIONS)
 
-    worst_cat = worst_wave_category([c["wave_category"] for c in conditions])
-    worst = max(conditions, key=lambda c: WAVE_CATEGORY_ORDER.index(c["wave_category"]))
+    worst_lat, worst_lon, worst_cond = max(
+        point_conditions, key=lambda p: WAVE_CATEGORY_ORDER.index(p[2]["wave_category"])
+    )
     return {
-        "weather_condition": worst["weather_condition"],
-        "wave_category": worst_cat,
-        "wave_height_m": max(c["wave_height_m"] for c in conditions),
-        "wind_speed_kmh": max(c["wind_speed_kmh"] for c in conditions),
-        "port_status_flag": derive_port_status_flag(worst_cat),
+        "weather_condition": worst_cond["weather_condition"],
+        "wave_category": worst_cond["wave_category"],
+        "wave_height_m": max(c["wave_height_m"] for _, _, c in point_conditions),
+        "wind_speed_kmh": max(c["wind_speed_kmh"] for _, _, c in point_conditions),
+        "port_status_flag": derive_port_status_flag(worst_cond["wave_category"]),
+        "hotspot_lat": worst_lat,
+        "hotspot_lon": worst_lon,
     }

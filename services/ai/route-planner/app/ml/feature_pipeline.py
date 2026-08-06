@@ -13,7 +13,7 @@ from app.services.commodity_service import temp_sensitivity_numeric
 CLASS_ORDER = ["Low", "Medium", "High"]
 CLASS_TO_INDEX = {c: i for i, c in enumerate(CLASS_ORDER)}
 
-CATEGORICAL_FEATURES = ["commodity_type", "transport_mode", "weather_condition", "wave_category"]
+CATEGORICAL_FEATURES = ["commodity_type", "transport_mode", "weather_condition", "wave_category", "cold_chain_equipment"]
 NUMERIC_FEATURES = [
     "commodity_temp_ideal_c",
     "commodity_shelf_life_hours",
@@ -26,8 +26,16 @@ NUMERIC_FEATURES = [
     "historical_delay_avg_hours",
     "historical_damage_rate",
     "departure_hour",
+    "port_ambient_temp_c",
+    "max_cargo_temp_excess_c",
 ]
-ENGINEERED_FEATURES = ["wave_temp_interaction"]
+ENGINEERED_FEATURES = ["wave_temp_interaction", "port_temp_interaction", "cold_chain_temp_interaction"]
+
+# Ambient temp at a port only matters once it's unusually hot enough to start
+# stressing reefer/equipment reliability -- not the commodity's own ideal
+# setpoint (which would make frozen goods max out this term regardless of
+# real conditions). See services/enrichment_service.py's PORT_AMBIENT_TEMP_DEFAULT_C.
+PORT_HEAT_STRESS_THRESHOLD_C = 33.0
 
 ALL_INPUT_COLUMNS = CATEGORICAL_FEATURES + NUMERIC_FEATURES
 
@@ -48,6 +56,9 @@ def add_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     sensitivity = df["commodity_type"].map(temp_sensitivity_numeric)
     df["wave_temp_interaction"] = df["wave_height_m"] * sensitivity
+    port_heat_stress = (df["port_ambient_temp_c"] - PORT_HEAT_STRESS_THRESHOLD_C).clip(lower=0)
+    df["port_temp_interaction"] = port_heat_stress * sensitivity
+    df["cold_chain_temp_interaction"] = df["max_cargo_temp_excess_c"] * sensitivity
     return df
 
 

@@ -64,7 +64,17 @@ def rank_candidates(enriched_candidates: list[dict]) -> dict:
     df = pd.concat([df.reset_index(drop=True), predictions.reset_index(drop=True)], axis=1)
     df["trigger_reason"] = df.apply(_trigger_reason, axis=1)
 
-    df = df.sort_values(["risk_probability", "estimated_duration_hours"]).reset_index(drop=True)
+    # Ranked purely by estimated travel time -- risk_level/risk_probability and
+    # trigger_reason are still computed and shown, but no longer affect
+    # ordering (a deliberate product choice; this departs from PRD FR-5/FR-6's
+    # risk-first ranking).
+    df = df.sort_values(["estimated_duration_hours"]).reset_index(drop=True)
+
+    from app.services.explanation_service import compute_explanations
+
+    explanations = compute_explanations(df)
+    df["risk_explanation_summary"] = [e["summary"] for e in explanations]
+    df["risk_explanation_factors"] = [e["factors"] for e in explanations]
 
     records = df.to_dict("records")
     return {

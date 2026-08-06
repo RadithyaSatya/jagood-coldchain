@@ -18,7 +18,19 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from app.ml.feature_pipeline import PORT_HEAT_STRESS_THRESHOLD_C  # noqa: E402
 from app.services.commodity_service import list_commodities, temp_sensitivity_numeric  # noqa: E402
+from app.services.enrichment_service import PORT_AMBIENT_TEMP_DEFAULT_C  # noqa: E402
+from app.services.temperature_service import (  # noqa: E402
+    INSULATION_K_PER_HOUR,
+    simulate_cargo_temperature,
+    synthetic_ambient_temp_c,
+)
+
+COLD_CHAIN_EQUIPMENT_OPTIONS = ["reefer", "pasif"]
+COLD_CHAIN_EQUIPMENT_WEIGHTS = [0.7, 0.3]
+INSULATION_QUALITY_OPTIONS = ["baik", "sedang", "buruk"]
+CARGO_TEMP_SAMPLE_POINTS = 6
 
 CORRIDORS_PATH = Path(__file__).resolve().parent / "synthetic_corridors.json"
 OUTPUT_PATH = Path(__file__).resolve().parent.parent / "app" / "data" / "synthetic_historical.csv"
@@ -120,10 +132,16 @@ def generate_rows(rng: np.random.Generator, corridors: list[Corridor], commoditi
             commodity = commodities[rng.integers(0, len(commodities))]
             temp_sensitivity = commodity["temp_sensitivity_level"]
             temp_sensitivity_weight = temp_sensitivity_numeric(commodity["commodity_type"])
+            commodity_temp_ideal_c = (commodity["temp_ideal_min_c"] + commodity["temp_ideal_max_c"]) / 2
 
             offset_days = int(rng.integers(0, TIMELINE_MONTHS * 30))
             shipment_date = start + pd.Timedelta(days=offset_days)
             departure_hour = int(rng.integers(0, 24))
+
+            cold_chain_equipment = rng.choice(COLD_CHAIN_EQUIPMENT_OPTIONS, p=COLD_CHAIN_EQUIPMENT_WEIGHTS)
+            insulation_quality = (
+                rng.choice(INSULATION_QUALITY_OPTIONS) if cold_chain_equipment == "pasif" else "sedang"
+            )
 
             if is_sea_exposed:
                 shape, scale = WAVE_GAMMA_PARAMS[corridor.wave_exposure_tier]
@@ -132,12 +150,16 @@ def generate_rows(rng: np.random.Generator, corridors: list[Corridor], commoditi
                 weather_condition = sample_weather(rng, SEA_WEATHER_BY_WAVE_CAT[wave_category])
                 wind_speed_kmh = float(np.clip(wave_height_m * 10 + rng.normal(0, 5), 5, 110))
                 port_status_flag = 0 if wave_category in EXTREME_WAVE_CATEGORIES else 1
+                # Port stop -- worst-case (hottest) of embark/disembark, mirroring
+                # enrichment_service._resolve_port_ambient_temp_c at serving time.
+                port_ambient_temp_c = float(np.clip(rng.normal(29, 3), 22, 38))
             else:
                 wave_height_m = 0.0
                 wave_category = "Tenang"
                 weather_condition = sample_weather(rng, LAND_WEATHER_DIST)
                 wind_speed_kmh = float(np.clip(rng.normal(15, 8), 5, 60))
                 port_status_flag = 1
+                port_ambient_temp_c = PORT_AMBIENT_TEMP_DEFAULT_C
 
             estimated_duration_hours = max(
                 0.5, corridor.baseline_transit_hours * (1 + rng.normal(0, 0.05))
@@ -152,12 +174,49 @@ def generate_rows(rng: np.random.Generator, corridors: list[Corridor], commoditi
             )
 
             wave_severity_score = WAVE_CATEGORY_ORDER.index(wave_category) / (len(WAVE_CATEGORY_ORDER) - 1)
-            shelf_life_ratio = min(1.0, shipment_delay_hours / commodity["shelf_life_hours_at_ideal_temp"])
+            port_heat_stress = max(0.0, port_ambient_temp_c - PORT_HEAT_STRESS_THRESHOLD_C) / 10.0
+
+            if cold_chain_equipment == "pasif":
+                # Without active refrigeration, cargo is exposed to ambient heat for
+                # the *whole* transit (not just the delayed portion) -- simulate the
+                # same physics enrichment_service._resolve_cargo_temperature uses at
+                # serving time, over a synthetic ambient profile (no live API calls
+                # for 14k+ synthetic rows).
+                total_transit_hours = estimated_duration_hours + shipment_delay_hours
+                n = CARGO_TEMP_SAMPLE_POINTS
+                ambient_samples = [
+                    (
+                        total_transit_hours * i / max(1, n - 1),
+                        synthetic_ambient_temp_c(
+                            shipment_date.month, (departure_hour + total_transit_hours * i / max(1, n - 1)) % 24
+                        ),
+                    )
+                    for i in range(n)
+                ]
+                sim = simulate_cargo_temperature(
+                    initial_temp_c=commodity_temp_ideal_c,
+                    ambient_samples=ambient_samples,
+                    total_duration_hours=total_transit_hours,
+                    ideal_c=commodity_temp_ideal_c,
+                    k_per_hour=INSULATION_K_PER_HOUR[insulation_quality],
+                )
+                max_cargo_temp_c = sim["max_cargo_temp_c"]
+                effective_consumed_hours = sim["effective_consumed_hours"]
+            else:
+                max_cargo_temp_c = commodity_temp_ideal_c
+                effective_consumed_hours = shipment_delay_hours
+
+            max_cargo_temp_excess_c = round(max(0.0, max_cargo_temp_c - commodity_temp_ideal_c), 2)
+            shelf_life_ratio = min(1.0, effective_consumed_hours / commodity["shelf_life_hours_at_ideal_temp"])
+            temp_excess_score = min(1.0, max_cargo_temp_excess_c / 20.0)
+
             shipment_damage_rate = float(
                 np.clip(
                     corridor.base_damage_rate
                     + 0.15 * temp_sensitivity_weight * shelf_life_ratio
                     + 0.10 * wave_severity_score
+                    + 0.08 * temp_sensitivity_weight * port_heat_stress
+                    + 0.25 * temp_sensitivity_weight * temp_excess_score
                     + rng.beta(2, 20) * 0.3,
                     0.0,
                     0.95,
@@ -178,7 +237,7 @@ def generate_rows(rng: np.random.Generator, corridors: list[Corridor], commoditi
                     "route_id": corridor.corridor_id,
                     "synthetic_shipment_date": shipment_date.strftime("%Y-%m-%d"),
                     "commodity_type": commodity["commodity_type"],
-                    "commodity_temp_ideal_c": (commodity["temp_ideal_min_c"] + commodity["temp_ideal_max_c"]) / 2,
+                    "commodity_temp_ideal_c": commodity_temp_ideal_c,
                     "commodity_shelf_life_hours": commodity["shelf_life_hours_at_ideal_temp"],
                     "commodity_delay_tolerance_hours": commodity["delay_tolerance_hours"],
                     "transport_mode": corridor.transport_mode,
@@ -189,6 +248,9 @@ def generate_rows(rng: np.random.Generator, corridors: list[Corridor], commoditi
                     "wind_speed_kmh": round(wind_speed_kmh, 2),
                     "weather_condition": weather_condition,
                     "port_status_flag": port_status_flag,
+                    "port_ambient_temp_c": round(port_ambient_temp_c, 2),
+                    "cold_chain_equipment": cold_chain_equipment,
+                    "max_cargo_temp_excess_c": max_cargo_temp_excess_c,
                     "historical_delay_avg_hours": corridor.base_delay_hours,
                     "historical_damage_rate": corridor.base_damage_rate,
                     "departure_hour": departure_hour,
@@ -199,7 +261,7 @@ def generate_rows(rng: np.random.Generator, corridors: list[Corridor], commoditi
     return rows
 
 
-def assign_risk_level(df: pd.DataFrame, low_threshold: float = 55.5, high_threshold: float = 78.8) -> pd.DataFrame:
+def assign_risk_level(df: pd.DataFrame, low_threshold: float = 62.1, high_threshold: float = 77.2) -> pd.DataFrame:
     def label(score: float) -> str:
         if score < low_threshold:
             return "Low"

@@ -41,7 +41,14 @@ async def predict_route(request: RouteRequest) -> dict:
         )
 
     shipment_id = request.resolved_shipment_id()
-    enriched = await enrich_all_candidates(candidates, request.commodity_type, request.departure_time, shipment_id)
+    enriched = await enrich_all_candidates(
+        candidates,
+        request.commodity_type,
+        request.departure_time,
+        shipment_id,
+        cold_chain_equipment=request.cold_chain_equipment,
+        insulation_quality=request.insulation_quality,
+    )
     ranked = rank_candidates(enriched)
 
     return {
