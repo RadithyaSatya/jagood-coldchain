@@ -1,8 +1,14 @@
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
 .venv/
 venv/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.env
 services/ai/route-planner/.env
 services/ai/route-planner/app_cache.db
 
@@ -10,6 +16,8 @@ services/ai/route-planner/app_cache.db
 frontend/node_modules/
 frontend/.next/
 frontend/out/
+apps/jagood-web/node_modules/
+apps/jagood-web/dist/
 
 # Docker / infrastructure
 infrastructure/.env

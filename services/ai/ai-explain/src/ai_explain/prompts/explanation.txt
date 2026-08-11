@@ -1,0 +1,11 @@
+Explain the following food cold-chain result.
+
+Output language: {language_name}
+Result source: {source}
+
+<shipment_data>
+{payload}
+</shipment_data>
+
+Prioritize the current condition or recommendation, the supporting facts, and the stated risk. Only include a suggested next action when it is directly supported by the supplied data. Return plain prose, not JSON.
+
