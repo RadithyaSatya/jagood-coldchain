@@ -41,11 +41,24 @@ services:
       AI_EXPLAIN_LLM_MODEL: "${OLLAMA_MODEL:-qwen3:4b-instruct}"
       AI_EXPLAIN_LLM_TIMEOUT_SECONDS: "300"
       AI_EXPLAIN_LLM_TEMPERATURE: "0.2"
+      AI_EXPLAIN_KNOWLEDGE_DIR: /home/app/knowledge
     ports:
       - "${AI_EXPLAIN_PORT:-8000}:8000"
     depends_on:
       ollama-model-init:
         condition: service_completed_successfully
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    build:
+      context: ./apps/jagood-web
+    restart: unless-stopped
+    ports:
+      - "${JAGOOD_WEB_PORT:-3000}:80"
+    depends_on:
+      ai-explain:
+        condition: service_healthy
     security_opt:
       - no-new-privileges:true
 

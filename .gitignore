@@ -8,3 +8,5 @@ __pycache__/
 .ruff_cache/
 htmlcov/
 .coverage
+apps/jagood-web/node_modules/
+apps/jagood-web/dist/
