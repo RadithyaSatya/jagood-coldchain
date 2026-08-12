@@ -49,7 +49,7 @@ async def predict_route(request: RouteRequest) -> dict:
         cold_chain_equipment=request.cold_chain_equipment,
         insulation_quality=request.insulation_quality,
     )
-    ranked = rank_candidates(enriched)
+    ranked = rank_candidates(enriched, request.ranking_preference)
 
     return {
         "shipment_id": shipment_id,

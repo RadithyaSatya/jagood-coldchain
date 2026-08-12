@@ -16,10 +16,24 @@ bmkg_cache = Table(
     Column("fetched_at", DateTime(timezone=True), nullable=False),
 )
 
-metadata.create_all(engine)
+_schema_ready = False
+
+
+def _ensure_schema() -> None:
+    """Creates the cache table on first actual use rather than at import time.
+    The offline training scripts import this module only transitively (via
+    enrichment_service -> temperature_service) for constants and the pure
+    temperature-simulation functions -- they never touch the cache, so they
+    must not require a reachable Postgres just to be importable."""
+    global _schema_ready
+    if _schema_ready:
+        return
+    metadata.create_all(engine)
+    _schema_ready = True
 
 
 def get_cached(cache_key: str, ttl_seconds: int) -> str | None:
+    _ensure_schema()
     with engine.connect() as conn:
         row = conn.execute(
             select(bmkg_cache.c.payload, bmkg_cache.c.fetched_at).where(bmkg_cache.c.cache_key == cache_key)
@@ -36,6 +50,7 @@ def get_cached(cache_key: str, ttl_seconds: int) -> str | None:
 
 
 def set_cached(cache_key: str, payload: str) -> None:
+    _ensure_schema()
     stmt = pg_insert(bmkg_cache).values(
         cache_key=cache_key, payload=payload, fetched_at=dt.datetime.now(dt.timezone.utc)
     )

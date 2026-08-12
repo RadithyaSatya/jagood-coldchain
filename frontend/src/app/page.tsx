@@ -36,6 +36,17 @@ function formatCoord(lat: number, lon: number): string {
   return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
 }
 
+function formatArrival(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "-";
+  return d.toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function AlternativeRouteCard({
   candidate,
   selected,
@@ -58,9 +69,10 @@ function AlternativeRouteCard({
         <span className="font-semibold">{MODE_LABELS[candidate.transport_mode] ?? candidate.transport_mode}</span>
         <RiskBadge level={candidate.risk_level} />
       </div>
-      <div className="mt-1 grid grid-cols-2 gap-2 text-sm text-zinc-600 sm:grid-cols-4 dark:text-zinc-400">
+      <div className="mt-1 grid grid-cols-2 gap-2 text-sm text-zinc-600 sm:grid-cols-3 dark:text-zinc-400">
         <div>Jarak: {candidate.distance_km.toFixed(0)} km</div>
         <div>Estimasi: {candidate.estimated_duration_hours.toFixed(1)} jam</div>
+        <div>Tiba: {formatArrival(candidate.estimated_arrival)}</div>
         <div>Skor: {(candidate.risk_probability * 100).toFixed(0)}%</div>
         <div>Data: {candidate.data_quality === "estimated" ? "Estimasi" : "Live"}</div>
       </div>
@@ -80,10 +92,15 @@ export default function Home() {
   const [transportModePreference, setTransportModePreference] = useState("semua");
   const [coldChainEquipment, setColdChainEquipment] = useState<"reefer" | "pasif">("reefer");
   const [insulationQuality, setInsulationQuality] = useState<"baik" | "sedang" | "buruk">("sedang");
+  const [rankingPreference, setRankingPreference] = useState<"risiko" | "kecepatan">("risiko");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PredictRouteResponse | null>(null);
+  // The preference the displayed result was actually produced with -- kept
+  // separate from rankingPreference so changing the selector without
+  // re-submitting can't mislabel how the listed routes were ordered.
+  const [resultRanking, setResultRanking] = useState<"risiko" | "kecepatan">("risiko");
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -124,6 +141,7 @@ export default function Home() {
           transport_mode_preference: transportModePreference,
           cold_chain_equipment: coldChainEquipment,
           insulation_quality: insulationQuality,
+          ranking_preference: rankingPreference,
         }),
       });
 
@@ -134,6 +152,7 @@ export default function Home() {
 
       const data: PredictRouteResponse = await res.json();
       setResult(data);
+      setResultRanking(rankingPreference);
       setSelectedRouteId(data.recommended_route.route_id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan tak terduga.");
@@ -151,8 +170,8 @@ export default function Home() {
           JaGOOD Smart Route Planner
         </h1>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Rute diurutkan berdasarkan estimasi waktu tempuh tercepat, dengan analisis risiko cold chain untuk setiap
-          rute -- klik rute di peta atau di daftar untuk membandingkan.
+          Rute diurutkan berdasarkan risiko kerusakan produk terendah (bukan sekadar tercepat), dengan analisis
+          cold chain untuk setiap rute -- klik rute di peta atau di daftar untuk membandingkan.
         </p>
 
         <div className="mt-6">
@@ -278,6 +297,18 @@ export default function Home() {
           </label>
 
           <label className="flex flex-col gap-1 text-sm">
+            Urutkan Rute Berdasarkan
+            <select
+              value={rankingPreference}
+              onChange={(e) => setRankingPreference(e.target.value as "risiko" | "kecepatan")}
+              className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
+            >
+              <option value="risiko">Risiko kerusakan terendah</option>
+              <option value="kecepatan">Waktu tempuh tercepat</option>
+            </select>
+          </label>
+
+          <label className="flex flex-col gap-1 text-sm">
             Peralatan Cold Chain
             <select
               value={coldChainEquipment}
@@ -323,7 +354,10 @@ export default function Home() {
           <div className="mt-6 space-y-6">
             <div>
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                Rute Direkomendasikan
+                Rute Direkomendasikan{" "}
+                <span className="font-normal normal-case tracking-normal">
+                  ({resultRanking === "risiko" ? "risiko terendah" : "tercepat"})
+                </span>
               </h2>
               <div
                 onClick={() => setSelectedRouteId(result.recommended_route.route_id)}
@@ -339,9 +373,10 @@ export default function Home() {
                   </span>
                   <RiskBadge level={result.recommended_route.risk_level} />
                 </div>
-                <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-zinc-600 sm:grid-cols-4 dark:text-zinc-400">
+                <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-zinc-600 sm:grid-cols-3 dark:text-zinc-400">
                   <div>Jarak: {result.recommended_route.distance_km.toFixed(0)} km</div>
                   <div>Estimasi: {result.recommended_route.estimated_duration_hours.toFixed(1)} jam</div>
+                  <div>Tiba: {formatArrival(result.recommended_route.estimated_arrival)}</div>
                   <div>Risiko: {(result.recommended_route.risk_probability * 100).toFixed(0)}%</div>
                   <div>Confidence: {(result.recommended_route.confidence_score * 100).toFixed(0)}%</div>
                 </div>

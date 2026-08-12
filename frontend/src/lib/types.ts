@@ -39,6 +39,7 @@ export interface RouteCandidate {
   transport_mode: string;
   distance_km: number;
   estimated_duration_hours: number;
+  estimated_arrival: string;
 
   risk_level: string;
   risk_probability: number;

@@ -47,6 +47,22 @@ extreme-weather case against the pipeline directly, validating FR-6
 (extreme conditions demote a candidate + set `trigger_reason` rather than
 hard-blocking it).
 
+## Route ranking (`ranking_preference`)
+
+`POST /predict-route` accepts `ranking_preference`:
+
+- **`"risiko"` (default)** -- ranks by the model's predicted cargo-damage risk
+  first, using travel time only to break ties between equally-risky routes.
+  This is PRD FR-5's risk-first ordering and the product's actual
+  differentiator: the recommended route is the *safest* one, which may well be
+  slower than the fastest available.
+- **`"kecepatan"`** -- ranks purely by travel time, i.e. what a general-purpose
+  route planner does. Risk is still predicted, explained and displayed; it just
+  doesn't affect ordering. Useful for showing the two side by side.
+
+An unrecognized value falls back to `"risiko"` rather than to speed, since
+silently ranking a cold-chain shipment by speed is the more dangerous failure.
+
 ## Known limitations for judges/reviewers
 
 - **Historical delay/damage data is synthetic**, generated from a rule-based
