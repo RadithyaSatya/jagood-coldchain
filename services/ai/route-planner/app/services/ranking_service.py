@@ -54,21 +54,35 @@ def _trigger_reason(row: pd.Series) -> str | None:
     return f"gelombang_{wave_slug}_{row['route_id']}"
 
 
-def rank_candidates(enriched_candidates: list[dict]) -> dict:
+RANKING_SORT_KEYS = {
+    # PRD FR-5's risk-first ordering and the product's actual differentiator:
+    # the lowest-risk route wins, and travel time only breaks ties between
+    # routes the model considers equally risky.
+    "risiko": ["risk_probability", "estimated_duration_hours"],
+    # Fastest-route ordering, i.e. what a general-purpose route planner does.
+    # Risk is still predicted, explained and displayed -- it just doesn't
+    # affect the ordering.
+    "kecepatan": ["estimated_duration_hours"],
+}
+DEFAULT_RANKING_PREFERENCE = "risiko"
+
+
+def rank_candidates(enriched_candidates: list[dict], ranking_preference: str = DEFAULT_RANKING_PREFERENCE) -> dict:
     """enriched_candidates: output of enrichment_service.enrich_all_candidates.
     Returns {"recommended_route": {...}, "alternative_routes": [{...}, ...]}
     matching PRD FR-7's response shape (plus a few extra internal fields the
-    API layer can drop before serialization)."""
+    API layer can drop before serialization).
+
+    ranking_preference selects the ordering (see RANKING_SORT_KEYS); anything
+    unrecognized falls back to the risk-first default rather than silently
+    ranking by speed, since that's the safer failure mode for cold chain."""
     df = pd.DataFrame(enriched_candidates)
     predictions = predict_risk(df)
     df = pd.concat([df.reset_index(drop=True), predictions.reset_index(drop=True)], axis=1)
     df["trigger_reason"] = df.apply(_trigger_reason, axis=1)
 
-    # Ranked purely by estimated travel time -- risk_level/risk_probability and
-    # trigger_reason are still computed and shown, but no longer affect
-    # ordering (a deliberate product choice; this departs from PRD FR-5/FR-6's
-    # risk-first ranking).
-    df = df.sort_values(["estimated_duration_hours"]).reset_index(drop=True)
+    sort_keys = RANKING_SORT_KEYS.get(ranking_preference, RANKING_SORT_KEYS[DEFAULT_RANKING_PREFERENCE])
+    df = df.sort_values(sort_keys).reset_index(drop=True)
 
     from app.services.explanation_service import compute_explanations
 

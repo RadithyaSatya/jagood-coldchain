@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 TransportModePreference = Literal["darat", "laut", "kombinasi", "semua"]
 ColdChainEquipment = Literal["reefer", "pasif"]
 InsulationQuality = Literal["baik", "sedang", "buruk"]
+RankingPreference = Literal["risiko", "kecepatan"]
 
 
 class Coordinate(BaseModel):
@@ -29,6 +30,13 @@ class RouteRequest(BaseModel):
     )
     insulation_quality: InsulationQuality = Field(
         default="sedang", description="Packaging insulation quality, only used when cold_chain_equipment='pasif'"
+    )
+    ranking_preference: RankingPreference = Field(
+        default="risiko",
+        description="'risiko' (default) = rank by predicted cargo-damage risk first, travel time only as a "
+        "tiebreaker -- the product's core differentiator vs. a generic fastest-route planner (PRD FR-5). "
+        "'kecepatan' = rank purely by travel time; risk is still predicted, explained and displayed, but "
+        "does not affect ordering.",
     )
 
     def resolved_shipment_id(self) -> str:
@@ -70,6 +78,11 @@ class RouteCandidate(BaseModel):
     transport_mode: str = Field(description="darat (land), laut/kombinasi (multimodal land+sea via port)")
     distance_km: float
     estimated_duration_hours: float
+    estimated_arrival: datetime = Field(
+        description="Projected arrival = the request's departure_time + estimated_duration_hours. Inherits that "
+        "estimate's uncertainty (and is only as good as the underlying ORS/searoute legs); it does not model "
+        "loading, customs or unscheduled stops."
+    )
 
     risk_level: str = Field(description="Low / Medium / High -- the model's final classification")
     risk_probability: float = Field(description="P(Medium)*0.5 + P(High)*1.0 -- continuous risk score used for ranking (0-1)")

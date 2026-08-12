@@ -157,6 +157,7 @@ async def enrich_candidate(
         "transport_mode": candidate["transport_mode"],
         "distance_km": candidate["distance_km"],
         "estimated_duration_hours": candidate["estimated_duration_hours"],
+        "estimated_arrival": departure_time + dt.timedelta(hours=candidate["estimated_duration_hours"]),
         "wave_height_m": conditions["wave_height_m"],
         "wave_category": conditions["wave_category"],
         "wind_speed_kmh": conditions["wind_speed_kmh"],
