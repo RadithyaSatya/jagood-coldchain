@@ -1,6 +1,5 @@
 ROUTE_PLANNER_DIR := services/ai/route-planner
 FRONTEND_DIR := frontend
-INFRA_DIR := infrastructure
 
 ifeq ($(OS),Windows_NT)
     VENV_BIN := .venv/Scripts
@@ -22,12 +21,12 @@ help:
 	@echo "validate           - run scenario validation against the route-planner pipeline"
 	@echo "clean              - remove venvs, node_modules, caches, and build output"
 	@echo ""
-	@echo "docker-up          - build and run postgres + backend + frontend in Docker (detached)"
+	@echo "docker-up          - build and run the complete Docker stack (detached)"
 	@echo "docker-up-db       - run only the Postgres container (for local, non-Docker backend dev)"
 	@echo "docker-down        - stop and remove the Docker containers"
 	@echo "docker-build       - rebuild Docker images"
 	@echo "docker-logs        - follow logs from all Docker containers"
-	@echo "docker-clean       - stop containers and delete the Postgres data volume"
+	@echo "docker-clean       - stop containers and delete Postgres and Ollama data volumes"
 
 install: install-backend install-frontend
 
@@ -64,21 +63,21 @@ clean:
 	rm -rf $(FRONTEND_DIR)/node_modules $(FRONTEND_DIR)/.next
 
 docker-up:
-	cd $(INFRA_DIR) && test -f .env || cp .env.example .env
-	cd $(INFRA_DIR) && docker compose up --build -d
+	test -f .env || cp .env.example .env
+	docker compose up --build -d
 
 docker-up-db:
-	cd $(INFRA_DIR) && test -f .env || cp .env.example .env
-	cd $(INFRA_DIR) && docker compose up -d postgres
+	test -f .env || cp .env.example .env
+	docker compose up -d postgres
 
 docker-down:
-	cd $(INFRA_DIR) && docker compose down
+	docker compose down
 
 docker-build:
-	cd $(INFRA_DIR) && docker compose build
+	docker compose build
 
 docker-logs:
-	cd $(INFRA_DIR) && docker compose logs -f
+	docker compose logs -f
 
 docker-clean:
-	cd $(INFRA_DIR) && docker compose down --volumes
+	docker compose down --volumes

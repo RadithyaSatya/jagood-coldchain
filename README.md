@@ -31,7 +31,7 @@ the language model, while shipment calculations remain owned by the application.
 The API accepts up to 10 previous messages and an optional structured shipment context:
 
 ```bash
-curl http://localhost:8000/v1/chat \
+curl http://localhost:8001/v1/chat \
   -H 'Content-Type: application/json' \
   -d '{
     "language": "id",
@@ -98,20 +98,36 @@ The AI Explain service and scoped cold-chain chatbot are available at
 chatbot is available at [`apps/jagood-web/`](apps/jagood-web/) while frontend integration is in
 progress.
 
-## Run the Jagood Web App
+## Run the Complete Stack
 
-Start the complete stack from the repository root:
+Docker Compose at the repository root runs PostgreSQL, Smart Route Planner,
+the planner dashboard, Ollama, AI Explain, and the chatbot together.
+
+Optionally copy the environment template and fill in `ORS_API_KEY` for real
+OpenRouteService road routing:
+
+```bash
+cp .env.example .env
+```
+
+Then start everything from the repository root:
 
 ```bash
 docker compose up --build
 ```
 
-Open `http://localhost:3000` for the Jagood React application. The first available module is the
-cold-chain chatbot; the app structure can also host monitoring, simulation, and planning modules
-later. The web container proxies `/api` requests to the AI service, so no browser CORS
-configuration is required. Set `JAGOOD_WEB_PORT` to expose the application on a different port.
+The first run can take several minutes because Docker builds the application images and Ollama
+downloads the configured language model.
 
-For frontend development, keep the API running on port 8000 and run:
+- Smart Route Planner: `http://localhost:3000`
+- Route Planner API docs: `http://localhost:8000/docs`
+- Cold-chain chatbot: `http://localhost:3001`
+- AI Explain API docs: `http://localhost:8001/docs`
+
+Run `docker compose down` to stop the complete stack. Port numbers and the Ollama model can be
+changed in `.env`; see [`.env.example`](.env.example) for all supported settings.
+
+For standalone chatbot frontend development, keep AI Explain running on port 8001 and run:
 
 ```bash
 cd apps/jagood-web
