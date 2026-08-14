@@ -62,6 +62,8 @@ def run_forced_extreme_weather_scenario() -> None:
         "commodity_delay_tolerance_hours": 4,
         "departure_hour": 8,
         "data_quality": "live",
+        "cold_chain_equipment": "reefer",
+        "max_cargo_temp_excess_c": 0.0,
     }
     candidates = [
         {
@@ -77,6 +79,7 @@ def run_forced_extreme_weather_scenario() -> None:
             "port_status_flag": 1,
             "historical_delay_avg_hours": 6.0,
             "historical_damage_rate": 0.05,
+            "port_ambient_temp_c": 30.0,
         },
         {
             **shared,
@@ -91,6 +94,7 @@ def run_forced_extreme_weather_scenario() -> None:
             "port_status_flag": 0,
             "historical_delay_avg_hours": 20.0,
             "historical_damage_rate": 0.3,
+            "port_ambient_temp_c": 29.0,
         },
     ]
     ranked = rank_candidates(candidates)
