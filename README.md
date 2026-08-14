@@ -101,7 +101,8 @@ progress.
 ## Run the Complete Stack
 
 Docker Compose at the repository root runs PostgreSQL, Smart Route Planner,
-the planner dashboard, Ollama, AI Explain, and the chatbot together.
+the planner dashboard, AI Explain, and the chatbot together. Ollama (the LLM
+runtime behind AI Explain) is *not* containerized by default -- see why below.
 
 Optionally copy the environment template and fill in `ORS_API_KEY` for real
 OpenRouteService road routing:
@@ -110,22 +111,46 @@ OpenRouteService road routing:
 cp .env.example .env
 ```
 
-Then start everything from the repository root:
+### Option A -- native Ollama on the host (recommended on macOS)
+
+Docker Desktop/OrbStack on macOS run Linux containers inside a VM with no access to Metal, so
+a containerized Ollama is CPU-only -- workable for a health check, far too slow for interactive
+chat (minutes per reply instead of seconds). Running Ollama natively lets it use the host GPU:
 
 ```bash
+brew install ollama
+brew services start ollama
+ollama pull qwen3:4b-instruct   # or whatever OLLAMA_MODEL is set to in .env
+
 docker compose up --build
 ```
 
-The first run can take several minutes because Docker builds the application images and Ollama
-downloads the configured language model.
+`ai-explain` reaches the host's Ollama through `host.docker.internal:11434`.
+
+### Option B -- containerized Ollama (Linux / no local Ollama install)
+
+For a judge/reviewer who'd rather not install anything beyond Docker, CI, or a Linux host with
+NVIDIA Container Toolkit GPU passthrough configured, use the override that restores Ollama as a
+compose service:
+
+```bash
+docker compose -f compose.yaml -f compose.ollama-container.yml up --build
+```
+
+This pulls the model into the container on first run (can take several minutes) and works out of
+the box, but is CPU-only unless you uncomment the NVIDIA `deploy.resources` block in
+[`compose.ollama-container.yml`](compose.ollama-container.yml) on a Linux host with a GPU.
+
+### Both options
 
 - Smart Route Planner: `http://localhost:3000`
 - Route Planner API docs: `http://localhost:8000/docs`
 - Cold-chain chatbot: `http://localhost:3001`
 - AI Explain API docs: `http://localhost:8001/docs`
 
-Run `docker compose down` to stop the complete stack. Port numbers and the Ollama model can be
-changed in `.env`; see [`.env.example`](.env.example) for all supported settings.
+Run `docker compose down` (add the same `-f` flags as above if you used Option B) to stop the
+stack. Port numbers and the Ollama model can be changed in `.env`; see
+[`.env.example`](.env.example) for all supported settings.
 
 For standalone chatbot frontend development, keep AI Explain running on port 8001 and run:
 
