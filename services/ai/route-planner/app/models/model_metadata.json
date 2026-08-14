@@ -24,7 +24,7 @@
     "Medium",
     "High"
   ],
-  "tau_high": 0.9997097849845886,
+  "tau_high": 0.9996554851531982,
   "high_upweight": 1.75,
   "target_recall_high": 0.8,
   "validation_recall_high": 0.9975062344139651,
