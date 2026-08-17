@@ -1,0 +1,35 @@
+{
+  "route_request": {
+    "shipment_id": "shipment-golden-demo",
+    "origin": {
+      "lat": -6.2088,
+      "lon": 106.8456
+    },
+    "destination": {
+      "lat": -7.2575,
+      "lon": 112.7521
+    },
+    "commodity_type": "Salmon Segar",
+    "departure_time": "2026-08-15T08:00:00Z",
+    "ranking_preference": "risiko",
+    "transport_mode_preference": "darat",
+    "cold_chain_equipment": "reefer"
+  },
+  "scenario_changes": {
+    "delay_hours": 12,
+    "cold_chain_equipment": "pasif",
+    "insulation_quality": "buruk"
+  },
+  "expected": {
+    "route_data_quality": "estimated",
+    "baseline_risk_level": "Low",
+    "simulated_risk_levels": [
+      "Medium",
+      "High"
+    ],
+    "minimum_risk_delta": 0.15,
+    "expected_delay_hours": 12,
+    "ai_intent": "scenario_explanation",
+    "ai_handled_by": "fallback"
+  }
+}
