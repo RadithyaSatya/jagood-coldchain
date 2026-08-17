@@ -45,6 +45,8 @@ def test_predict_route_end_to_end_jakarta_surabaya(monkeypatch):
     assert recommended["transport_mode"] in {"darat", "laut", "kombinasi"}
     assert recommended["distance_km"] > 0
     assert recommended["data_quality"] == "estimated"
+    assert recommended["environmental_data_quality"] == "configured"
+    assert recommended["cargo_temperature_data_quality"] == "assumed"
     assert "risk_explanation_summary" in recommended
 
     # FR-5: the recommended route must be at least as low-risk as every

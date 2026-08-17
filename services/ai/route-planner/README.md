@@ -141,6 +141,10 @@ The response includes the full baseline and simulated recommended routes,
   it as a qualitative explanation, not an exact probability decomposition.
 - BMKG and OpenRouteService responses are cached (Postgres, a few hours TTL)
   to stay within free-tier rate limits during a live demo.
+- Expected BMKG network or malformed-response failures use neutral maritime/port values instead
+  of failing the whole request. `environmental_data_quality` distinguishes `forecast`, `partial`,
+  `fallback`, and land-only `configured` inputs; these fallbacks are continuity mechanisms, not
+  equivalent observations.
 - **`cold_chain_equipment: "pasif"`** (no active reefer) simulates cargo
   temperature against Open-Meteo forecast ambient air temperature along the
   route (exponential heat-transfer model, Q10=2.5 shelf-life acceleration

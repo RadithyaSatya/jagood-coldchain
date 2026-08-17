@@ -9,6 +9,14 @@ ColdChainEquipment = Literal["reefer", "pasif"]
 InsulationQuality = Literal["baik", "sedang", "buruk"]
 RankingPreference = Literal["risiko", "kecepatan"]
 DataClassification = Literal["REAL", "REFERENCE", "DERIVED", "SYNTHETIC", "DEMO"]
+EnvironmentalDataQuality = Literal["forecast", "partial", "fallback", "configured"]
+CargoTemperatureDataQuality = Literal[
+    "assumed",
+    "forecast",
+    "mixed",
+    "synthetic",
+    "unavailable",
+]
 
 
 class Coordinate(BaseModel):
@@ -93,14 +101,23 @@ class RouteCandidate(BaseModel):
     risk_probability: float = Field(description="P(Medium)*0.5 + P(High)*1.0 -- continuous risk score used for ranking (0-1)")
     confidence_score: float = Field(description="Model's confidence in its own top prediction (0-1)")
     trigger_reason: str | None = Field(default=None, description="Set when extreme wave/port conditions demoted this route (FR-6); null otherwise")
-    data_quality: str = Field(default="live", description="'live' = real ORS/BMKG data; 'estimated' = a routing leg fell back to a straight-line estimate")
+    data_quality: str = Field(
+        default="live",
+        description="Routing provenance only: 'live' means no routing leg used the distance fallback; "
+        "'estimated' means at least one leg used a straight-line estimate. This does not describe "
+        "weather or cargo-temperature inputs.",
+    )
+    environmental_data_quality: EnvironmentalDataQuality = Field(
+        description="'forecast', 'partial', 'fallback', or 'configured' provenance for weather, "
+        "wave, and port-temperature inputs.",
+    )
 
     wave_category: str = Field(description="BMKG wave severity: Tenang < Rendah < Sedang < Tinggi < Sangat Tinggi < Ekstrem < Sangat Ekstrem")
     wave_height_m: float = Field(description="Forecast wave height in meters along this route (0 for land routes)")
     wind_speed_kmh: float
     weather_condition: str = Field(description="BMKG weather description (e.g. Cerah, Berawan, Hujan Lebat, Hujan Badai)")
     port_status_flag: int = Field(description="1 = normal, 0 = port/sea leg at risk of closure due to extreme wave conditions")
-    port_ambient_temp_c: float = Field(description="Real BMKG ambient air temperature (deg C) at the hotter of the embark/disembark port stops -- a proxy for reefer/equipment stress risk during port dwell time, not the cargo's own temperature. 30.0 default for land-only routes (no port stop).")
+    port_ambient_temp_c: float = Field(description="BMKG forecast ambient air temperature (deg C) at the hotter of the embark/disembark port stops when available -- a proxy for reefer/equipment stress risk during port dwell time, not the cargo's own temperature. 30.0 fallback/default is used when unavailable or for land-only routes.")
     historical_delay_avg_hours: float = Field(description="Estimated typical delay for this route's distance/mode/exposure profile (model feature, not this shipment's actual delay)")
     historical_damage_rate: float = Field(description="Estimated typical cargo damage rate for this route profile (0-1, model feature)")
 
@@ -108,6 +125,10 @@ class RouteCandidate(BaseModel):
     commodity_temp_ideal_c: float = Field(description="Commodity's ideal storage temperature (deg C, midpoint of its ideal range) -- the reference threshold for max_cargo_temp_excess_c and the cargo_temp_profile chart")
     max_cargo_temp_excess_c: float = Field(description="Peak simulated cargo temperature above the commodity's ideal temp during the journey (deg C). Always 0 for reefer.")
     cargo_temp_profile: list[CargoTempPoint] = Field(default_factory=list, description="Simulated cargo temperature over the journey (empty for reefer)")
+    cargo_temperature_data_quality: CargoTemperatureDataQuality = Field(
+        description="'assumed' for reefer, or 'forecast', 'mixed', 'synthetic', or 'unavailable' "
+        "for passive-cargo ambient inputs.",
+    )
 
     geometry: list[list[float]] = Field(default_factory=list, description="Route path as [lat, lon] pairs, in travel order, for map rendering")
     risk_hotspot: RiskHotspot | None = Field(default=None, description="Where along the route the worst conditions were found, if any")

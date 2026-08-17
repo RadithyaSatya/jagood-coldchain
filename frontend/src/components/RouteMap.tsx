@@ -172,6 +172,8 @@ export default function RouteMap({
                   Gelombang: {route.wave_category} ({route.wave_height_m.toFixed(2)} m) &middot; Cuaca: {route.weather_condition}
                   <br />
                   Angin: {route.wind_speed_kmh.toFixed(0)} km/j
+                  <br />
+                  Sumber lingkungan: {route.environmental_data_quality}
                   {route.port_pair && (
                     <>
                       <br />

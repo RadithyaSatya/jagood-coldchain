@@ -92,4 +92,5 @@ def test_passive_cooling_disruption_produces_material_risk_delta(monkeypatch):
     assert body["simulated"]["risk_level"] in {"Medium", "High"}
     assert body["risk_delta"] >= 0.15
     assert body["simulated"]["max_cargo_temp_excess_c"] > 0
+    assert body["simulated"]["cargo_temperature_data_quality"] == "forecast"
     assert "meningkat signifikan" in body["recommendation"]

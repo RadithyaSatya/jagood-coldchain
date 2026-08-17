@@ -16,7 +16,11 @@ from app.services.temperature_service import (
     simulate_cargo_temperature,
     synthetic_ambient_temp_c,
 )
-from app.services.weather_service import get_port_conditions, get_sea_leg_conditions
+from app.services.weather_service import (
+    fallback_sea_conditions,
+    get_port_conditions,
+    get_sea_leg_conditions,
+)
 
 CARGO_TEMP_SAMPLE_POINTS = 6
 
@@ -32,6 +36,7 @@ LAND_DEFAULT_CONDITIONS = {
     "port_status_flag": 1,
     "hotspot_lat": None,
     "hotspot_lon": None,
+    "weather_data_quality": "configured",
 }
 
 # Neutral Indonesian tropical baseline used when there's no port stop to fetch
@@ -70,25 +75,38 @@ async def _resolve_cargo_temperature(
     temperature drifting toward it (temperature_service.py)."""
     duration = candidate["estimated_duration_hours"] + expected_delay_hours
     if cold_chain_equipment != "pasif":
-        return {"max_cargo_temp_c": ideal_c, "effective_consumed_hours": duration, "profile": []}
+        return {
+            "max_cargo_temp_c": ideal_c,
+            "effective_consumed_hours": duration,
+            "profile": [],
+            "data_quality": "assumed",
+        }
 
     points = _sample_geometry(candidate.get("geometry") or [], CARGO_TEMP_SAMPLE_POINTS)
     if not points:
-        return {"max_cargo_temp_c": ideal_c, "effective_consumed_hours": duration, "profile": []}
+        return {
+            "max_cargo_temp_c": ideal_c,
+            "effective_consumed_hours": duration,
+            "profile": [],
+            "data_quality": "unavailable",
+        }
 
     n = len(points)
     ambient_samples: list[tuple[float, float]] = []
+    forecast_samples = 0
     for i, (lat, lon) in enumerate(points):
         elapsed = duration * i / max(1, n - 1)
         arrival_time = departure_time + dt.timedelta(hours=elapsed)
         temp = await fetch_ambient_temp_c(client, lat, lon, arrival_time)
         if temp is None:
             temp = synthetic_ambient_temp_c(arrival_time.month, arrival_time.hour + arrival_time.minute / 60)
+        else:
+            forecast_samples += 1
         ambient_samples.append((elapsed, temp))
 
     k = INSULATION_K_PER_HOUR.get(insulation_quality, INSULATION_K_PER_HOUR["sedang"])
     report_hours = [s[0] for s in ambient_samples]
-    return simulate_cargo_temperature(
+    simulation = simulate_cargo_temperature(
         initial_temp_c=ideal_c,
         ambient_samples=ambient_samples,
         total_duration_hours=duration,
@@ -96,32 +114,66 @@ async def _resolve_cargo_temperature(
         k_per_hour=k,
         report_at_hours=report_hours,
     )
+    if forecast_samples == len(ambient_samples):
+        simulation["data_quality"] = "forecast"
+    elif forecast_samples == 0:
+        simulation["data_quality"] = "synthetic"
+    else:
+        simulation["data_quality"] = "mixed"
+    return simulation
 
 
 async def _resolve_conditions(client: httpx.AsyncClient, candidate: dict, target_time: dt.datetime) -> dict:
     if candidate["transport_mode"] == "darat":
         return dict(LAND_DEFAULT_CONDITIONS)
-    return await get_sea_leg_conditions(client, candidate["sea_waypoints"], target_time)
+    try:
+        return await get_sea_leg_conditions(client, candidate["sea_waypoints"], target_time)
+    except (httpx.HTTPError, KeyError, TypeError, ValueError):
+        return fallback_sea_conditions()
 
 
-async def _resolve_port_ambient_temp_c(client: httpx.AsyncClient, port_pair: dict | None, target_time: dt.datetime) -> float:
+async def _resolve_port_ambient_temp_c(
+    client: httpx.AsyncClient,
+    port_pair: dict | None,
+    target_time: dt.datetime,
+) -> tuple[float, str]:
     """Worst-case (hottest) ambient temperature across the embark/disembark
     port stops -- that's where cargo sits idle and reefer units are most
     exposed to equipment/infrastructure stress. Defaults for darat routes
     (no port pair) or if BMKG has no reading for either port."""
     if port_pair is None:
-        return PORT_AMBIENT_TEMP_DEFAULT_C
+        return PORT_AMBIENT_TEMP_DEFAULT_C, "configured"
+
+    async def safe_port_conditions(port):
+        try:
+            return await get_port_conditions(client, port, target_time)
+        except (httpx.HTTPError, KeyError, TypeError, ValueError):
+            return None
 
     embark_conditions, disembark_conditions = await asyncio.gather(
-        get_port_conditions(client, port_pair["embark"], target_time),
-        get_port_conditions(client, port_pair["disembark"], target_time),
+        safe_port_conditions(port_pair["embark"]),
+        safe_port_conditions(port_pair["disembark"]),
     )
     temps = [
         c["ambient_temp_c"]
         for c in (embark_conditions, disembark_conditions)
-        if c["ambient_temp_c"] is not None
+        if c is not None and c.get("ambient_temp_c") is not None
     ]
-    return max(temps) if temps else PORT_AMBIENT_TEMP_DEFAULT_C
+    if not temps:
+        return PORT_AMBIENT_TEMP_DEFAULT_C, "fallback"
+    if len(temps) < 2:
+        return max(temps), "partial"
+    return max(temps), "forecast"
+
+
+def _environmental_data_quality(weather_quality: str, port_quality: str) -> str:
+    if weather_quality == "configured" and port_quality == "configured":
+        return "configured"
+    if weather_quality == "forecast" and port_quality == "forecast":
+        return "forecast"
+    if weather_quality == "fallback" and port_quality == "fallback":
+        return "fallback"
+    return "partial"
 
 
 async def enrich_candidate(
@@ -139,7 +191,7 @@ async def enrich_candidate(
     ideal_c = (commodity["temp_ideal_min_c"] + commodity["temp_ideal_max_c"]) / 2
     baseline = estimate_historical_baseline(candidate["transport_mode"], candidate["distance_km"])
     port_pair = candidate.get("port_pair")
-    conditions, port_ambient_temp_c, cargo_sim = await asyncio.gather(
+    conditions, port_temperature, cargo_sim = await asyncio.gather(
         _resolve_conditions(client, candidate, departure_time),
         _resolve_port_ambient_temp_c(client, port_pair, departure_time),
         _resolve_cargo_temperature(
@@ -152,6 +204,8 @@ async def enrich_candidate(
             expected_delay_hours,
         ),
     )
+    port_ambient_temp_c, port_data_quality = port_temperature
+    weather_data_quality = conditions.pop("weather_data_quality")
 
     risk_hotspot = None
     if conditions.get("hotspot_lat") is not None:
@@ -180,6 +234,10 @@ async def enrich_candidate(
         "historical_damage_rate": baseline["historical_damage_rate"],
         "departure_hour": departure_time.hour,
         "data_quality": candidate.get("data_quality", "live"),
+        "environmental_data_quality": _environmental_data_quality(
+            weather_data_quality,
+            port_data_quality,
+        ),
         "geometry": candidate.get("geometry", []),
         "risk_hotspot": risk_hotspot,
         "port_pair": {"embark": _port_info(port_pair["embark"]), "disembark": _port_info(port_pair["disembark"])}
@@ -188,6 +246,7 @@ async def enrich_candidate(
         "cold_chain_equipment": cold_chain_equipment,
         "max_cargo_temp_excess_c": round(max(0.0, cargo_sim["max_cargo_temp_c"] - ideal_c), 2),
         "cargo_temp_profile": cargo_sim.get("profile", []),
+        "cargo_temperature_data_quality": cargo_sim["data_quality"],
     }
 
 

@@ -60,6 +60,7 @@ export interface RouteCandidate {
   confidence_score: number;
   trigger_reason: string | null;
   data_quality: string;
+  environmental_data_quality: "forecast" | "partial" | "fallback" | "configured";
 
   wave_category: string;
   wave_height_m: number;
@@ -74,6 +75,7 @@ export interface RouteCandidate {
   commodity_temp_ideal_c: number;
   max_cargo_temp_excess_c: number;
   cargo_temp_profile: CargoTempPoint[];
+  cargo_temperature_data_quality: "assumed" | "forecast" | "mixed" | "synthetic" | "unavailable";
 
   geometry: [number, number][];
   risk_hotspot: RiskHotspot | null;

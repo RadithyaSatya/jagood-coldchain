@@ -36,6 +36,8 @@ export default function ParameterLegend() {
             Garis tebal = rute yang direkomendasikan. Garis putus-putus = sebagian jarak/waktu
             memakai fallback estimasi untuk sebagian jarak/waktu, lihat <code>data_quality</code>.
             Indikator ini hanya menjelaskan fallback routing, bukan seluruh input model.
+            Kualitas prakiraan lingkungan ditampilkan terpisah pada kartu rute.
+            Nilai <code>fallback</code> atau <code>configured</code> bukan observasi lingkungan live.
           </p>
         </div>
 

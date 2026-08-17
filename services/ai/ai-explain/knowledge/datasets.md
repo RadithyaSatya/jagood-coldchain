@@ -18,9 +18,9 @@ label sintetis, bukan akurasi pada shipment nyata.
 ## Runtime Environmental Data
 
 OpenRouteService dipakai untuk rute darat jika tersedia dan memiliki fallback estimasi jarak.
-BMKG dipakai untuk prakiraan rute maritim/pelabuhan dan responsnya di-cache, tetapi kegagalan HTTP
-yang belum ter-cache masih dapat menggagalkan request maritim. Open-Meteo dipakai untuk suhu
-ambient pada simulasi pendingin pasif dan memiliki fallback sintetis. Rute darat memakai kondisi
-lingkungan netral yang dikonfigurasi.
+BMKG dipakai untuk prakiraan rute maritim/pelabuhan dan responsnya di-cache; kegagalan jaringan
+atau respons tidak valid memakai nilai netral yang ditandai sebagai fallback. Open-Meteo dipakai
+untuk suhu ambient pada simulasi pendingin pasif dan memiliki fallback sintetis. Rute darat
+memakai kondisi lingkungan netral yang dikonfigurasi.
 
 Tidak ada dataset GPS, IoT, shipment aktual, atau outcome kerusakan nyata di MVP.

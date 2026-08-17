@@ -150,7 +150,13 @@ _DEFAULT_SEA_CONDITIONS = {
     "port_status_flag": 1,
     "hotspot_lat": None,
     "hotspot_lon": None,
+    "weather_data_quality": "fallback",
 }
+
+
+def fallback_sea_conditions() -> dict:
+    """Neutral, explicitly labelled conditions for an unavailable BMKG boundary."""
+    return dict(_DEFAULT_SEA_CONDITIONS)
 
 
 async def get_sea_leg_conditions(
@@ -196,4 +202,5 @@ async def get_sea_leg_conditions(
         "port_status_flag": derive_port_status_flag(worst_cond["wave_category"]),
         "hotspot_lat": worst_lat,
         "hotspot_lon": worst_lon,
+        "weather_data_quality": "forecast",
     }

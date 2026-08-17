@@ -39,6 +39,13 @@ const MODE_LABELS: Record<string, string> = {
   kombinasi: "Kombinasi (Darat + Laut)",
 };
 
+const ENVIRONMENT_QUALITY_LABELS: Record<RouteCandidate["environmental_data_quality"], string> = {
+  forecast: "Prakiraan eksternal",
+  partial: "Sebagian fallback",
+  fallback: "Fallback netral",
+  configured: "Default terkonfigurasi",
+};
+
 function defaultDepartureTime(): string {
   const d = new Date(Date.now() + 24 * 3600 * 1000);
   d.setMinutes(0, 0, 0);
@@ -88,6 +95,7 @@ function AlternativeRouteCard({
         <div>Tiba: {formatArrival(candidate.estimated_arrival)}</div>
         <div>Skor: {(candidate.risk_probability * 100).toFixed(0)}%</div>
         <div>Routing: {candidate.data_quality === "estimated" ? "Fallback estimasi" : "Tanpa fallback"}</div>
+        <div>Lingkungan: {ENVIRONMENT_QUALITY_LABELS[candidate.environmental_data_quality]}</div>
       </div>
       <RiskExplanation summary={candidate.risk_explanation_summary} factors={candidate.risk_explanation_factors} />
       <CargoTempChart route={candidate} />
