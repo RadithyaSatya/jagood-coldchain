@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "dataset": {
+    "name": "JaGOOD MVP Commodity Profiles",
+    "classification": "DEMO",
+    "owner": "JaGOOD project team",
+    "purpose": "Provide commodity inputs for route-risk inference and scenario simulation.",
+    "important_fields": [
+      "commodity_type",
+      "temp_ideal_min_c",
+      "temp_ideal_max_c",
+      "shelf_life_hours_at_ideal_temp",
+      "delay_tolerance_hours",
+      "temp_sensitivity_level"
+    ],
+    "preprocessing": "No automated external-data ingestion. Values were manually curated as hackathon assumptions and are loaded without numerical transformation.",
+    "foodkeeper_derived": false,
+    "limitations": [
+      "These profiles are demonstration assumptions, not observed shipment outcomes.",
+      "The values have not been validated for regulatory, food-safety, or commercial decision-making.",
+      "Shelf life and delay tolerance are simplified model inputs and must not be presented as guaranteed remaining product life."
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "jagood-mvp-assumptions-v1",
+      "title": "JaGOOD hackathon MVP commodity assumptions",
+      "classification": "DEMO",
+      "publisher": "JaGOOD project team",
+      "source_uri": null,
+      "accessed_on": null,
+      "license": "Project-authored",
+      "notes": "Internal manually curated assumptions. This source is not FoodKeeper and is not a real-world measurement dataset."
+    }
+  ],
+  "field_provenance": {
+    "commodity_type": {
+      "classification": "DEMO",
+      "source_ids": ["jagood-mvp-assumptions-v1"],
+      "method": "Manually selected Indonesian commodity labels for the MVP."
+    },
+    "temp_ideal_min_c": {
+      "classification": "DEMO",
+      "source_ids": ["jagood-mvp-assumptions-v1"],
+      "method": "Manually curated storage-temperature assumption; no external record-level lineage is available."
+    },
+    "temp_ideal_max_c": {
+      "classification": "DEMO",
+      "source_ids": ["jagood-mvp-assumptions-v1"],
+      "method": "Manually curated storage-temperature assumption; no external record-level lineage is available."
+    },
+    "shelf_life_hours_at_ideal_temp": {
+      "classification": "DEMO",
+      "source_ids": ["jagood-mvp-assumptions-v1"],
+      "method": "Manually curated hackathon assumption used as a relative risk feature."
+    },
+    "delay_tolerance_hours": {
+      "classification": "DEMO",
+      "source_ids": ["jagood-mvp-assumptions-v1"],
+      "method": "Manually defined operational threshold used by the synthetic label function."
+    },
+    "temp_sensitivity_level": {
+      "classification": "DEMO",
+      "source_ids": ["jagood-mvp-assumptions-v1"],
+      "method": "Manually assigned Low/Medium/High category used by feature engineering."
+    }
+  },
+  "records": {
+    "Salmon Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
+    "Udang Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
+    "Udang Beku": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
+    "Ayam Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
+    "Daging Sapi Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
+    "Susu Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
+    "Sayuran Daun Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
+    "Tuna Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
+    "Es Krim": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
+    "Buah Potong Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]}
+  }
+}

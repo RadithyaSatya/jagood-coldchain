@@ -1,3 +1,11 @@
+export type DataClassification = "REAL" | "REFERENCE" | "DERIVED" | "SYNTHETIC" | "DEMO";
+
+export interface CommodityFieldProvenance {
+  classification: DataClassification;
+  source_ids: string[];
+  method: string;
+}
+
 export interface Commodity {
   commodity_type: string;
   temp_ideal_min_c: number;
@@ -5,6 +13,11 @@ export interface Commodity {
   shelf_life_hours_at_ideal_temp: number;
   delay_tolerance_hours: number;
   temp_sensitivity_level: string;
+  provenance: {
+    record_classification: DataClassification;
+    source_ids: string[];
+    fields: Record<string, CommodityFieldProvenance>;
+  };
 }
 
 export interface RiskHotspot {

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from app.schemas.route_schema import (
+    CommodityDatasetProvenance,
     CommodityInfo,
     PredictRouteResponse,
     RouteRequest,
@@ -22,6 +23,11 @@ async def health() -> dict:
 @router.get("/commodities", response_model=list[CommodityInfo])
 async def list_commodities() -> list[dict]:
     return commodity_service.list_commodities()
+
+
+@router.get("/commodities/provenance", response_model=CommodityDatasetProvenance)
+async def commodity_data_provenance() -> dict:
+    return commodity_service.get_dataset_provenance()
 
 
 @router.post("/predict-route", response_model=PredictRouteResponse)

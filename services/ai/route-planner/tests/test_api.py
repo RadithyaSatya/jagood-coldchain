@@ -22,6 +22,16 @@ def test_commodities_endpoint_returns_known_shape():
     assert len(body) > 0
     assert "commodity_type" in body[0]
     assert "temp_sensitivity_level" in body[0]
+    assert body[0]["provenance"]["record_classification"] == "DEMO"
+
+
+def test_commodity_provenance_endpoint_discloses_demo_assumptions():
+    response = client.get("/commodities/provenance")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["dataset"]["classification"] == "DEMO"
+    assert body["dataset"]["foodkeeper_derived"] is False
+    assert body["record_count"] > 0
 
 
 def test_predict_route_rejects_unknown_commodity_before_touching_network():

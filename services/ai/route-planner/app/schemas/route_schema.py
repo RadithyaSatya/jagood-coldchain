@@ -8,6 +8,7 @@ TransportModePreference = Literal["darat", "laut", "kombinasi", "semua"]
 ColdChainEquipment = Literal["reefer", "pasif"]
 InsulationQuality = Literal["baik", "sedang", "buruk"]
 RankingPreference = Literal["risiko", "kecepatan"]
+DataClassification = Literal["REAL", "REFERENCE", "DERIVED", "SYNTHETIC", "DEMO"]
 
 
 class Coordinate(BaseModel):
@@ -165,6 +166,18 @@ class ScenarioResponse(BaseModel):
     recommendation: str
 
 
+class CommodityFieldProvenance(BaseModel):
+    classification: DataClassification
+    source_ids: list[str]
+    method: str
+
+
+class CommodityRecordProvenance(BaseModel):
+    record_classification: DataClassification
+    source_ids: list[str]
+    fields: dict[str, CommodityFieldProvenance]
+
+
 class CommodityInfo(BaseModel):
     commodity_type: str
     temp_ideal_min_c: float
@@ -172,3 +185,34 @@ class CommodityInfo(BaseModel):
     shelf_life_hours_at_ideal_temp: float
     delay_tolerance_hours: float
     temp_sensitivity_level: str
+    provenance: CommodityRecordProvenance
+
+
+class CommodityDatasetSource(BaseModel):
+    source_id: str
+    title: str
+    classification: DataClassification
+    publisher: str
+    source_uri: str | None
+    accessed_on: str | None
+    license: str
+    notes: str
+
+
+class CommodityDatasetMetadata(BaseModel):
+    name: str
+    classification: DataClassification
+    owner: str
+    purpose: str
+    important_fields: list[str]
+    preprocessing: str
+    foodkeeper_derived: bool
+    limitations: list[str]
+
+
+class CommodityDatasetProvenance(BaseModel):
+    schema_version: str
+    dataset: CommodityDatasetMetadata
+    sources: list[CommodityDatasetSource]
+    field_provenance: dict[str, CommodityFieldProvenance]
+    record_count: int
