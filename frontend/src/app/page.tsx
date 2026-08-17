@@ -2,11 +2,13 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import AIExplainPanel from "@/components/AIExplainPanel";
 import CargoTempChart from "@/components/CargoTempChart";
 import ParameterLegend from "@/components/ParameterLegend";
 import RiskBadge from "@/components/RiskBadge";
 import RiskExplanation from "@/components/RiskExplanation";
 import ScenarioSimulator from "@/components/ScenarioSimulator";
+import { buildRouteExplainContext } from "@/lib/aiExplain";
 import { CITIES } from "@/lib/cities";
 import type {
   City,
@@ -406,6 +408,13 @@ export default function Home() {
                 />
                 <CargoTempChart route={result.recommended_route} />
               </div>
+              <AIExplainPanel
+                context={buildRouteExplainContext(
+                  result.shipment_id,
+                  resultRequest?.commodity_type ?? commodityType,
+                  result.recommended_route,
+                )}
+              />
             </div>
 
             {result.alternative_routes.length > 0 && (

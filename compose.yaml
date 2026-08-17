@@ -46,10 +46,14 @@ services:
       args:
         NEXT_PUBLIC_API_BASE_URL: "http://localhost:${ROUTE_PLANNER_PORT:-8000}"
     restart: unless-stopped
+    environment:
+      AI_EXPLAIN_API_BASE_URL: "http://ai-explain:8000"
     ports:
       - "${PLANNER_WEB_PORT:-3000}:3000"
     depends_on:
       route-planner:
+        condition: service_healthy
+      ai-explain:
         condition: service_healthy
 
   # Ollama itself runs natively on the host (not containerized): Docker Desktop/OrbStack on

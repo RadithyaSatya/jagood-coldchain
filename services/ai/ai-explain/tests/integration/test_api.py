@@ -109,6 +109,43 @@ async def test_chat_endpoint_calls_llm_for_allowed_question(fake_llm: FakeLLM) -
 
 
 @pytest.mark.asyncio
+async def test_scenario_context_is_forwarded_to_llm_without_recalculation(
+    fake_llm: FakeLLM,
+) -> None:
+    fake_llm.response = "Risiko naik 49.92 poin persentase karena pendingin berubah menjadi pasif."
+    app = create_app(llm=fake_llm)
+    transport = httpx.ASGITransport(app=app)
+    payload = {
+        "language": "id",
+        "message": "Jelaskan dampak skenario ini dibandingkan baseline",
+        "shipment_context": {
+            "shipment_id": "SHP-DEMO-1",
+            "source": "scenario_simulator",
+            "product": "Salmon Segar",
+            "facts": {
+                "baseline_risk_probability": "0.00%",
+                "simulated_risk_probability": "49.92%",
+                "risk_delta": "49.92 poin persentase",
+                "affected_factors": "cold_chain_equipment: reefer -> pasif",
+            },
+            "risk_level": "medium",
+            "recommendation": "Kurangi keterlambatan atau gunakan reefer aktif.",
+        },
+    }
+
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post("/v1/chat", json=payload)
+
+    assert response.status_code == 200
+    assert response.json()["intent"] == "scenario_explanation"
+    assert response.json()["handled_by"] == "llm"
+    prompt = fake_llm.calls[0][0][1].content
+    assert '"source": "scenario_simulator"' in prompt
+    assert '"risk_delta": "49.92 poin persentase"' in prompt
+    assert "reefer -> pasif" in prompt
+
+
+@pytest.mark.asyncio
 async def test_chat_endpoint_retrieves_jagood_markdown(fake_llm: FakeLLM) -> None:
     fake_llm.response = "Jagood memiliki fitur Smart Route Planner."
     app = create_app(llm=fake_llm)

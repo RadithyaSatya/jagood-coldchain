@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import AIExplainPanel from "@/components/AIExplainPanel";
 import CargoTempChart from "@/components/CargoTempChart";
 import RiskBadge from "@/components/RiskBadge";
 import RiskExplanation from "@/components/RiskExplanation";
+import { buildScenarioExplainContext } from "@/lib/aiExplain";
 import type {
   ColdChainEquipment,
   InsulationQuality,
@@ -232,6 +234,13 @@ export default function ScenarioSimulator({ baseline }: { baseline: RouteRequest
               </div>
             )}
           </div>
+          <AIExplainPanel
+            context={buildScenarioExplainContext(
+              baseline.shipment_id ?? result.scenario_id,
+              baseline.commodity_type,
+              result,
+            )}
+          />
         </div>
       )}
     </section>
