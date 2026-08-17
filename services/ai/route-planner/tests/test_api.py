@@ -38,3 +38,35 @@ def test_predict_route_rejects_unknown_commodity_before_touching_network():
         },
     )
     assert response.status_code == 404
+
+
+def test_simulate_scenario_requires_a_change():
+    response = client.post(
+        "/simulate-scenario",
+        json={
+            "baseline": {
+                "origin": {"lat": -6.2088, "lon": 106.8456},
+                "destination": {"lat": -7.2575, "lon": 112.7521},
+                "commodity_type": "Salmon Segar",
+                "departure_time": "2026-08-15T08:00:00Z",
+            },
+            "changes": {},
+        },
+    )
+    assert response.status_code == 422
+
+
+def test_simulate_scenario_rejects_unknown_commodity_before_touching_network():
+    response = client.post(
+        "/simulate-scenario",
+        json={
+            "baseline": {
+                "origin": {"lat": -6.2088, "lon": 106.8456},
+                "destination": {"lat": -7.2575, "lon": 112.7521},
+                "commodity_type": "Definitely Not A Real Commodity",
+                "departure_time": "2026-08-15T08:00:00Z",
+            },
+            "changes": {"delay_hours": 12},
+        },
+    )
+    assert response.status_code == 404

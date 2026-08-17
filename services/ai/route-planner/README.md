@@ -63,6 +63,37 @@ hard-blocking it).
 An unrecognized value falls back to `"risiko"` rather than to speed, since
 silently ranking a cold-chain shipment by speed is the more dangerous failure.
 
+## Scenario Simulator
+
+`POST /simulate-scenario` compares a baseline shipment with a counterfactual
+configuration. Supported MVP changes are additional in-transit delay,
+transport mode, cold-chain equipment, and insulation quality. The service
+re-runs the same enrichment, XGBoost inference, ranking, and SHAP explanation
+pipeline used by `POST /predict-route`; an LLM does not invent the risk delta.
+
+Example request:
+
+```json
+{
+  "baseline": {
+    "origin": {"lat": -6.2088, "lon": 106.8456},
+    "destination": {"lat": -7.2575, "lon": 112.7521},
+    "commodity_type": "Salmon Segar",
+    "departure_time": "2026-08-15T08:00:00Z",
+    "transport_mode_preference": "darat",
+    "cold_chain_equipment": "reefer"
+  },
+  "changes": {
+    "delay_hours": 12,
+    "cold_chain_equipment": "pasif",
+    "insulation_quality": "baik"
+  }
+}
+```
+
+The response includes the full baseline and simulated recommended routes,
+`risk_delta`, concrete changed factors, and a deterministic recommendation.
+
 ## Known limitations for judges/reviewers
 
 - **Historical delay/damage data is synthetic**, generated from a rule-based
@@ -111,3 +142,7 @@ silently ranking a cold-chain shipment by speed is the more dangerous failure.
   heat-transfer constant rather than a measured value, and no ice-pack/
   phase-change reserve is modeled (a real passive cooler with ice packs
   would resist warming longer than this model predicts).
+- Scenario `delay_hours` represents additional in-transit time. It is exposed
+  to the model as `expected_delay_hours`, included in projected arrival, and
+  extends passive-cargo temperature exposure; it does not claim to predict the
+  operational cause of a delay.

@@ -46,6 +46,8 @@ def _describe(column: str, value) -> str:
         return f"Jarak tempuh ({value:.0f} km)"
     if column == "estimated_duration_hours":
         return f"Estimasi durasi perjalanan ({value:.1f} jam)"
+    if column == "expected_delay_hours":
+        return f"Perkiraan keterlambatan tambahan ({value:.1f} jam)"
     if column == "wave_height_m":
         return f"Tinggi gelombang ({value:.2f} m)"
     if column == "wind_speed_kmh":

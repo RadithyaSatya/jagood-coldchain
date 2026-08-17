@@ -18,6 +18,7 @@ SHARED_FIELDS = {
     "data_quality": "live",
     "cold_chain_equipment": "reefer",
     "max_cargo_temp_excess_c": 0.0,
+    "expected_delay_hours": 0.0,
 }
 
 CALM_LAND_ROUTE = {

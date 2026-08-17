@@ -2,6 +2,9 @@
 module docstring: training and serving must agree on exactly which columns
 the model expects, or predict_risk's rows[ALL_INPUT_COLUMNS] lookup breaks --
 the same failure mode that broke scripts/validate_scenarios.py."""
+import json
+from pathlib import Path
+
 import pandas as pd
 
 from app.ml.feature_pipeline import (
@@ -20,6 +23,12 @@ def test_all_input_columns_is_categorical_plus_numeric():
 def test_no_duplicate_or_overlapping_columns():
     assert len(ALL_INPUT_COLUMNS) == len(set(ALL_INPUT_COLUMNS))
     assert set(CATEGORICAL_FEATURES).isdisjoint(NUMERIC_FEATURES)
+
+
+def test_saved_model_metadata_matches_serving_columns():
+    metadata_path = Path(__file__).resolve().parent.parent / "app" / "models" / "model_metadata.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    assert metadata["feature_columns"] == ALL_INPUT_COLUMNS
 
 
 def test_add_interaction_features_produces_engineered_columns():

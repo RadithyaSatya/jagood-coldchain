@@ -10,6 +10,7 @@
     "commodity_delay_tolerance_hours",
     "distance_km",
     "estimated_duration_hours",
+    "expected_delay_hours",
     "wave_height_m",
     "wind_speed_kmh",
     "port_status_flag",
@@ -24,7 +25,7 @@
     "Medium",
     "High"
   ],
-  "tau_high": 0.9996554851531982,
+  "tau_high": 0.9997414946556091,
   "high_upweight": 1.75,
   "target_recall_high": 0.8,
   "validation_recall_high": 0.9975062344139651,

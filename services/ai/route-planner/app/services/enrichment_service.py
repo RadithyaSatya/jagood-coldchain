@@ -61,13 +61,14 @@ async def _resolve_cargo_temperature(
     departure_time: dt.datetime,
     cold_chain_equipment: str,
     insulation_quality: str,
+    expected_delay_hours: float,
 ) -> dict:
     """For 'reefer' (default): cargo assumed to stay at ideal temp throughout
     -- no Open-Meteo call, zero added latency/failure-risk for the common
     case. For 'pasif': samples real ambient temperature along the route at
     the estimated arrival time of each sampled point, then simulates cargo
     temperature drifting toward it (temperature_service.py)."""
-    duration = candidate["estimated_duration_hours"]
+    duration = candidate["estimated_duration_hours"] + expected_delay_hours
     if cold_chain_equipment != "pasif":
         return {"max_cargo_temp_c": ideal_c, "effective_consumed_hours": duration, "profile": []}
 
@@ -132,6 +133,7 @@ async def enrich_candidate(
     route_id: str,
     cold_chain_equipment: str = "reefer",
     insulation_quality: str = "sedang",
+    expected_delay_hours: float = 0,
 ) -> dict:
     commodity = get_commodity(commodity_type)
     ideal_c = (commodity["temp_ideal_min_c"] + commodity["temp_ideal_max_c"]) / 2
@@ -140,7 +142,15 @@ async def enrich_candidate(
     conditions, port_ambient_temp_c, cargo_sim = await asyncio.gather(
         _resolve_conditions(client, candidate, departure_time),
         _resolve_port_ambient_temp_c(client, port_pair, departure_time),
-        _resolve_cargo_temperature(client, candidate, ideal_c, departure_time, cold_chain_equipment, insulation_quality),
+        _resolve_cargo_temperature(
+            client,
+            candidate,
+            ideal_c,
+            departure_time,
+            cold_chain_equipment,
+            insulation_quality,
+            expected_delay_hours,
+        ),
     )
 
     risk_hotspot = None
@@ -157,7 +167,9 @@ async def enrich_candidate(
         "transport_mode": candidate["transport_mode"],
         "distance_km": candidate["distance_km"],
         "estimated_duration_hours": candidate["estimated_duration_hours"],
-        "estimated_arrival": departure_time + dt.timedelta(hours=candidate["estimated_duration_hours"]),
+        "expected_delay_hours": expected_delay_hours,
+        "estimated_arrival": departure_time
+        + dt.timedelta(hours=candidate["estimated_duration_hours"] + expected_delay_hours),
         "wave_height_m": conditions["wave_height_m"],
         "wave_category": conditions["wave_category"],
         "wind_speed_kmh": conditions["wind_speed_kmh"],
@@ -186,6 +198,7 @@ async def enrich_all_candidates(
     shipment_id: str,
     cold_chain_equipment: str = "reefer",
     insulation_quality: str = "sedang",
+    expected_delay_hours: float = 0,
 ) -> list[dict]:
     async with httpx.AsyncClient(timeout=20) as client:
         route_ids = [f"{c['transport_mode']}-{i + 1}" for i, c in enumerate(candidates)]
@@ -199,6 +212,7 @@ async def enrich_all_candidates(
                 route_id,
                 cold_chain_equipment,
                 insulation_quality,
+                expected_delay_hours,
             )
             for candidate, route_id in zip(candidates, route_ids)
         ]

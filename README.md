@@ -75,7 +75,7 @@ backend/                reserved for a future platform-level API gateway (not im
 services/
   ai/
     route-planner/       Smart Route Planner -- implemented (FastAPI + XGBoost), see its README
-    scenario-simulator/  not implemented yet
+    scenario-simulator/  implemented in route-planner for the MVP
     monitoring/          not implemented yet
     ai-explain/          AI explanation and scoped chatbot service (FastAPI)
   weather/               not implemented yet (BMKG integration currently lives inside route-planner)

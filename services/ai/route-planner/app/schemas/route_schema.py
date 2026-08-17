@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 TransportModePreference = Literal["darat", "laut", "kombinasi", "semua"]
 ColdChainEquipment = Literal["reefer", "pasif"]
@@ -78,8 +78,12 @@ class RouteCandidate(BaseModel):
     transport_mode: str = Field(description="darat (land), laut/kombinasi (multimodal land+sea via port)")
     distance_km: float
     estimated_duration_hours: float
+    expected_delay_hours: float = Field(
+        default=0,
+        description="Additional expected in-transit delay beyond the route's normal travel duration.",
+    )
     estimated_arrival: datetime = Field(
-        description="Projected arrival = the request's departure_time + estimated_duration_hours. Inherits that "
+        description="Projected arrival = departure_time + estimated_duration_hours + expected_delay_hours. Inherits that "
         "estimate's uncertainty (and is only as good as the underlying ORS/searoute legs); it does not model "
         "loading, customs or unscheduled stops."
     )
@@ -116,6 +120,49 @@ class PredictRouteResponse(BaseModel):
     shipment_id: str
     recommended_route: RouteCandidate
     alternative_routes: list[RouteCandidate]
+
+
+class ScenarioChanges(BaseModel):
+    delay_hours: float = Field(
+        default=0,
+        ge=0,
+        le=168,
+        description="Additional in-transit delay applied to the estimated route duration (maximum 7 days).",
+    )
+    transport_mode: TransportModePreference | None = None
+    cold_chain_equipment: ColdChainEquipment | None = None
+    insulation_quality: InsulationQuality | None = None
+
+    @model_validator(mode="after")
+    def require_at_least_one_change(self):
+        if (
+            self.delay_hours == 0
+            and self.transport_mode is None
+            and self.cold_chain_equipment is None
+            and self.insulation_quality is None
+        ):
+            raise ValueError("At least one scenario change must be provided")
+        return self
+
+
+class ScenarioRequest(BaseModel):
+    baseline: RouteRequest
+    changes: ScenarioChanges
+
+
+class ScenarioFactorChange(BaseModel):
+    factor: str
+    baseline_value: float | str
+    simulated_value: float | str
+
+
+class ScenarioResponse(BaseModel):
+    scenario_id: str
+    baseline: RouteCandidate
+    simulated: RouteCandidate
+    risk_delta: float = Field(description="Simulated risk probability minus baseline risk probability")
+    affected_factors: list[ScenarioFactorChange]
+    recommendation: str
 
 
 class CommodityInfo(BaseModel):

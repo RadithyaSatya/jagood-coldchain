@@ -20,6 +20,7 @@ NUMERIC_FEATURES = [
     "commodity_delay_tolerance_hours",
     "distance_km",
     "estimated_duration_hours",
+    "expected_delay_hours",
     "wave_height_m",
     "wind_speed_kmh",
     "port_status_flag",

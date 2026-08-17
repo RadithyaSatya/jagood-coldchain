@@ -243,6 +243,7 @@ def generate_rows(rng: np.random.Generator, corridors: list[Corridor], commoditi
                     "transport_mode": corridor.transport_mode,
                     "distance_km": corridor.distance_km,
                     "estimated_duration_hours": round(estimated_duration_hours, 2),
+                    "expected_delay_hours": round(shipment_delay_hours, 2),
                     "wave_height_m": round(wave_height_m, 3),
                     "wave_category": wave_category,
                     "wind_speed_kmh": round(wind_speed_kmh, 2),
