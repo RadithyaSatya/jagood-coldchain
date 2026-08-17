@@ -2,6 +2,7 @@ import pytest
 from conftest import FakeLLM
 
 from ai_explain.chat import ChatService
+from ai_explain.llm.errors import LLMTimeoutError
 from ai_explain.schemas import ChatRequest
 
 
@@ -85,3 +86,59 @@ async def test_missing_knowledge_returns_safe_message(monkeypatch, tmp_path) -> 
     assert response.answer == "Informasi tersebut belum tersedia dalam dokumentasi Jagood."
     assert response.sources == []
     assert llm.calls == []
+
+
+@pytest.mark.asyncio
+async def test_contextual_chat_falls_back_to_structured_facts_on_llm_timeout() -> None:
+    llm = FakeLLM(error=LLMTimeoutError("offline"))
+    service = ChatService(llm)
+    request = ChatRequest.model_validate(
+        {
+            "message": "Jelaskan dampak skenario ini",
+            "shipment_context": {
+                "shipment_id": "SHP-123",
+                "source": "scenario_simulator",
+                "product": "Salmon Segar",
+                "facts": {
+                    "baseline_risk": "1.00%",
+                    "simulated_risk": "49.92%",
+                    "risk_delta": "48.92 poin persentase",
+                },
+                "risk_level": "medium",
+                "recommendation": "Gunakan reefer aktif.",
+            },
+        }
+    )
+
+    response = await service.chat(request)
+
+    assert response.handled_by == "fallback"
+    assert response.model is None
+    assert "49.92%" in response.answer
+    assert "48.92 poin persentase" in response.answer
+    assert "Gunakan reefer aktif." in response.answer
+    assert "hanya memakai hasil terstruktur" in response.answer
+
+
+@pytest.mark.asyncio
+async def test_stream_falls_back_without_emitting_partial_llm_output() -> None:
+    llm = FakeLLM(error=LLMTimeoutError("offline"))
+    service = ChatService(llm)
+    request = ChatRequest.model_validate(
+        {
+            "message": "Jelaskan risiko rute ini",
+            "shipment_context": {
+                "source": "smart_route_planner",
+                "product": "Tuna Segar",
+                "facts": {"risk_probability": "35.00%"},
+                "risk_level": "medium",
+            },
+        }
+    )
+
+    prepared = await service.prepare_stream(request)
+
+    assert prepared.handled_by == "fallback"
+    assert prepared.model is None
+    assert len(prepared.chunks) == 1
+    assert "35.00%" in prepared.chunks[0]

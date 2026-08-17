@@ -290,7 +290,11 @@ export default function App() {
                   )}
                   {message.role === "assistant" && message.handledBy && message.id !== "welcome" && (
                     <span className="response-meta">
-                      {message.handledBy === "rule" ? "Jawaban otomatis" : "Dirangkum oleh AI"}
+                      {message.handledBy === "rule"
+                        ? "Jawaban otomatis"
+                        : message.handledBy === "fallback"
+                          ? "Ringkasan fallback tanpa LLM"
+                          : "Dirangkum oleh AI"}
                     </span>
                   )}
                 </div>

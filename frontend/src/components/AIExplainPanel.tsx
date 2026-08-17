@@ -5,7 +5,7 @@ import type { AIExplainContext } from "@/lib/aiExplain";
 
 interface AIExplainResponse {
   answer: string;
-  handled_by: "rule" | "llm";
+  handled_by: "rule" | "llm" | "fallback";
   model: string | null;
 }
 
@@ -92,7 +92,11 @@ export default function AIExplainPanel({ context }: { context: AIExplainContext 
         <div className="mt-3 rounded border border-sky-200 bg-white px-4 py-3 dark:border-sky-900 dark:bg-zinc-950">
           <p className="whitespace-pre-wrap text-sm leading-6 text-zinc-800 dark:text-zinc-200">{response.answer}</p>
           <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-            {response.handled_by === "llm" ? `Dijelaskan oleh ${response.model ?? "AI Explain"}` : "Jawaban guardrail otomatis"}
+            {response.handled_by === "llm"
+              ? `Dijelaskan oleh ${response.model ?? "AI Explain"}`
+              : response.handled_by === "fallback"
+                ? "Ringkasan fallback tanpa LLM"
+                : "Jawaban guardrail otomatis"}
           </p>
         </div>
       )}

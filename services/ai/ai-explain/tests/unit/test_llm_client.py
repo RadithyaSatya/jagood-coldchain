@@ -61,3 +61,33 @@ async def test_stream_reads_openai_compatible_sse_events() -> None:
     assert chunks == ["Cold ", "chain"]
     await client.aclose()
 
+
+@pytest.mark.asyncio
+async def test_readiness_requires_configured_model_to_be_listed() -> None:
+    async def handler(request: httpx.Request) -> httpx.Response:
+        assert request.url == "http://inference.test/v1/models"
+        return httpx.Response(200, json={"data": [{"id": "available-model"}]})
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    llm = OpenAICompatibleLLM(
+        Settings(llm_base_url="http://inference.test/v1", llm_model="required-model"),
+        client=client,
+    )
+
+    assert await llm.is_ready() is False
+    await client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_readiness_accepts_configured_model() -> None:
+    async def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"data": [{"id": "required-model"}]})
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    llm = OpenAICompatibleLLM(
+        Settings(llm_base_url="http://inference.test/v1", llm_model="required-model"),
+        client=client,
+    )
+
+    assert await llm.is_ready() is True
+    await client.aclose()

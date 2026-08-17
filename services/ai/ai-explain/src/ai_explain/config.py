@@ -18,14 +18,18 @@ class Settings(BaseSettings):
     llm_api_key: str | None = None
     llm_model: str = "qwen3:4b-instruct"
     llm_timeout_seconds: float = Field(default=60.0, gt=0, le=300)
+    llm_readiness_timeout_seconds: float = Field(default=3.0, gt=0, le=30)
     llm_temperature: float = Field(default=0.2, ge=0, le=1)
 
     @property
     def chat_completions_url(self) -> str:
         return f"{self.llm_base_url.rstrip('/')}/chat/completions"
 
+    @property
+    def models_url(self) -> str:
+        return f"{self.llm_base_url.rstrip('/')}/models"
+
 
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

@@ -83,6 +83,6 @@ class ChatResponse(BaseModel):
     answer: str
     language: Language
     intent: ChatIntent
-    handled_by: Literal["rule", "llm"]
+    handled_by: Literal["rule", "llm", "fallback"]
     model: str | None = None
     sources: list[str] = Field(default_factory=list)

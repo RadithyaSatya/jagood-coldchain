@@ -15,6 +15,8 @@ class OpenAICompatibleLLM:
     def __init__(self, settings: Settings, client: httpx.AsyncClient | None = None) -> None:
         self.model = settings.llm_model
         self._url = settings.chat_completions_url
+        self._models_url = settings.models_url
+        self._readiness_timeout = settings.llm_readiness_timeout_seconds
         self._temperature = settings.llm_temperature
         self._client = client or httpx.AsyncClient(timeout=settings.llm_timeout_seconds)
         self._owns_client = client is None
@@ -27,6 +29,19 @@ class OpenAICompatibleLLM:
     async def close(self) -> None:
         if self._owns_client:
             await self._client.aclose()
+
+    async def is_ready(self) -> bool:
+        try:
+            response = await self._client.get(
+                self._models_url,
+                headers=self._headers,
+                timeout=self._readiness_timeout,
+            )
+            response.raise_for_status()
+            models = response.json().get("data", [])
+        except (httpx.HTTPError, ValueError, AttributeError):
+            return False
+        return any(isinstance(item, dict) and item.get("id") == self.model for item in models)
 
     async def complete(self, messages: list[LLMMessage], max_tokens: int) -> str:
         try:
@@ -96,4 +111,3 @@ class OpenAICompatibleLLM:
         except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
             raise LLMServiceError("inference server returned an invalid stream event") from exc
         return content if isinstance(content, str) else None
-

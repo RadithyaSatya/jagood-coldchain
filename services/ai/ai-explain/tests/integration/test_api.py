@@ -26,6 +26,28 @@ async def test_create_explanation_endpoint(
 
 
 @pytest.mark.asyncio
+async def test_readiness_reports_model_state(fake_llm: FakeLLM) -> None:
+    app = create_app(llm=fake_llm)
+    transport = httpx.ASGITransport(app=app)
+
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        ready_response = await client.get("/ready")
+        fake_llm.ready = False
+        degraded_response = await client.get("/ready")
+
+    assert ready_response.status_code == 200
+    assert ready_response.json() == {
+        "status": "ready",
+        "llm": "ready",
+        "model": "fake-qwen",
+        "fallback_available": True,
+    }
+    assert degraded_response.status_code == 503
+    assert degraded_response.json()["status"] == "degraded"
+    assert degraded_response.json()["fallback_available"] is True
+
+
+@pytest.mark.asyncio
 async def test_stream_explanation_endpoint(
     fake_llm: FakeLLM,
     explanation_payload: dict[str, object],
