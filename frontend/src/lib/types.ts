@@ -39,6 +39,7 @@ export interface RouteCandidate {
   transport_mode: string;
   distance_km: number;
   estimated_duration_hours: number;
+  expected_delay_hours: number;
   estimated_arrival: string;
 
   risk_level: string;
@@ -73,6 +74,38 @@ export interface PredictRouteResponse {
   shipment_id: string;
   recommended_route: RouteCandidate;
   alternative_routes: RouteCandidate[];
+}
+
+export type TransportModePreference = "darat" | "laut" | "kombinasi" | "semua";
+export type ColdChainEquipment = "reefer" | "pasif";
+export type InsulationQuality = "baik" | "sedang" | "buruk";
+export type RankingPreference = "risiko" | "kecepatan";
+
+export interface RouteRequestPayload {
+  shipment_id?: string;
+  origin: { lat: number; lon: number };
+  destination: { lat: number; lon: number };
+  commodity_type: string;
+  departure_time: string;
+  transport_mode_preference: TransportModePreference;
+  cold_chain_equipment: ColdChainEquipment;
+  insulation_quality: InsulationQuality;
+  ranking_preference: RankingPreference;
+}
+
+export interface ScenarioFactorChange {
+  factor: string;
+  baseline_value: number | string;
+  simulated_value: number | string;
+}
+
+export interface ScenarioResponse {
+  scenario_id: string;
+  baseline: RouteCandidate;
+  simulated: RouteCandidate;
+  risk_delta: number;
+  affected_factors: ScenarioFactorChange[];
+  recommendation: string;
 }
 
 export interface City {

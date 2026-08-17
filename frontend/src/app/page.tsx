@@ -6,8 +6,19 @@ import CargoTempChart from "@/components/CargoTempChart";
 import ParameterLegend from "@/components/ParameterLegend";
 import RiskBadge from "@/components/RiskBadge";
 import RiskExplanation from "@/components/RiskExplanation";
+import ScenarioSimulator from "@/components/ScenarioSimulator";
 import { CITIES } from "@/lib/cities";
-import type { City, Commodity, PredictRouteResponse, RouteCandidate } from "@/lib/types";
+import type {
+  City,
+  ColdChainEquipment,
+  Commodity,
+  InsulationQuality,
+  PredictRouteResponse,
+  RankingPreference,
+  RouteCandidate,
+  RouteRequestPayload,
+  TransportModePreference,
+} from "@/lib/types";
 
 const RouteMap = dynamic(() => import("@/components/RouteMap"), {
   ssr: false,
@@ -89,14 +100,15 @@ export default function Home() {
   const [pickMode, setPickMode] = useState<"origin" | "destination">("origin");
   const [commodityType, setCommodityType] = useState("");
   const [departureTime, setDepartureTime] = useState(defaultDepartureTime());
-  const [transportModePreference, setTransportModePreference] = useState("semua");
-  const [coldChainEquipment, setColdChainEquipment] = useState<"reefer" | "pasif">("reefer");
-  const [insulationQuality, setInsulationQuality] = useState<"baik" | "sedang" | "buruk">("sedang");
-  const [rankingPreference, setRankingPreference] = useState<"risiko" | "kecepatan">("risiko");
+  const [transportModePreference, setTransportModePreference] = useState<TransportModePreference>("semua");
+  const [coldChainEquipment, setColdChainEquipment] = useState<ColdChainEquipment>("reefer");
+  const [insulationQuality, setInsulationQuality] = useState<InsulationQuality>("sedang");
+  const [rankingPreference, setRankingPreference] = useState<RankingPreference>("risiko");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PredictRouteResponse | null>(null);
+  const [resultRequest, setResultRequest] = useState<RouteRequestPayload | null>(null);
   // The preference the displayed result was actually produced with -- kept
   // separate from rankingPreference so changing the selector without
   // re-submitting can't mislabel how the listed routes were ordered.
@@ -128,21 +140,23 @@ export default function Home() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setResultRequest(null);
 
     try {
+      const requestPayload: RouteRequestPayload = {
+        origin: { lat: origin.lat, lon: origin.lon },
+        destination: { lat: destination.lat, lon: destination.lon },
+        commodity_type: commodityType,
+        departure_time: new Date(departureTime).toISOString(),
+        transport_mode_preference: transportModePreference,
+        cold_chain_equipment: coldChainEquipment,
+        insulation_quality: insulationQuality,
+        ranking_preference: rankingPreference,
+      };
       const res = await fetch(`${API_BASE}/predict-route`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          origin: { lat: origin.lat, lon: origin.lon },
-          destination: { lat: destination.lat, lon: destination.lon },
-          commodity_type: commodityType,
-          departure_time: new Date(departureTime).toISOString(),
-          transport_mode_preference: transportModePreference,
-          cold_chain_equipment: coldChainEquipment,
-          insulation_quality: insulationQuality,
-          ranking_preference: rankingPreference,
-        }),
+        body: JSON.stringify(requestPayload),
       });
 
       if (!res.ok) {
@@ -152,6 +166,7 @@ export default function Home() {
 
       const data: PredictRouteResponse = await res.json();
       setResult(data);
+      setResultRequest({ ...requestPayload, shipment_id: data.shipment_id });
       setResultRanking(rankingPreference);
       setSelectedRouteId(data.recommended_route.route_id);
     } catch (err) {
@@ -286,7 +301,7 @@ export default function Home() {
             Preferensi Moda Transportasi
             <select
               value={transportModePreference}
-              onChange={(e) => setTransportModePreference(e.target.value)}
+              onChange={(e) => setTransportModePreference(e.target.value as TransportModePreference)}
               className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
             >
               <option value="semua">Semua</option>
@@ -300,7 +315,7 @@ export default function Home() {
             Urutkan Rute Berdasarkan
             <select
               value={rankingPreference}
-              onChange={(e) => setRankingPreference(e.target.value as "risiko" | "kecepatan")}
+              onChange={(e) => setRankingPreference(e.target.value as RankingPreference)}
               className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
             >
               <option value="risiko">Risiko kerusakan terendah</option>
@@ -312,7 +327,7 @@ export default function Home() {
             Peralatan Cold Chain
             <select
               value={coldChainEquipment}
-              onChange={(e) => setColdChainEquipment(e.target.value as "reefer" | "pasif")}
+              onChange={(e) => setColdChainEquipment(e.target.value as ColdChainEquipment)}
               className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
             >
               <option value="reefer">Reefer (pendingin aktif)</option>
@@ -325,7 +340,7 @@ export default function Home() {
               Kualitas Insulasi Kemasan
               <select
                 value={insulationQuality}
-                onChange={(e) => setInsulationQuality(e.target.value as "baik" | "sedang" | "buruk")}
+                onChange={(e) => setInsulationQuality(e.target.value as InsulationQuality)}
                 className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
               >
                 <option value="baik">Baik (cooler box tebal)</option>
@@ -410,6 +425,8 @@ export default function Home() {
                 </div>
               </div>
             )}
+
+            {resultRequest && <ScenarioSimulator key={result.shipment_id} baseline={resultRequest} />}
 
             <ParameterLegend />
           </div>
