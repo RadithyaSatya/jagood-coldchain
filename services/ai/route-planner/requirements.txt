@@ -6,6 +6,7 @@ httpx==0.28.1
 searoute==1.1.0
 geojson==2.5.0
 openrouteservice==2.3.3
+requests==2.34.2
 xgboost==3.4.0
 scikit-learn==1.6.0
 pandas==2.2.3

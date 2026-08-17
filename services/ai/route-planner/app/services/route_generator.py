@@ -8,6 +8,7 @@ port_selector.py + searoute-py.
 from concurrent.futures import ThreadPoolExecutor
 
 import openrouteservice
+import requests
 import searoute as sr
 from openrouteservice.exceptions import ApiError
 
@@ -123,7 +124,7 @@ def _ors_leg(client: openrouteservice.Client, origin: tuple[float, float], desti
             format="geojson",
             extra_info=["waytype"],
         )
-    except ApiError:
+    except (ApiError, requests.RequestException):
         return _fallback_leg(origin, destination, straight_line_km)
 
     leg = _feature_to_leg(result["features"][0])
@@ -152,7 +153,7 @@ def _fetch_variant(
             extra_info=["waytype"],
             **kwargs,
         )
-    except ApiError:
+    except (ApiError, requests.RequestException):
         return None
     return _feature_to_leg(result["features"][0])
 
@@ -193,7 +194,7 @@ def _ors_leg_alternatives(
             alternative_routes=ALT_ROUTES_PARAMS,
         )
         native_legs = [_feature_to_leg(f) for f in result["features"]]
-    except ApiError:
+    except (ApiError, requests.RequestException):
         pass
 
     with ThreadPoolExecutor(max_workers=len(DARAT_VARIANT_SPECS)) as executor:
