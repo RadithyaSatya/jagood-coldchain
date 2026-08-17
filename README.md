@@ -1,26 +1,26 @@
 # Jagood ColdChain
 
-Jagood ColdChain is an AI-powered solution designed to make cold-chain food delivery safer, more efficient, and easier to monitor.
+Jagood ColdChain is a hackathon decision-support prototype for planning cold-chain food delivery. It combines an XGBoost risk classifier, deterministic route/scenario logic, SHAP-based factor ranking, and an optional LLM explanation layer.
 
 Food products such as fresh produce, seafood, dairy, meat, and frozen goods require stable temperatures throughout their journey. Route changes, delays, or transportation disruptions can reduce food quality, shorten shelf life, and cause significant losses. Jagood ColdChain helps users identify these risks earlier and make better-informed decisions.
 
 ## Key Features
 
-### Smart Route Planner
+### Smart Route Planner — implemented with MVP limitations
 
-Recommends delivery routes by considering travel efficiency and potential risks to food quality throughout the distribution process.
+Ranks generated route candidates using travel time and a model-estimated quality-risk category. The model was trained on synthetic labels, so its output demonstrates the pipeline rather than validated real-world spoilage probability.
 
-### AI Scenario Simulator
+### Scenario Simulator — implemented
 
-Allows users to explore delivery scenarios such as delays, route changes, and temperature disruptions before a shipment begins.
+Re-runs the same analytical pipeline for changes to delay, transport mode, cooling equipment, or insulation. It is a deterministic counterfactual comparison, not Monte Carlo simulation or a separately trained scenario model.
 
-### Transportation Monitoring
+### Transportation Monitoring — not implemented
 
-Monitors shipment journeys and conditions to help detect potential issues at an early stage.
+The repository does not ingest live GPS, IoT sensors, or stored shipment telemetry. Monitoring remains future work.
 
-### AI Explain
+### AI Explain — implemented with fallback
 
-Explains recommendations, risks, and simulation results in clear language so users can make decisions with greater confidence.
+Explains structured planner/scenario results using an OpenAI-compatible local LLM. It does not calculate risk or routes. When the LLM is unavailable, the service returns a deterministic summary of the supplied analytical facts.
 
 ### Scoped Cold-Chain Chatbot
 
@@ -38,9 +38,9 @@ curl http://localhost:8001/v1/chat \
     "message": "Kenapa risiko pengiriman ini sedang?",
     "shipment_context": {
       "shipment_id": "SHP-123",
-      "source": "transportation_monitoring",
-      "product": "Frozen tuna",
-      "facts": {"current_temperature": "-16 °C"},
+      "source": "scenario_simulator",
+      "product": "Salmon Segar",
+      "facts": {"risk_delta": "48.92 poin persentase"},
       "risk_level": "medium"
     }
   }'
@@ -57,6 +57,8 @@ to maintain the chatbot's knowledge; no embedding model or vector database is re
 
 ## Goals
 
+These are intended product outcomes, not benefits already proven by the current MVP:
+
 - Reduce the risk of food spoilage during delivery.
 - Support more effective distribution planning.
 - Provide early warnings for potential disruptions.
@@ -65,7 +67,7 @@ to maintain the chatbot's knowledge; no embedding model or vector database is re
 
 ## Project Status
 
-Jagood ColdChain is currently being developed as a hackathon project, with an initial focus on validating its AI-powered features and user experience.
+Jagood ColdChain is a hackathon MVP, not a production food-safety, navigation, or shipment-monitoring system. See the [current capability and claim matrix](docs/CAPABILITY_MATRIX.md) before evaluating feature or data claims.
 
 ## Repository Layout
 
@@ -83,7 +85,7 @@ services/
   authentication/        not implemented yet
 datasets/                shared datasets (empty for now -- route-planner's data lives with it)
 docs/                    project-wide docs
-infrastructure/          deployment config (Docker/CI/CD) -- not implemented yet
+infrastructure/          Docker Compose deployment configuration
 ```
 
 ### Implemented modules
@@ -95,8 +97,8 @@ limitations.
 
 The AI Explain service and scoped cold-chain chatbot are available at
 [`services/ai/ai-explain/`](services/ai/ai-explain/). A standalone React interface for the
-chatbot is available at [`apps/jagood-web/`](apps/jagood-web/) while frontend integration is in
-progress.
+chatbot is available at [`apps/jagood-web/`](apps/jagood-web/), and planner/scenario results can
+also be sent to AI Explain directly from the main dashboard.
 
 ## Run the Complete Stack
 

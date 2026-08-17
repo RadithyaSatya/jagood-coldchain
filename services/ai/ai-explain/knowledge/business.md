@@ -1,23 +1,8 @@
 # Business Value
 
-Target User
+Hipotesis nilai yang ingin diuji JaGOOD adalah membantu distributor, freight forwarder, HoReCa,
+UMKM, dan pemangku kepentingan logistik membandingkan trade-off rute dan skenario cold chain dengan
+lebih transparan.
 
-- Distributor
-- Freight Forwarder
-- HoReCa
-- UMKM
-- Pemerintah
-
-Benefit
-
-Distributor
-- menekan kerugian
-
-Restaurant
-- mutu terjaga
-
-UMKM
-- akses pasar premium
-
-Government
-- menurunkan food loss
+Potensi pengurangan kerugian, peningkatan mutu, atau perluasan pasar belum diukur dalam repository.
+Klaim manfaat tersebut memerlukan pilot, data shipment nyata, dan evaluasi bisnis di luar MVP.

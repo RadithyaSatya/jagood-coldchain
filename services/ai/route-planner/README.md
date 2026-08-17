@@ -1,7 +1,11 @@
 # Smart Route Planner
 
-AI-powered route recommendation for cold chain logistics. See
+Experimental XGBoost-based route decision support for a cold-chain hackathon MVP. See
 [`smart-router-prd.md`](smart-router-prd.md) for the full spec.
+
+The risk model is genuinely executed at inference time, but it was trained on synthetic
+shipments and labels. Its scores are model outputs for comparing demo scenarios, not validated
+real-world spoilage probabilities or food-safety guarantees.
 
 ## Setup
 
@@ -26,6 +30,14 @@ python -m uvicorn app.main:app --reload
 
 The frontend at [`../../../frontend`](../../../frontend) calls this API at
 `http://localhost:8000` by default (see its `.env.local`).
+
+## Commodity provenance
+
+`GET /commodities` returns each profile with field-level provenance, while
+`GET /commodities/provenance` returns dataset metadata and source declarations. The current
+profiles are all classified `DEMO`: they are manually curated MVP assumptions, are not derived
+from FoodKeeper, and are not validated regulatory storage guidance. The loader fails if a
+commodity or field has no matching provenance declaration.
 
 ## API docs (Swagger)
 
@@ -107,7 +119,7 @@ The response includes the full baseline and simulated recommended routes,
 - **`port_status_flag`** is a proxy derived from BMKG wave-category
   forecasts, not an official real-time port operational status (no public
   Inaportnet API exists for this).
-- **`port_ambient_temp_c`** (real BMKG air temperature at the hotter
+- **`port_ambient_temp_c`** (external BMKG forecast temperature when available at the hotter
   embark/disembark port) is a proxy for reefer/equipment stress risk during
   port dwell time -- it is *not* the cargo's actual temperature, and there is
   no data source for real refrigeration-unit reliability. Its contribution to
@@ -130,7 +142,7 @@ The response includes the full baseline and simulated recommended routes,
 - BMKG and OpenRouteService responses are cached (Postgres, a few hours TTL)
   to stay within free-tier rate limits during a live demo.
 - **`cold_chain_equipment: "pasif"`** (no active reefer) simulates cargo
-  temperature against real Open-Meteo ambient air temperature along the
+  temperature against Open-Meteo forecast ambient air temperature along the
   route (exponential heat-transfer model, Q10=2.5 shelf-life acceleration
   above the commodity's ideal temp). This is the physically-appropriate case
   for the Q10 principle -- unlike `port_ambient_temp_c` above, cargo
@@ -142,6 +154,9 @@ The response includes the full baseline and simulated recommended routes,
   heat-transfer constant rather than a measured value, and no ice-pack/
   phase-change reserve is modeled (a real passive cooler with ice packs
   would resist warming longer than this model predicts).
+- If Open-Meteo is unavailable, passive cooling uses a deterministic synthetic
+  tropical temperature curve. The response does not currently expose that temperature-source
+  distinction separately from route geometry `data_quality`.
 - Scenario `delay_hours` represents additional in-transit time. It is exposed
   to the model as `expected_delay_hours`, included in projected arrival, and
   extends passive-cargo temperature exposure; it does not claim to predict the

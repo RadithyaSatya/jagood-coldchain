@@ -184,7 +184,7 @@ async def test_chat_endpoint_retrieves_jagood_markdown(fake_llm: FakeLLM) -> Non
     assert body["intent"] == "feature_information"
     assert body["handled_by"] == "llm"
     assert "ai-modules.md#smart-route-planner" in body["sources"]
-    assert "Best Route" in fake_llm.calls[0][0][1].content
+    assert "XGBoost" in fake_llm.calls[0][0][1].content
 
 
 @pytest.mark.asyncio

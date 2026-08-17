@@ -87,7 +87,7 @@ function AlternativeRouteCard({
         <div>Estimasi: {candidate.estimated_duration_hours.toFixed(1)} jam</div>
         <div>Tiba: {formatArrival(candidate.estimated_arrival)}</div>
         <div>Skor: {(candidate.risk_probability * 100).toFixed(0)}%</div>
-        <div>Data: {candidate.data_quality === "estimated" ? "Estimasi" : "Live"}</div>
+        <div>Routing: {candidate.data_quality === "estimated" ? "Fallback estimasi" : "Tanpa fallback"}</div>
       </div>
       <RiskExplanation summary={candidate.risk_explanation_summary} factors={candidate.risk_explanation_factors} />
       <CargoTempChart route={candidate} />

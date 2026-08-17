@@ -1,21 +1,9 @@
 # Problem Statement
 
-Indonesia memiliki lebih dari 17.000 pulau.
+Pengiriman pangan cold chain dapat terdampak oleh durasi perjalanan, delay, kondisi lingkungan,
+moda transportasi, dan kemampuan pendinginan. JaGOOD mengeksplorasi bagaimana faktor-faktor
+tersebut dapat dibandingkan sebelum pengiriman agar pengguna mempunyai dasar keputusan yang lebih
+jelas.
 
-Masalah utama:
-
-- Food loss
-- Keterlambatan kapal
-- Cuaca
-- Gelombang
-- Putus cold chain
-- Penurunan mutu
-
-Existing Solution:
-
-IoT hanya monitoring.
-
-Gap:
-
-Belum ada AI yang membantu mengambil keputusan
-sebelum pengiriman dilakukan.
+MVP berfokus pada perencanaan dan simulasi. Ia belum membuktikan pengurangan food loss, belum
+menggantikan penilaian keamanan pangan, dan belum menyediakan monitoring shipment berjalan.

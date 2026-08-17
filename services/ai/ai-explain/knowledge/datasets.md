@@ -1,39 +1,26 @@
 # Dataset
 
-BMKG
+## Commodity Profiles
 
-Jenis
+Klasifikasi: DEMO.
 
-- weather
-- wave
-- wind
+Profil suhu, shelf life, toleransi delay, dan sensitivitas adalah asumsi manual untuk MVP. Data
+tersebut bukan turunan FoodKeeper dan belum tervalidasi untuk keputusan keamanan pangan.
 
-Format
+## Model Training Data
 
-JSON
+Klasifikasi: SYNTHETIC.
 
-Update
+Shipment, kondisi, delay, damage rate, dan label risiko untuk training/evaluasi dibuat oleh script
+deterministik dengan seed. Metrik evaluasi hanya menunjukkan kemampuan model mempelajari fungsi
+label sintetis, bukan akurasi pada shipment nyata.
 
-Realtime
+## Runtime Environmental Data
 
----
+OpenRouteService dipakai untuk rute darat jika tersedia dan memiliki fallback estimasi jarak.
+BMKG dipakai untuk prakiraan rute maritim/pelabuhan dan responsnya di-cache, tetapi kegagalan HTTP
+yang belum ter-cache masih dapat menggagalkan request maritim. Open-Meteo dipakai untuk suhu
+ambient pada simulasi pendingin pasif dan memiliki fallback sintetis. Rute darat memakai kondisi
+lingkungan netral yang dikonfigurasi.
 
-Internal
-
-- shipment
-
-- commodity
-
-- destination
-
----
-
-Synthetic
-
-Purpose
-
-Training Scenario Simulator
-
-Reason
-
-Historical data masih terbatas.
+Tidak ada dataset GPS, IoT, shipment aktual, atau outcome kerusakan nyata di MVP.

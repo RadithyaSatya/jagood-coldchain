@@ -1,25 +1,17 @@
 # Roadmap
 
-MVP
+Sudah tersedia dalam MVP:
 
-- BMKG
+- route planner dan risk inference berbasis model sintetis
+- scenario comparison deterministik
+- integrasi prakiraan maritim dan ambient dengan fallback
+- SHAP dan AI Explain
 
-- Synthetic Data
+Rencana setelah MVP, belum tersedia:
 
-- Route Planner
+- validasi dengan profil komoditas referensial dan outcome shipment nyata
+- GPS/IoT dan real-time shipment monitoring
+- estimasi remaining shelf life dan economic loss yang tervalidasi
+- autentikasi, notifikasi, observability, dan deployment production
 
-- Scenario Simulator
-
-Phase 2
-
-IoT
-
-Realtime Monitoring
-
-Phase 3
-
-Reinforcement Learning
-
-Phase 4
-
-Enterprise Deployment
+Reinforcement learning dan feature store bukan kebutuhan MVP dan belum diimplementasikan.

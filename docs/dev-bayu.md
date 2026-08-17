@@ -2,6 +2,10 @@
 
 **Smart Route Planner: layanan AI rekomendasi rute untuk logistik rantai dingin**
 
+> **Catatan:** dokumen ini adalah snapshot historis branch `dev-bayu`; tabel status fitur dan
+> contoh hasil di bawah tidak mencerminkan seluruh repository saat ini. Gunakan
+> [`CAPABILITY_MATRIX.md`](CAPABILITY_MATRIX.md) dan README utama untuk klaim implementasi terbaru.
+
 | | |
 |---|---|
 | Branch | `dev-bayu` (2 commit di atas `main`) |
@@ -16,16 +20,16 @@
 
 JaGOOD ColdChain adalah solusi berbasis AI untuk membuat pengiriman pangan rantai dingin lebih aman dan terpantau. Produk seperti hasil laut, daging, susu, dan sayuran segar membutuhkan suhu stabil sepanjang perjalanan; perubahan rute, keterlambatan, atau gangguan cuaca dapat menurunkan mutu dan memperpendek umur simpan.
 
-Branch `dev-bayu` membangun **satu dari empat fitur** yang direncanakan — **Smart Route Planner** — secara lengkap dari model machine learning hingga antarmuka peta interaktif.
+Branch `dev-bayu` awalnya berfokus pada **Smart Route Planner** dari model machine learning hingga antarmuka peta interaktif. Repository saat ini sudah berkembang setelah snapshot ini.
 
 ### Status keempat fitur produk
 
 | Fitur | Status di `dev-bayu` |
 |---|---|
-| **Smart Route Planner** | ✅ Berfungsi penuh (FastAPI + XGBoost + Next.js) |
-| AI Scenario Simulator | ⬜ Belum diimplementasikan (folder + README saja) |
+| **Smart Route Planner** | ✅ MVP tersedia (FastAPI + XGBoost + Next.js; model berbasis data sintetis) |
+| AI Scenario Simulator | ✅ Diimplementasikan di route-planner sebagai counterfactual deterministik |
 | Transportation Monitoring | ⬜ Belum diimplementasikan |
-| AI Explain (sebagai service terpisah) | ⬜ Belum — namun explainability SHAP sudah tertanam di route-planner |
+| AI Explain (sebagai service terpisah) | ✅ Tersedia; LLM menjelaskan hasil terstruktur dan memiliki fallback deterministik |
 
 Layanan pendukung `weather/`, `notification/`, `authentication/`, dan `backend/` (API gateway) juga masih berupa placeholder.
 
@@ -203,7 +207,7 @@ ranking_preference=kecepatan → direkomendasikan: FAST-risky (High, p=1,000)
 
 Kandidat identik, rekomendasi berlawanan — inilah pembeda produk yang dapat didemonstrasikan langsung.
 
-Pada data nyata Jakarta → Makassar, mode `risiko` memilih rute yang **1,25 jam lebih lambat** karena risikonya lebih rendah.
+Pada satu contoh runtime Jakarta → Makassar, mode `risiko` memilih kandidat yang **1,25 jam lebih lambat** karena skor modelnya lebih rendah. Contoh ini bukan validasi terhadap outcome shipment nyata.
 
 ### 5.4 Keluaran
 

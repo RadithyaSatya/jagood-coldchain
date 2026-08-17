@@ -1,6 +1,10 @@
 # PRD — JaGOOD Smart Route Planner
 ### AI-Powered Route Recommendation untuk Cold Chain Logistics
 
+> **Status dokumen:** PRD ini berisi rancangan awal dan sebagian telah digantikan oleh
+> implementasi saat ini. Untuk klaim fitur/data aktual, gunakan
+> [`../../../docs/CAPABILITY_MATRIX.md`](../../../docs/CAPABILITY_MATRIX.md) dan README service.
+
 **Versi:** 1.0
 **Modul:** AI 2 — Smart Route Recommendation (bagian dari platform JaGOOD)
 **Target implementasi:** MVP Hackathon (vibecoding-ready)
@@ -91,8 +95,8 @@ Jika kondisi ekstrem terdeteksi pada rute laut (misal `wave_category` = Tinggi/S
 }
 ```
 
-### FR-8: Explainability (opsional, terhubung ke AI Explain/LLM)
-Field `trigger_reason` dan feature importance dari model disediakan sebagai bahan mentah untuk lapisan LLM Explain (di luar scope modul ini, tapi outputnya harus kompatibel).
+### FR-8: Explainability dan AI Explain
+Route planner menghitung faktor SHAP kualitatif. Frontend meneruskan hasil terstruktur tersebut ke service AI Explain; LLM hanya menjelaskan dan tidak menghitung skor risiko atau rute.
 
 ---
 
@@ -100,12 +104,12 @@ Field `trigger_reason` dan feature importance dari model disediakan sebagai baha
 
 | Fitur | Sumber | Jenis | Catatan |
 |---|---|---|---|
-| Jarak & durasi darat | OpenRouteService API (atau OSRM self-host) | Real, gratis (fair-use limit) | Perlu API key gratis dari openrouteservice.org |
-| Jarak & waypoint laut | `searoute-py` (Python package) | Real (jalur laut aktual), gratis, lokal | `pip install searoute` — bukan untuk navigasi presisi |
-| Cuaca & tinggi gelombang | BMKG Public API (`peta-maritim.bmkg.go.id/public_api`) | Real, gratis resmi pemerintah | Wajib cantumkan atribusi "BMKG" |
+| Jarak & durasi darat | OpenRouteService API | External runtime atau estimated fallback | Perlu API key; fallback haversine dipakai saat ORS gagal/tidak masuk akal |
+| Jarak & waypoint laut | `searoute-py` (Python package) | Derived/estimated | Geometri untuk estimasi dan visualisasi; bukan jalur navigasi aktual/presisi |
+| Cuaca & tinggi gelombang | BMKG Public API (`peta-maritim.bmkg.go.id/public_api`) | External forecast | Di-cache; kegagalan HTTP uncached belum sepenuhnya diisolasi |
 | Status pelabuhan | Derived dari `wave_category` BMKG | Proxy/rule-based | Tidak ada API publik resmi (Inaportnet tertutup) |
-| Histori delay & histori kerusakan | Dataset internal/sintetis | Sintetis (MVP) | Dibangun dari asumsi realistis + pola musiman BMKG |
-| Karakteristik komoditas (suhu ideal, shelf life) | USDA FoodKeeper dataset + literatur FAO | Semi-real (referensial) | Lookup table statis, tidak perlu API real-time |
+| Histori delay & histori kerusakan | Generator dan baseline internal | Sintetis/derived (MVP) | Bukan histori shipment yang diamati dan belum tervalidasi dengan outcome riil |
+| Karakteristik komoditas (suhu ideal, shelf life) | Asumsi manual tim JaGOOD | Demo | Bukan turunan FoodKeeper/FAO; provenance tersedia melalui API |
 
 ## 7. Skema Data (Data Contract)
 

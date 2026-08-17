@@ -34,7 +34,8 @@ export default function ParameterLegend() {
           </ul>
           <p className="mt-2 text-zinc-500 dark:text-zinc-400">
             Garis tebal = rute yang direkomendasikan. Garis putus-putus = sebagian jarak/waktu
-            hasil estimasi (bukan data live ORS), lihat <code>data_quality</code>.
+            memakai fallback estimasi untuk sebagian jarak/waktu, lihat <code>data_quality</code>.
+            Indikator ini hanya menjelaskan fallback routing, bukan seluruh input model.
           </p>
         </div>
 
@@ -81,7 +82,7 @@ export default function ParameterLegend() {
             <div>
               <dt className="font-medium text-zinc-800 dark:text-zinc-200">Suhu udara pelabuhan (port_ambient_temp_c)</dt>
               <dd>
-                Suhu udara real BMKG di pelabuhan muat/bongkar terpanas pada rute kombinasi -- bukan suhu kargo. Ini proxy risiko
+                Prakiraan suhu udara BMKG di pelabuhan muat/bongkar terpanas pada rute kombinasi -- bukan suhu kargo. Ini proxy risiko
                 mesin pendingin (reefer) kepayahan saat kontainer idle lama di pelabuhan yang panas, bukan asumsi kargo langsung
                 ikut memanas. Rute darat tanpa singgah pelabuhan pakai nilai netral (30&deg;C) yang tidak menambah risiko.
               </dd>
@@ -91,7 +92,7 @@ export default function ParameterLegend() {
               <dd>
                 <strong>Reefer</strong> (pendingin aktif): kargo diasumsikan tetap di suhu ideal sepanjang perjalanan.{" "}
                 <strong>Pasif</strong> (tanpa pendingin aktif, misal cooler box + insulasi saja): suhu kargo disimulasikan
-                mengikuti suhu udara asli sepanjang rute (data Open-Meteo) dengan model perpindahan panas, dan laju kerusakan
+                mengikuti prakiraan suhu udara sepanjang rute (Open-Meteo, dengan fallback sintetis) memakai model perpindahan panas, dan laju kerusakan
                 dipercepat mengikuti prinsip Q10 (tiap ~10&deg;C di atas suhu ideal, laju kerusakan kira-kira berlipat).
                 Grafik suhu kargo hanya muncul untuk rute pasif.
               </dd>

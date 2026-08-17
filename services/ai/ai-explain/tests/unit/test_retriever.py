@@ -6,13 +6,14 @@ def test_retrieves_feature_section_from_markdown() -> None:
 
     assert results
     assert results[0].citation == "ai-modules.md#smart-route-planner"
-    assert "Best Route" in results[0].content
+    assert "XGBoost" in results[0].content
 
 
 def test_retrieves_document_using_synonym() -> None:
     results = retrieve_knowledge("Bagaimana monitoring pengiriman?")
 
-    assert any(result.heading == "Maritime Monitoring" for result in results)
+    monitoring = next(result for result in results if result.heading == "Maritime Monitoring")
+    assert "belum tersedia" in monitoring.content
 
 
 def test_retrieves_jagood_overview() -> None:

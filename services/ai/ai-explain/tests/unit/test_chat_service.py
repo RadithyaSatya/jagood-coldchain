@@ -69,7 +69,7 @@ async def test_jagood_question_uses_markdown_knowledge() -> None:
     assert "overview.md#jagood" in response.sources
     assert '"knowledge_context"' in llm.calls[0][0][1].content
     assert (
-        "JaGOOD (Jaga Food) adalah platform AI Decision Intelligence"
+        "JaGOOD (Jaga Food) adalah prototipe decision-support"
         in llm.calls[0][0][1].content
     )
 
