@@ -7,6 +7,7 @@ import CargoTempChart from "@/components/CargoTempChart";
 import ParameterLegend from "@/components/ParameterLegend";
 import RiskBadge from "@/components/RiskBadge";
 import RiskExplanation from "@/components/RiskExplanation";
+import RouteComparison from "@/components/RouteComparison";
 import ScenarioSimulator from "@/components/ScenarioSimulator";
 import { buildRouteExplainContext } from "@/lib/aiExplain";
 import { CITIES } from "@/lib/cities";
@@ -377,6 +378,14 @@ export default function Home() {
 
         {result && (
           <div className="mt-6 space-y-6">
+            <RouteComparison
+              routes={allRoutes}
+              recommendedRouteId={result.recommended_route.route_id}
+              rankingPreference={resultRanking}
+              selectedRouteId={selectedRouteId}
+              onSelectRoute={setSelectedRouteId}
+            />
+
             <div>
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                 Rute Direkomendasikan{" "}

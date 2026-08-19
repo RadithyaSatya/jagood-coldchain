@@ -8,7 +8,7 @@ Food products such as fresh produce, seafood, dairy, meat, and frozen goods requ
 
 ### Smart Route Planner — implemented with MVP limitations
 
-Ranks generated route candidates using travel time and a model-estimated quality-risk category. The model was trained on synthetic labels, so its output demonstrates the pipeline rather than validated real-world spoilage probability.
+Ranks generated route candidates using travel time and a model-estimated quality-risk category. The dashboard compares risk score, duration, distance, routing fallback, and environmental-data quality side by side. The model was trained on synthetic labels, so its output demonstrates the pipeline rather than validated real-world spoilage probability.
 
 ### Scenario Simulator — implemented
 
