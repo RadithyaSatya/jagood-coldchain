@@ -10,3 +10,5 @@ README for the URL.
 
 - [Docker + PostgreSQL setup](docker-setup.md) -- containerized stack (Postgres, backend, frontend), verification results, known gotchas.
 - [`dev-bayu` branch documentation](dev-bayu.md) ([PDF](dev-bayu.pdf)) -- full walkthrough of the Smart Route Planner: architecture, the XGBoost risk model and its measured metrics, risk-first route ranking, SHAP explainability, cargo-temperature simulation, API reference, setup guide, and known limitations.
+- [`Hackathon demo runbook`](DEMO_RUNBOOK.md) -- preflight checks, a 5–8 minute judge flow, offline fallback path, troubleshooting, and safe claim boundaries.
+- [`Capability and claim matrix`](CAPABILITY_MATRIX.md) -- implemented, limited, and missing capabilities plus the current data classifications.

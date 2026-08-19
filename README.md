@@ -69,6 +69,8 @@ These are intended product outcomes, not benefits already proven by the current 
 
 Jagood ColdChain is a hackathon MVP, not a production food-safety, navigation, or shipment-monitoring system. See the [current capability and claim matrix](docs/CAPABILITY_MATRIX.md) before evaluating feature or data claims.
 
+For presentation preparation, use the [hackathon demo runbook](docs/DEMO_RUNBOOK.md), which includes preflight checks, the primary judge flow, and a route that remains demonstrable when external services are unavailable.
+
 ## Repository Layout
 
 ```
