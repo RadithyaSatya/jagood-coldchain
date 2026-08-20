@@ -3,10 +3,12 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import AIExplainPanel from "@/components/AIExplainPanel";
+import AppHeader from "@/components/AppHeader";
 import CargoTempChart from "@/components/CargoTempChart";
 import ParameterLegend from "@/components/ParameterLegend";
 import RiskBadge from "@/components/RiskBadge";
 import RiskExplanation from "@/components/RiskExplanation";
+import SearchSelect from "@/components/SearchSelect";
 import ScenarioSimulator from "@/components/ScenarioSimulator";
 import { buildRouteExplainContext } from "@/lib/aiExplain";
 import { CITIES } from "@/lib/cities";
@@ -22,13 +24,33 @@ import type {
   TransportModePreference,
 } from "@/lib/types";
 
+function ForecastMapLoading() {
+  return (
+    <div className="map-loading-state" role="status" aria-live="polite">
+      <div className="map-loading-state__wave" aria-hidden />
+      <div>
+        <strong>Memuat peta prakiraan</strong>
+        <span>Menyiapkan titik pengiriman dan layer rute.</span>
+      </div>
+    </div>
+  );
+}
+
+function RouteSearchLoading() {
+  return (
+    <div className="operation-loading" role="status" aria-live="polite">
+      <span className="loading-spinner" aria-hidden />
+      <div>
+        <strong>Mencari rute terbaik</strong>
+        <span>Menilai risiko, kondisi perjalanan, dan alternatif rute.</span>
+      </div>
+    </div>
+  );
+}
+
 const RouteMap = dynamic(() => import("@/components/RouteMap"), {
   ssr: false,
-  loading: () => (
-    <div className="flex h-full items-center justify-center text-sm text-zinc-500 dark:text-zinc-400">
-      Memuat peta...
-    </div>
-  ),
+  loading: () => null,
 });
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -45,6 +67,27 @@ const ENVIRONMENT_QUALITY_LABELS: Record<RouteCandidate["environmental_data_qual
   fallback: "Fallback netral",
   configured: "Default terkonfigurasi",
 };
+
+const CITY_OPTIONS = CITIES.map((city) => ({ value: city.label, label: city.label }));
+const TRANSPORT_OPTIONS = [
+  { value: "semua", label: "Semua moda" },
+  { value: "darat", label: "Darat saja" },
+  { value: "laut", label: "Laut saja" },
+  { value: "kombinasi", label: "Kombinasi" },
+];
+const RANKING_OPTIONS = [
+  { value: "risiko", label: "Risiko kerusakan terendah" },
+  { value: "kecepatan", label: "Waktu tempuh tercepat" },
+];
+const EQUIPMENT_OPTIONS = [
+  { value: "reefer", label: "Reefer (pendingin aktif)" },
+  { value: "pasif", label: "Pasif (tanpa pendingin aktif)" },
+];
+const INSULATION_OPTIONS = [
+  { value: "baik", label: "Baik (cooler box tebal)" },
+  { value: "sedang", label: "Sedang (styrofoam standar)" },
+  { value: "buruk", label: "Buruk (kardus/insulasi tipis)" },
+];
 
 function defaultDepartureTime(): string {
   const d = new Date(Date.now() + 24 * 3600 * 1000);
@@ -77,19 +120,21 @@ function AlternativeRouteCard({
   onSelect: () => void;
 }) {
   return (
-    <div
+    <button
+      type="button"
       onClick={onSelect}
-      className={`cursor-pointer rounded-lg border bg-white p-4 transition-colors dark:bg-zinc-900 ${
+      aria-pressed={selected}
+      className={`result-card w-full cursor-pointer p-4 text-left ${
         selected
-          ? "border-2 border-sky-500 dark:border-sky-500"
-          : "border-zinc-200 hover:border-sky-300 dark:border-zinc-800 dark:hover:border-sky-800"
+          ? "result-card--selected"
+          : ""
       }`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-semibold">{MODE_LABELS[candidate.transport_mode] ?? candidate.transport_mode}</span>
         <RiskBadge level={candidate.risk_level} />
       </div>
-      <div className="mt-1 grid grid-cols-2 gap-2 text-sm text-zinc-600 sm:grid-cols-3 dark:text-zinc-400">
+      <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600 sm:grid-cols-3">
         <div>Jarak: {candidate.distance_km.toFixed(0)} km</div>
         <div>Estimasi: {candidate.estimated_duration_hours.toFixed(1)} jam</div>
         <div>Tiba: {formatArrival(candidate.estimated_arrival)}</div>
@@ -99,7 +144,7 @@ function AlternativeRouteCard({
       </div>
       <RiskExplanation summary={candidate.risk_explanation_summary} factors={candidate.risk_explanation_factors} />
       <CargoTempChart route={candidate} />
-    </div>
+    </button>
   );
 }
 
@@ -116,6 +161,8 @@ export default function Home() {
   const [rankingPreference, setRankingPreference] = useState<RankingPreference>("risiko");
 
   const [loading, setLoading] = useState(false);
+  const [commoditiesLoading, setCommoditiesLoading] = useState(true);
+  const [mapLoading, setMapLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PredictRouteResponse | null>(null);
   const [resultRequest, setResultRequest] = useState<RouteRequestPayload | null>(null);
@@ -132,7 +179,8 @@ export default function Home() {
         setCommodities(data);
         if (data.length > 0) setCommodityType(data[0].commodity_type);
       })
-      .catch(() => setError("Tidak bisa memuat daftar komoditas dari backend."));
+      .catch(() => setError("Tidak bisa memuat daftar komoditas dari backend."))
+      .finally(() => setCommoditiesLoading(false));
   }, []);
 
   function handleOriginChange(lat: number, lon: number) {
@@ -141,9 +189,6 @@ export default function Home() {
   function handleDestinationChange(lat: number, lon: number) {
     setDestination({ label: formatCoord(lat, lon), lat, lon });
   }
-
-  const originPresetIdx = CITIES.findIndex((c) => c.lat === origin.lat && c.lon === origin.lon);
-  const destinationPresetIdx = CITIES.findIndex((c) => c.lat === destination.lat && c.lon === destination.lon);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -187,209 +232,198 @@ export default function Home() {
   }
 
   const allRoutes = result ? [result.recommended_route, ...result.alternative_routes] : [];
+  const selectedRoute = allRoutes.find((route) => route.route_id === selectedRouteId) ?? result?.recommended_route;
+  const initialLoading = commoditiesLoading || mapLoading;
+  const formBusy = initialLoading || loading;
 
   return (
-    <div className="flex flex-1 flex-col items-center bg-zinc-50 px-4 py-10 dark:bg-zinc-950">
-      <div className="w-full max-w-5xl">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-          JaGOOD Smart Route Planner
-        </h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Rute diurutkan berdasarkan risiko kerusakan produk terendah (bukan sekadar tercepat), dengan analisis
-          cold chain untuk setiap rute -- klik rute di peta atau di daftar untuk membandingkan.
-        </p>
+    <div className="flex min-h-full flex-1 flex-col">
+      <AppHeader />
+      <main className="planner-page">
+        <div className="planner-container">
+          <section className="planner-hero" aria-labelledby="page-title">
+            <p className="eyebrow">JaGOOD Cold Chain</p>
+            <h1 id="page-title">Rencanakan pengiriman dengan risiko yang terukur.</h1>
+            <p>
+              Bandingkan rute berdasarkan risiko kerusakan produk, waktu tempuh, dan kondisi cold chain sebelum
+              pengiriman dimulai.
+            </p>
+          </section>
 
-        <div className="mt-6">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setPickMode("origin")}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                pickMode === "origin"
-                  ? "bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900"
-                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-              }`}
-            >
-              A Titik Asal: {origin.label}
-            </button>
-            <button
-              type="button"
-              onClick={() => setPickMode("destination")}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                pickMode === "destination"
-                  ? "bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900"
-                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-              }`}
-            >
-              B Titik Tujuan: {destination.label}
-            </button>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
-              Klik tombol lalu klik peta untuk menandai titik, atau seret penanda A/B langsung.
-            </span>
-          </div>
-          <div className="h-[420px] overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
-            <RouteMap
-              origin={origin}
-              destination={destination}
-              onOriginChange={handleOriginChange}
-              onDestinationChange={handleDestinationChange}
-              pickMode={pickMode}
-              routes={allRoutes}
-              recommendedRouteId={result?.recommended_route.route_id}
-              selectedRouteId={selectedRouteId ?? undefined}
-              onSelectRoute={setSelectedRouteId}
-            />
-          </div>
-        </div>
+          <section id="planner" className="planner-workspace" aria-labelledby="planner-title">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Perencanaan rute</p>
+                <h2 id="planner-title">Tentukan titik dan detail pengiriman</h2>
+              </div>
+            </div>
+            <form onSubmit={handleSubmit} className="planner-form" aria-busy={formBusy}>
+              <div className="form-field">
+                Asal
+                <SearchSelect
+                  label="titik asal"
+                  value={origin.label}
+                  options={CITY_OPTIONS}
+                  placeholder="Pilih titik asal"
+                  disabled={formBusy}
+                  onValueChange={(label) => setOrigin(CITIES.find((city) => city.label === label) ?? origin)}
+                />
+              </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-lg border border-zinc-200 bg-white p-5 sm:grid-cols-2 dark:border-zinc-800 dark:bg-zinc-900"
-        >
-          <label className="flex flex-col gap-1 text-sm">
-            Asal (atau pilih di peta)
-            <select
-              value={originPresetIdx === -1 ? "" : originPresetIdx}
-              onChange={(e) => setOrigin(CITIES[Number(e.target.value)])}
-              className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
-            >
-              <option value="" disabled hidden>
-                -- titik kustom dari peta --
-              </option>
-              {CITIES.map((city, i) => (
-                <option key={city.label} value={i}>
-                  {city.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              <div className="form-field">
+                Tujuan
+                <SearchSelect
+                  label="titik tujuan"
+                  value={destination.label}
+                  options={CITY_OPTIONS}
+                  placeholder="Pilih titik tujuan"
+                  disabled={formBusy}
+                  onValueChange={(label) => setDestination(CITIES.find((city) => city.label === label) ?? destination)}
+                />
+              </div>
 
-          <label className="flex flex-col gap-1 text-sm">
-            Tujuan (atau pilih di peta)
-            <select
-              value={destinationPresetIdx === -1 ? "" : destinationPresetIdx}
-              onChange={(e) => setDestination(CITIES[Number(e.target.value)])}
-              className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
-            >
-              <option value="" disabled hidden>
-                -- titik kustom dari peta --
-              </option>
-              {CITIES.map((city, i) => (
-                <option key={city.label} value={i}>
-                  {city.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              <div className="form-field">
+                Jenis Komoditas
+                <SearchSelect
+                  label="jenis komoditas"
+                  value={commodityType}
+                  options={commodities.map((commodity) => ({ value: commodity.commodity_type, label: commodity.commodity_type }))}
+                  placeholder="Pilih komoditas"
+                  disabled={formBusy}
+                  onValueChange={setCommodityType}
+                />
+              </div>
 
-          <label className="flex flex-col gap-1 text-sm">
-            Jenis Komoditas
-            <select
-              value={commodityType}
-              onChange={(e) => setCommodityType(e.target.value)}
-              className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
-            >
-              {commodities.map((c) => (
-                <option key={c.commodity_type} value={c.commodity_type}>
-                  {c.commodity_type}
-                </option>
-              ))}
-            </select>
-          </label>
+              <label className="form-field">
+                Waktu Keberangkatan
+                <input
+                  type="datetime-local"
+                  value={departureTime}
+                  disabled={formBusy}
+                  onChange={(e) => setDepartureTime(e.target.value)}
+                  className="form-control"
+                />
+              </label>
 
-          <label className="flex flex-col gap-1 text-sm">
-            Waktu Keberangkatan
-            <input
-              type="datetime-local"
-              value={departureTime}
-              onChange={(e) => setDepartureTime(e.target.value)}
-              className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
-            />
-          </label>
+              <div className="form-field">
+                Preferensi Moda Transportasi
+                <SearchSelect
+                  label="moda transportasi"
+                  value={transportModePreference}
+                  options={TRANSPORT_OPTIONS}
+                  placeholder="Pilih moda"
+                  disabled={formBusy}
+                  onValueChange={(value) => setTransportModePreference(value as TransportModePreference)}
+                />
+              </div>
 
-          <label className="flex flex-col gap-1 text-sm">
-            Preferensi Moda Transportasi
-            <select
-              value={transportModePreference}
-              onChange={(e) => setTransportModePreference(e.target.value as TransportModePreference)}
-              className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
-            >
-              <option value="semua">Semua</option>
-              <option value="darat">Darat saja</option>
-              <option value="laut">Laut saja</option>
-              <option value="kombinasi">Kombinasi</option>
-            </select>
-          </label>
+              <div className="form-field">
+                Urutkan Rute Berdasarkan
+                <SearchSelect
+                  label="preferensi urutan"
+                  value={rankingPreference}
+                  options={RANKING_OPTIONS}
+                  placeholder="Pilih urutan"
+                  disabled={formBusy}
+                  onValueChange={(value) => setRankingPreference(value as RankingPreference)}
+                />
+              </div>
 
-          <label className="flex flex-col gap-1 text-sm">
-            Urutkan Rute Berdasarkan
-            <select
-              value={rankingPreference}
-              onChange={(e) => setRankingPreference(e.target.value as RankingPreference)}
-              className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
-            >
-              <option value="risiko">Risiko kerusakan terendah</option>
-              <option value="kecepatan">Waktu tempuh tercepat</option>
-            </select>
-          </label>
+              <div className="form-field">
+                Peralatan Cold Chain
+                <SearchSelect
+                  label="peralatan cold chain"
+                  value={coldChainEquipment}
+                  options={EQUIPMENT_OPTIONS}
+                  placeholder="Pilih peralatan"
+                  disabled={formBusy}
+                  onValueChange={(value) => setColdChainEquipment(value as ColdChainEquipment)}
+                />
+              </div>
 
-          <label className="flex flex-col gap-1 text-sm">
-            Peralatan Cold Chain
-            <select
-              value={coldChainEquipment}
-              onChange={(e) => setColdChainEquipment(e.target.value as ColdChainEquipment)}
-              className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
-            >
-              <option value="reefer">Reefer (pendingin aktif)</option>
-              <option value="pasif">Pasif (tanpa pendingin aktif)</option>
-            </select>
-          </label>
+              {coldChainEquipment === "pasif" && (
+                <div className="form-field sm:col-span-2">
+                  Kualitas Insulasi Kemasan
+                  <SearchSelect
+                    label="kualitas insulasi"
+                    value={insulationQuality}
+                    options={INSULATION_OPTIONS}
+                    placeholder="Pilih kualitas insulasi"
+                    disabled={formBusy}
+                    onValueChange={(value) => setInsulationQuality(value as InsulationQuality)}
+                  />
+                </div>
+              )}
 
-          {coldChainEquipment === "pasif" && (
-            <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-              Kualitas Insulasi Kemasan
-              <select
-                value={insulationQuality}
-                onChange={(e) => setInsulationQuality(e.target.value as InsulationQuality)}
-                className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800"
+              <button type="submit" disabled={loading || initialLoading || !commodityType} className="primary-action sm:col-span-2">
+                {loading ? "Mencari rute..." : initialLoading ? "Menyiapkan prakiraan..." : "Cari Rute"}
+              </button>
+            </form>
+            {loading && <RouteSearchLoading />}
+
+            <div className="map-controls" aria-label="Kontrol pemilihan titik peta">
+              <button
+                type="button"
+                disabled={formBusy}
+                onClick={() => setPickMode("origin")}
+                className={`map-point-button ${pickMode === "origin" ? "map-point-button--active" : ""}`}
               >
-                <option value="baik">Baik (cooler box tebal)</option>
-                <option value="sedang">Sedang (styrofoam standar)</option>
-                <option value="buruk">Buruk (kardus/insulasi tipis)</option>
-              </select>
-            </label>
-          )}
+                Pilih titik asal di peta
+              </button>
+              <button
+                type="button"
+                disabled={formBusy}
+                onClick={() => setPickMode("destination")}
+                className={`map-point-button ${pickMode === "destination" ? "map-point-button--active" : ""}`}
+              >
+                Pilih titik tujuan di peta
+              </button>
+              <span className="map-controls__hint">Klik peta atau seret penanda A/B untuk memperbarui titik.</span>
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading || !commodityType}
-            className="sm:col-span-2 rounded bg-zinc-900 px-4 py-2 font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-300"
-          >
-            {loading ? "Mencari rute..." : "Cari Rute"}
-          </button>
-        </form>
+            <div className="planner-map" aria-busy={mapLoading}>
+              <RouteMap
+                origin={origin}
+                destination={destination}
+                onOriginChange={handleOriginChange}
+                onDestinationChange={handleDestinationChange}
+                pickMode={formBusy ? null : pickMode}
+                routes={allRoutes}
+                recommendedRouteId={result?.recommended_route.route_id}
+                selectedRouteId={selectedRouteId ?? undefined}
+                onSelectRoute={setSelectedRouteId}
+                onReady={() => setMapLoading(false)}
+              />
+              {mapLoading && <ForecastMapLoading />}
+              <div className="map-forecast-overlay">
+                <ParameterLegend route={selectedRoute} />
+              </div>
+            </div>
+          </section>
 
         {error && (
-          <div className="mt-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+          <div className="app-alert mt-6" role="alert">
             {error}
           </div>
         )}
 
         {result && (
-          <div className="mt-6 space-y-6">
+          <section id="hasil-rute" className="results-section" aria-label="Hasil perencanaan rute">
             <div>
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <h2 className="result-section-title">
                 Rute Direkomendasikan{" "}
                 <span className="font-normal normal-case tracking-normal">
                   ({resultRanking === "risiko" ? "risiko terendah" : "tercepat"})
                 </span>
               </h2>
-              <div
+              <button
+                type="button"
                 onClick={() => setSelectedRouteId(result.recommended_route.route_id)}
-                className={`cursor-pointer rounded-lg border-2 bg-white p-5 transition-colors dark:bg-zinc-900 ${
+                aria-pressed={selectedRouteId === result.recommended_route.route_id}
+                className={`result-card result-card--recommended w-full cursor-pointer p-6 text-left ${
                   selectedRouteId === result.recommended_route.route_id
-                    ? "border-sky-500 ring-2 ring-sky-200 dark:border-sky-500 dark:ring-sky-900"
-                    : "border-emerald-400 dark:border-emerald-700"
+                    ? "result-card--selected"
+                    : ""
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -398,7 +432,7 @@ export default function Home() {
                   </span>
                   <RiskBadge level={result.recommended_route.risk_level} />
                 </div>
-                <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-zinc-600 sm:grid-cols-3 dark:text-zinc-400">
+                <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600 sm:grid-cols-3">
                   <div>Jarak: {result.recommended_route.distance_km.toFixed(0)} km</div>
                   <div>Estimasi: {result.recommended_route.estimated_duration_hours.toFixed(1)} jam</div>
                   <div>Tiba: {formatArrival(result.recommended_route.estimated_arrival)}</div>
@@ -406,7 +440,7 @@ export default function Home() {
                   <div>Confidence: {(result.recommended_route.confidence_score * 100).toFixed(0)}%</div>
                 </div>
                 {result.recommended_route.trigger_reason && (
-                  <div className="mt-3 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                  <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
                     Peringatan: {result.recommended_route.trigger_reason}
                   </div>
                 )}
@@ -415,7 +449,7 @@ export default function Home() {
                   factors={result.recommended_route.risk_explanation_factors}
                 />
                 <CargoTempChart route={result.recommended_route} />
-              </div>
+              </button>
               <AIExplainPanel
                 context={buildRouteExplainContext(
                   result.shipment_id,
@@ -427,7 +461,7 @@ export default function Home() {
 
             {result.alternative_routes.length > 0 && (
               <div>
-                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                <h2 className="result-section-title">
                   Rute Alternatif
                 </h2>
                 <div className="space-y-3">
@@ -443,12 +477,13 @@ export default function Home() {
               </div>
             )}
 
-            {resultRequest && <ScenarioSimulator key={result.shipment_id} baseline={resultRequest} />}
-
-            <ParameterLegend />
-          </div>
+            <div id="simulasi">
+              {resultRequest && <ScenarioSimulator key={result.shipment_id} baseline={resultRequest} />}
+            </div>
+          </section>
         )}
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

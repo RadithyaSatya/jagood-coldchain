@@ -118,14 +118,15 @@ export default function ScenarioSimulator({ baseline }: { baseline: RouteRequest
   const deltaLabel = `${deltaPoints > 0 ? "+" : ""}${deltaPoints.toFixed(2)} poin`;
 
   return (
-    <section className="rounded-lg border border-violet-200 bg-violet-50 p-5 dark:border-violet-900 dark:bg-violet-950/30">
-      <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Scenario Simulator</h2>
-      <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+    <section className="scenario-panel">
+      <p className="eyebrow">Analisis dampak</p>
+      <h2>Simulasi Skenario</h2>
+      <p className="mt-1 text-sm text-slate-600">
         Uji dampak gangguan terhadap rute ini. Baseline dan skenario dinilai ulang oleh model risiko yang sama.
       </p>
 
-      <form onSubmit={handleSimulate} className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="flex flex-col gap-1 text-sm">
+      <form onSubmit={handleSimulate} className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <label className="form-field">
           Delay tambahan (jam)
           <input
             type="number"
@@ -133,17 +134,19 @@ export default function ScenarioSimulator({ baseline }: { baseline: RouteRequest
             max={168}
             step={1}
             value={delayHours}
+            disabled={loading}
             onChange={(e) => setDelayHours(Number(e.target.value))}
-            className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"
+            className="form-control"
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="form-field">
           Ubah moda
           <select
             value={transportMode}
+            disabled={loading}
             onChange={(e) => setTransportMode(e.target.value as "" | TransportModePreference)}
-            className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"
+            className="form-control"
           >
             <option value="">Tetap seperti baseline</option>
             <option value="darat">Darat</option>
@@ -153,12 +156,13 @@ export default function ScenarioSimulator({ baseline }: { baseline: RouteRequest
           </select>
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="form-field">
           Ubah cold chain
           <select
             value={equipment}
+            disabled={loading}
             onChange={(e) => setEquipment(e.target.value as "" | ColdChainEquipment)}
-            className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"
+            className="form-control"
           >
             <option value="">Tetap seperti baseline</option>
             <option value="reefer">Reefer aktif</option>
@@ -167,12 +171,13 @@ export default function ScenarioSimulator({ baseline }: { baseline: RouteRequest
         </label>
 
         {effectiveEquipment === "pasif" && (
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="form-field">
             Kualitas insulasi
             <select
               value={insulation}
+              disabled={loading}
               onChange={(e) => setInsulation(e.target.value as InsulationQuality)}
-              className="rounded border border-zinc-300 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"
+              className="form-control"
             >
               <option value="baik">Baik</option>
               <option value="sedang">Sedang</option>
@@ -184,14 +189,24 @@ export default function ScenarioSimulator({ baseline }: { baseline: RouteRequest
         <button
           type="submit"
           disabled={loading || delayHours < 0 || delayHours > 168}
-          className="rounded bg-violet-700 px-4 py-2 font-medium text-white transition-colors hover:bg-violet-600 disabled:opacity-50 sm:col-span-2 lg:col-span-4"
+          className="primary-action sm:col-span-2 lg:col-span-4"
         >
           {loading ? "Menghitung skenario..." : "Jalankan Simulasi"}
         </button>
       </form>
 
+      {loading && (
+        <div className="operation-loading" role="status" aria-live="polite">
+          <span className="loading-spinner" aria-hidden />
+          <div>
+            <strong>Menjalankan simulasi</strong>
+            <span>Membandingkan kondisi skenario dengan baseline.</span>
+          </div>
+        </div>
+      )}
+
       {error && (
-        <div className="mt-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+        <div className="app-alert mt-4" role="alert">
           {error}
         </div>
       )}
@@ -203,7 +218,7 @@ export default function ScenarioSimulator({ baseline }: { baseline: RouteRequest
             <ScenarioRouteCard title="Setelah Gangguan" route={result.simulated} />
           </div>
 
-          <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-950">
+          <div className="ui-card">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-medium">Perubahan risiko</span>
               <span
