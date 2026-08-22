@@ -121,6 +121,44 @@ async def test_contextual_chat_falls_back_to_structured_facts_on_llm_timeout() -
 
 
 @pytest.mark.asyncio
+async def test_fallback_prioritizes_quality_and_data_provenance_facts() -> None:
+    llm = FakeLLM(error=LLMTimeoutError("offline"))
+    service = ChatService(llm)
+    request = ChatRequest.model_validate(
+        {
+            "message": "Jelaskan rekomendasi rute ini",
+            "shipment_context": {
+                "shipment_id": "SHP-QUALITY-1",
+                "source": "smart_route_planner",
+                "product": "Salmon Segar",
+                "facts": {
+                    "route_id": "darat-1",
+                    "transport_mode": "darat",
+                    "distance": "780 km",
+                    "travel_duration": "14 jam",
+                    "model_confidence": "91%",
+                    "weather_condition": "Berawan",
+                    "risk_probability": "18.00%",
+                    "expected_delay": "2.0 jam",
+                    "estimated_remaining_shelf_life": "44.0 jam",
+                    "quality_retention_proxy": "61.1%",
+                    "environmental_data_source": "Default darat terkonfigurasi",
+                },
+                "risk_level": "low",
+            },
+        }
+    )
+
+    response = await service.chat(request)
+
+    assert response.handled_by == "fallback"
+    assert "18.00%" in response.answer
+    assert "44.0 jam" in response.answer
+    assert "61.1%" in response.answer
+    assert "Default darat terkonfigurasi" in response.answer
+
+
+@pytest.mark.asyncio
 async def test_stream_falls_back_without_emitting_partial_llm_output() -> None:
     llm = FakeLLM(error=LLMTimeoutError("offline"))
     service = ChatService(llm)

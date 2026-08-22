@@ -58,6 +58,25 @@ export function buildRouteExplainContext(
       environmental_data_source: environmentalDataLabel(route),
       cargo_temperature_data_quality: route.cargo_temperature_data_quality,
       cargo_temperature_source: cargoTemperatureDataLabel(route),
+      ...(route.baseline_delay_hours !== undefined
+        ? { baseline_delay: `${route.baseline_delay_hours.toFixed(1)} jam` }
+        : {}),
+      ...(route.scenario_delay_hours !== undefined
+        ? { scenario_delay: `${route.scenario_delay_hours.toFixed(1)} jam` }
+        : {}),
+      ...(route.delay_data_quality ? { delay_data_quality: route.delay_data_quality } : {}),
+      ...(route.estimated_remaining_shelf_life_hours !== undefined
+        ? { estimated_remaining_shelf_life: `${route.estimated_remaining_shelf_life_hours.toFixed(1)} jam` }
+        : {}),
+      ...(route.estimated_remaining_shelf_life_percent !== undefined
+        ? { estimated_remaining_shelf_life_percent: `${route.estimated_remaining_shelf_life_percent.toFixed(1)}%` }
+        : {}),
+      ...(route.quality_retention_proxy !== undefined
+        ? { quality_retention_proxy: `${route.quality_retention_proxy.toFixed(1)}%` }
+        : {}),
+      ...(route.quality_estimation_data_quality
+        ? { quality_estimation_data_quality: route.quality_estimation_data_quality }
+        : {}),
       shap_summary: route.risk_explanation_summary,
       ...(shapFactors ? { shap_factors: shapFactors } : {}),
     },
@@ -96,6 +115,28 @@ export function buildScenarioExplainContext(
       environmental_data_source: environmentalDataLabel(scenario.simulated),
       cargo_temperature_data_quality: scenario.simulated.cargo_temperature_data_quality,
       cargo_temperature_source: cargoTemperatureDataLabel(scenario.simulated),
+      ...(scenario.simulated.baseline_delay_hours !== undefined
+        ? { baseline_delay: `${scenario.simulated.baseline_delay_hours.toFixed(1)} jam` }
+        : {}),
+      ...(scenario.simulated.scenario_delay_hours !== undefined
+        ? { scenario_delay: `${scenario.simulated.scenario_delay_hours.toFixed(1)} jam` }
+        : {}),
+      ...(scenario.simulated.estimated_remaining_shelf_life_hours !== undefined
+        ? {
+            estimated_remaining_shelf_life: `${scenario.simulated.estimated_remaining_shelf_life_hours.toFixed(1)} jam`,
+          }
+        : {}),
+      ...(scenario.simulated.estimated_remaining_shelf_life_percent !== undefined
+        ? {
+            estimated_remaining_shelf_life_percent: `${scenario.simulated.estimated_remaining_shelf_life_percent.toFixed(1)}%`,
+          }
+        : {}),
+      ...(scenario.simulated.quality_retention_proxy !== undefined
+        ? { quality_retention_proxy: `${scenario.simulated.quality_retention_proxy.toFixed(1)}%` }
+        : {}),
+      ...(scenario.simulated.quality_estimation_data_quality
+        ? { quality_estimation_data_quality: scenario.simulated.quality_estimation_data_quality }
+        : {}),
       ...(affectedFactors ? { affected_factors: affectedFactors } : {}),
       shap_summary: scenario.simulated.risk_explanation_summary,
       ...(shapFactors ? { shap_factors: shapFactors } : {}),

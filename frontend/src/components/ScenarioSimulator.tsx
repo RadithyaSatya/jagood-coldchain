@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AIExplainPanel from "@/components/AIExplainPanel";
 import CargoTempChart from "@/components/CargoTempChart";
+import ProductQualitySummary from "@/components/ProductQualitySummary";
 import RiskBadge from "@/components/RiskBadge";
 import RiskExplanation from "@/components/RiskExplanation";
 import { buildScenarioExplainContext } from "@/lib/aiExplain";
@@ -68,11 +69,18 @@ function ScenarioRouteCard({ title, route }: { title: string; route: RouteCandid
       </dl>
       <RiskExplanation summary={route.risk_explanation_summary} factors={route.risk_explanation_factors} />
       <CargoTempChart route={route} />
+      <ProductQualitySummary route={route} />
     </div>
   );
 }
 
-export default function ScenarioSimulator({ baseline }: { baseline: RouteRequestPayload }) {
+export default function ScenarioSimulator({
+  baseline,
+  onResult,
+}: {
+  baseline: RouteRequestPayload;
+  onResult?: (result: ScenarioResponse | null) => void;
+}) {
   const [delayHours, setDelayHours] = useState(12);
   const [transportMode, setTransportMode] = useState<"" | TransportModePreference>("");
   const [equipment, setEquipment] = useState<"" | ColdChainEquipment>(
@@ -90,6 +98,7 @@ export default function ScenarioSimulator({ baseline }: { baseline: RouteRequest
     setLoading(true);
     setError(null);
     setResult(null);
+    onResult?.(null);
 
     const changes: Record<string, string | number> = { delay_hours: delayHours };
     if (transportMode) changes.transport_mode = transportMode;
@@ -106,7 +115,9 @@ export default function ScenarioSimulator({ baseline }: { baseline: RouteRequest
         const body = await response.json().catch(() => ({}));
         throw new Error(body.detail ?? `Simulasi gagal (HTTP ${response.status})`);
       }
-      setResult((await response.json()) as ScenarioResponse);
+      const scenario = (await response.json()) as ScenarioResponse;
+      setResult(scenario);
+      onResult?.(scenario);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Simulasi gagal karena kesalahan tak terduga.");
     } finally {
@@ -235,6 +246,7 @@ export default function ScenarioSimulator({ baseline }: { baseline: RouteRequest
             )}
           </div>
           <AIExplainPanel
+            key={result.scenario_id}
             context={buildScenarioExplainContext(
               baseline.shipment_id ?? result.scenario_id,
               baseline.commodity_type,

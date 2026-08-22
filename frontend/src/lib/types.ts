@@ -53,6 +53,9 @@ export interface RouteCandidate {
   distance_km: number;
   estimated_duration_hours: number;
   expected_delay_hours: number;
+  baseline_delay_hours?: number;
+  scenario_delay_hours?: number;
+  delay_data_quality?: DataClassification;
   estimated_arrival: string;
 
   risk_level: string;
@@ -76,6 +79,11 @@ export interface RouteCandidate {
   max_cargo_temp_excess_c: number;
   cargo_temp_profile: CargoTempPoint[];
   cargo_temperature_data_quality: "assumed" | "forecast" | "mixed" | "synthetic" | "unavailable";
+  effective_shelf_life_consumed_hours?: number;
+  estimated_remaining_shelf_life_hours?: number;
+  estimated_remaining_shelf_life_percent?: number;
+  quality_retention_proxy?: number;
+  quality_estimation_data_quality?: string;
 
   geometry: [number, number][];
   risk_hotspot: RiskHotspot | null;

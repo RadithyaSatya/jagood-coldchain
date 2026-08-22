@@ -4,7 +4,9 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import AIExplainPanel from "@/components/AIExplainPanel";
 import CargoTempChart from "@/components/CargoTempChart";
+import FinalRecommendation from "@/components/FinalRecommendation";
 import ParameterLegend from "@/components/ParameterLegend";
+import ProductQualitySummary from "@/components/ProductQualitySummary";
 import RiskBadge from "@/components/RiskBadge";
 import RiskExplanation from "@/components/RiskExplanation";
 import RouteComparison from "@/components/RouteComparison";
@@ -21,6 +23,7 @@ import type {
   RankingPreference,
   RouteCandidate,
   RouteRequestPayload,
+  ScenarioResponse,
   TransportModePreference,
 } from "@/lib/types";
 
@@ -94,6 +97,7 @@ function AlternativeRouteCard({
       </div>
       <RiskExplanation summary={candidate.risk_explanation_summary} factors={candidate.risk_explanation_factors} />
       <CargoTempChart route={candidate} />
+      <ProductQualitySummary route={candidate} />
     </div>
   );
 }
@@ -119,6 +123,7 @@ export default function Home() {
   // re-submitting can't mislabel how the listed routes were ordered.
   const [resultRanking, setResultRanking] = useState<"risiko" | "kecepatan">("risiko");
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
+  const [scenarioResult, setScenarioResult] = useState<ScenarioResponse | null>(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/commodities`)
@@ -146,6 +151,7 @@ export default function Home() {
     setError(null);
     setResult(null);
     setResultRequest(null);
+    setScenarioResult(null);
 
     try {
       const requestPayload: RouteRequestPayload = {
@@ -372,6 +378,12 @@ export default function Home() {
 
         {result && (
           <div className="mt-6 space-y-6">
+            <FinalRecommendation
+              route={result.recommended_route}
+              rankingPreference={resultRanking}
+              scenario={scenarioResult}
+            />
+
             <RouteComparison
               routes={allRoutes}
               recommendedRouteId={result.recommended_route.route_id}
@@ -418,8 +430,10 @@ export default function Home() {
                   factors={result.recommended_route.risk_explanation_factors}
                 />
                 <CargoTempChart route={result.recommended_route} />
+                <ProductQualitySummary route={result.recommended_route} />
               </div>
               <AIExplainPanel
+                key={`${result.shipment_id}:${result.recommended_route.route_id}`}
                 context={buildRouteExplainContext(
                   result.shipment_id,
                   resultRequest?.commodity_type ?? commodityType,
@@ -446,7 +460,13 @@ export default function Home() {
               </div>
             )}
 
-            {resultRequest && <ScenarioSimulator key={result.shipment_id} baseline={resultRequest} />}
+            {resultRequest && (
+              <ScenarioSimulator
+                key={result.shipment_id}
+                baseline={resultRequest}
+                onResult={setScenarioResult}
+              />
+            )}
 
             <ParameterLegend />
           </div>
