@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { Fragment, useEffect, useMemo, useRef } from "react";
 import { MapContainer, Marker, Polyline, Popup, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
+import { environmentalDataLabel } from "@/lib/dataProvenance";
 import { RISK_LABELS, riskColor } from "@/lib/riskPalette";
 import type { City, RouteCandidate } from "@/lib/types";
 
@@ -173,7 +174,7 @@ export default function RouteMap({
                   <br />
                   Angin: {route.wind_speed_kmh.toFixed(0)} km/j
                   <br />
-                  Sumber lingkungan: {route.environmental_data_quality}
+                  Sumber lingkungan: {environmentalDataLabel(route)}
                   {route.port_pair && (
                     <>
                       <br />

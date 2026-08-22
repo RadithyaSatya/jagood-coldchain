@@ -1,25 +1,11 @@
 import RiskBadge from "@/components/RiskBadge";
+import { cargoTemperatureDataLabel, environmentalDataLabel } from "@/lib/dataProvenance";
 import type { RankingPreference, RouteCandidate } from "@/lib/types";
 
 const MODE_LABELS: Record<string, string> = {
   darat: "Darat",
   laut: "Laut",
   kombinasi: "Kombinasi",
-};
-
-const ENVIRONMENT_LABELS: Record<RouteCandidate["environmental_data_quality"], string> = {
-  forecast: "Prakiraan eksternal",
-  partial: "Sebagian fallback",
-  fallback: "Fallback netral",
-  configured: "Default terkonfigurasi",
-};
-
-const CARGO_TEMPERATURE_LABELS: Record<RouteCandidate["cargo_temperature_data_quality"], string> = {
-  assumed: "Suhu ideal diasumsikan",
-  forecast: "Prakiraan eksternal",
-  mixed: "Prakiraan + sintetis",
-  synthetic: "Fallback sintetis",
-  unavailable: "Tidak tersedia",
 };
 
 function minimumBy(routes: RouteCandidate[], value: (route: RouteCandidate) => number): RouteCandidate {
@@ -194,7 +180,7 @@ export default function RouteComparison({
               </th>
               {routes.map((route) => (
                 <td key={route.route_id} className="border-b border-zinc-100 p-3 dark:border-zinc-800">
-                  {ENVIRONMENT_LABELS[route.environmental_data_quality]}
+                  {environmentalDataLabel(route)}
                 </td>
               ))}
             </tr>
@@ -204,7 +190,7 @@ export default function RouteComparison({
               </th>
               {routes.map((route) => (
                 <td key={route.route_id} className="p-3">
-                  {CARGO_TEMPERATURE_LABELS[route.cargo_temperature_data_quality]}
+                  {cargoTemperatureDataLabel(route)}
                   {route.max_cargo_temp_excess_c > 0 && (
                     <span className="block text-xs text-amber-700 dark:text-amber-400">
                       +{route.max_cargo_temp_excess_c.toFixed(1)}°C di atas ideal

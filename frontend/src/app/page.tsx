@@ -11,6 +11,7 @@ import RouteComparison from "@/components/RouteComparison";
 import ScenarioSimulator from "@/components/ScenarioSimulator";
 import { buildRouteExplainContext } from "@/lib/aiExplain";
 import { CITIES } from "@/lib/cities";
+import { environmentalDataLabel } from "@/lib/dataProvenance";
 import type {
   City,
   ColdChainEquipment,
@@ -38,13 +39,6 @@ const MODE_LABELS: Record<string, string> = {
   darat: "Darat",
   laut: "Laut",
   kombinasi: "Kombinasi (Darat + Laut)",
-};
-
-const ENVIRONMENT_QUALITY_LABELS: Record<RouteCandidate["environmental_data_quality"], string> = {
-  forecast: "Prakiraan eksternal",
-  partial: "Sebagian fallback",
-  fallback: "Fallback netral",
-  configured: "Default terkonfigurasi",
 };
 
 function defaultDepartureTime(): string {
@@ -96,7 +90,7 @@ function AlternativeRouteCard({
         <div>Tiba: {formatArrival(candidate.estimated_arrival)}</div>
         <div>Skor: {(candidate.risk_probability * 100).toFixed(0)}%</div>
         <div>Routing: {candidate.data_quality === "estimated" ? "Fallback estimasi" : "Tanpa fallback"}</div>
-        <div>Lingkungan: {ENVIRONMENT_QUALITY_LABELS[candidate.environmental_data_quality]}</div>
+        <div>Lingkungan: {environmentalDataLabel(candidate)}</div>
       </div>
       <RiskExplanation summary={candidate.risk_explanation_summary} factors={candidate.risk_explanation_factors} />
       <CargoTempChart route={candidate} />

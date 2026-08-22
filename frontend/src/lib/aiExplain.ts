@@ -1,4 +1,5 @@
 import type { RouteCandidate, ScenarioResponse } from "@/lib/types";
+import { cargoTemperatureDataLabel, environmentalDataLabel } from "@/lib/dataProvenance";
 
 export type AIExplainSource = "smart_route_planner" | "scenario_simulator";
 export type AIExplainRiskLevel = "low" | "medium" | "high" | "critical" | "unknown";
@@ -54,7 +55,9 @@ export function buildRouteExplainContext(
       cold_chain_equipment: route.cold_chain_equipment,
       data_quality: route.data_quality,
       environmental_data_quality: route.environmental_data_quality,
+      environmental_data_source: environmentalDataLabel(route),
       cargo_temperature_data_quality: route.cargo_temperature_data_quality,
+      cargo_temperature_source: cargoTemperatureDataLabel(route),
       shap_summary: route.risk_explanation_summary,
       ...(shapFactors ? { shap_factors: shapFactors } : {}),
     },
@@ -90,7 +93,9 @@ export function buildScenarioExplainContext(
       simulated_cold_chain_equipment: scenario.simulated.cold_chain_equipment,
       simulated_cargo_temp_excess: `${scenario.simulated.max_cargo_temp_excess_c.toFixed(1)}°C`,
       environmental_data_quality: scenario.simulated.environmental_data_quality,
+      environmental_data_source: environmentalDataLabel(scenario.simulated),
       cargo_temperature_data_quality: scenario.simulated.cargo_temperature_data_quality,
+      cargo_temperature_source: cargoTemperatureDataLabel(scenario.simulated),
       ...(affectedFactors ? { affected_factors: affectedFactors } : {}),
       shap_summary: scenario.simulated.risk_explanation_summary,
       ...(shapFactors ? { shap_factors: shapFactors } : {}),

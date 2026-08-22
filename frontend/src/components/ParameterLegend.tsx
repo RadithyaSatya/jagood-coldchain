@@ -99,6 +99,23 @@ export default function ParameterLegend() {
                 Grafik suhu kargo hanya muncul untuk rute pasif.
               </dd>
             </div>
+            <div>
+              <dt className="font-medium text-zinc-800 dark:text-zinc-200">Sumber data lingkungan</dt>
+              <dd>
+                <a
+                  href="https://data.bmkg.go.id/prakiraan-cuaca/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline decoration-zinc-400 underline-offset-2"
+                >
+                  BMKG
+                </a>{" "}
+                menjadi sumber cuaca/gelombang perairan dan suhu pelabuhan. Endpoint perairan tidak menyediakan suhu
+                udara laut terbuka, sehingga simulasi kargo pasif menggunakan Open-Meteo untuk sampel suhu sepanjang
+                rute dan fallback sintetis saat layanan tidak tersedia. Rute darat saat ini masih memakai kondisi netral
+                terkonfigurasi, bukan prakiraan BMKG live.
+              </dd>
+            </div>
           </dl>
         </div>
       </div>
