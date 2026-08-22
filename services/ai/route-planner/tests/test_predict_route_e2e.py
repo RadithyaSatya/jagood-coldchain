@@ -9,7 +9,7 @@ import requests
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.services import route_generator
+from app.services import enrichment_service, route_generator
 
 client = TestClient(app)
 
@@ -19,8 +19,16 @@ class UnavailableORSClient:
         raise requests.ConnectionError("ORS unavailable during offline test")
 
 
+async def _unavailable_weathercode(*args, **kwargs):
+    return None
+
+
 def test_predict_route_end_to_end_jakarta_surabaya(monkeypatch):
     monkeypatch.setattr(route_generator, "_get_client", lambda: UnavailableORSClient())
+    # Forces the LAND_DEFAULT_CONDITIONS fallback (weather_data_quality="configured")
+    # instead of a live Open-Meteo call, so environmental_data_quality/weather_delay_hours
+    # below stay deterministic regardless of real-world weather at test time.
+    monkeypatch.setattr(enrichment_service, "fetch_weathercode", _unavailable_weathercode)
 
     response = client.post(
         "/predict-route",
@@ -30,8 +38,6 @@ def test_predict_route_end_to_end_jakarta_surabaya(monkeypatch):
             "commodity_type": "Salmon Segar",
             "departure_time": "2026-08-15T08:00:00Z",
             "ranking_preference": "risiko",
-            # Darat avoids BMKG/Postgres so this test isolates ORS transport failure
-            # while still exercising the full route-risk response pipeline.
             "transport_mode_preference": "darat",
         },
     )
@@ -48,6 +54,13 @@ def test_predict_route_end_to_end_jakarta_surabaya(monkeypatch):
     assert recommended["environmental_data_quality"] == "configured"
     assert recommended["cargo_temperature_data_quality"] == "assumed"
     assert "risk_explanation_summary" in recommended
+
+    assert recommended["remaining_shelf_life_hours"] >= 0
+    assert 0 <= recommended["remaining_shelf_life_pct"] <= 100
+    assert recommended["quality_status"] in {"Baik", "Menurun", "Kritis"}
+
+    assert recommended["weather_delay_hours"] >= 0
+    assert recommended["weather_delay_data_quality"] in {"bootstrap", "learned"}
 
     # FR-5: the recommended route must be at least as low-risk as every
     # alternative -- i.e. actually sorted risk-first, not just "some response".

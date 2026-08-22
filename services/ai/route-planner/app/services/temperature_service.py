@@ -53,12 +53,15 @@ def _cache_key(lat: float, lon: float, target_time: dt.datetime) -> str:
     return f"openmeteo:{round(lat, 2)}:{round(lon, 2)}:{target_time.strftime('%Y-%m-%d')}"
 
 
-async def fetch_ambient_temp_c(
+async def _fetch_open_meteo_hourly(
     client: httpx.AsyncClient, lat: float, lon: float, target_time: dt.datetime
-) -> float | None:
-    """Nearest-hour ambient air temperature at (lat, lon). None if Open-Meteo
-    is unreachable or the response is malformed -- callers should fall back
-    to synthetic_ambient_temp_c rather than fail the request."""
+) -> dict | None:
+    """Nearest-hour {"temp_c", "precipitation_mm", "weathercode"} at (lat, lon), in one
+    Open-Meteo call (its `hourly` param takes several comma-separated variables at once,
+    so temperature, precipitation and WMO weather code share a single request/cache
+    entry rather than three). None if Open-Meteo is unreachable or the response is
+    malformed -- callers should fall back to their own defaults rather than fail
+    the request."""
     cache_key = _cache_key(lat, lon, target_time)
     cached = get_cached(cache_key, settings.bmkg_cache_ttl_seconds)
     if cached is not None:
@@ -70,7 +73,7 @@ async def fetch_ambient_temp_c(
                 params={
                     "latitude": lat,
                     "longitude": lon,
-                    "hourly": "temperature_2m",
+                    "hourly": "temperature_2m,precipitation,weathercode",
                     "forecast_days": 16,
                     "timezone": "UTC",
                 },
@@ -81,15 +84,41 @@ async def fetch_ambient_temp_c(
             return None
         set_cached(cache_key, json.dumps(data))
 
-    times = data.get("hourly", {}).get("time", [])
-    temps = data.get("hourly", {}).get("temperature_2m", [])
+    hourly = data.get("hourly", {})
+    times = hourly.get("time", [])
+    temps = hourly.get("temperature_2m", [])
     if not times or not temps:
         return None
 
     naive_target = target_time.astimezone(dt.timezone.utc).replace(tzinfo=None) if target_time.tzinfo else target_time
     parsed_times = [dt.datetime.fromisoformat(t) for t in times]
     closest_idx = min(range(len(parsed_times)), key=lambda i: abs((parsed_times[i] - naive_target).total_seconds()))
-    return temps[closest_idx]
+
+    precipitation = hourly.get("precipitation", [])
+    weathercode = hourly.get("weathercode", [])
+    return {
+        "temp_c": temps[closest_idx],
+        "precipitation_mm": precipitation[closest_idx] if closest_idx < len(precipitation) else None,
+        "weathercode": weathercode[closest_idx] if closest_idx < len(weathercode) else None,
+    }
+
+
+async def fetch_ambient_temp_c(
+    client: httpx.AsyncClient, lat: float, lon: float, target_time: dt.datetime
+) -> float | None:
+    """Nearest-hour ambient air temperature at (lat, lon). None if Open-Meteo
+    is unreachable or the response is malformed -- callers should fall back
+    to synthetic_ambient_temp_c rather than fail the request."""
+    result = await _fetch_open_meteo_hourly(client, lat, lon, target_time)
+    return result["temp_c"] if result is not None else None
+
+
+async def fetch_weathercode(
+    client: httpx.AsyncClient, lat: float, lon: float, target_time: dt.datetime
+) -> int | None:
+    """Nearest-hour WMO weather code at (lat, lon), or None if unavailable."""
+    result = await _fetch_open_meteo_hourly(client, lat, lon, target_time)
+    return result["weathercode"] if result is not None else None
 
 
 def simulate_cargo_temperature(

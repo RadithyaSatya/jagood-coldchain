@@ -18,6 +18,23 @@ EXTREME_WAVE_CATEGORIES = {"Tinggi", "Sangat Tinggi", "Ekstrem", "Sangat Ekstrem
 
 KNOTS_TO_KMH = 1.852
 
+# Maps Open-Meteo's WMO weather codes onto the same weather_condition vocabulary
+# BMKG/training already use (see training/generate_synthetic_data.py's
+# SEA_WEATHER_BY_WAVE_CAT/LAND_WEATHER_DIST) so land routes' real weather and sea
+# routes' BMKG weather share one categorical space for the model's OneHotEncoder.
+OPEN_METEO_WEATHERCODE_TO_CONDITION = {
+    0: "Cerah", 1: "Cerah Berawan", 2: "Cerah Berawan", 3: "Berawan",
+    45: "Berawan Tebal", 48: "Berawan Tebal",
+    51: "Hujan Ringan", 53: "Hujan Ringan", 55: "Hujan Ringan", 56: "Hujan Ringan", 57: "Hujan Ringan",
+    61: "Hujan Sedang", 63: "Hujan Sedang",
+    65: "Hujan Lebat", 66: "Hujan Lebat", 67: "Hujan Lebat", 80: "Hujan Lebat", 81: "Hujan Lebat",
+    82: "Hujan Badai", 95: "Hujan Badai", 96: "Hujan Badai", 99: "Hujan Badai",
+}
+
+
+def weathercode_to_condition(code: int | None) -> str:
+    return OPEN_METEO_WEATHERCODE_TO_CONDITION.get(code, "Berawan")
+
 
 def knots_to_kmh(knots: float) -> float:
     return knots * KNOTS_TO_KMH

@@ -9,10 +9,11 @@ import datetime as dt
 import httpx
 
 from app.services.commodity_service import get_commodity
-from app.services.historical_baseline import estimate_historical_baseline
+from app.services.historical_baseline import estimate_historical_baseline, estimate_weather_delay_hours
 from app.services.temperature_service import (
     INSULATION_K_PER_HOUR,
     fetch_ambient_temp_c,
+    fetch_weathercode,
     simulate_cargo_temperature,
     synthetic_ambient_temp_c,
 )
@@ -20,14 +21,16 @@ from app.services.weather_service import (
     fallback_sea_conditions,
     get_port_conditions,
     get_sea_leg_conditions,
+    weathercode_to_condition,
 )
 
 CARGO_TEMP_SAMPLE_POINTS = 6
 
 # BMKG has no general inland-weather product (only maritime perairan/pelabuhan
-# forecasts), so pure land legs use a fixed neutral default rather than a
-# fabricated "live" call. This mirrors LAND_WEATHER_DIST's central tendency in
-# backend/training/generate_synthetic_data.py.
+# forecasts). _resolve_conditions() tries Open-Meteo (real weather, via
+# fetch_weathercode) for darat legs first; this fixed neutral default is the
+# fallback when that's unavailable (no geometry, Open-Meteo down). Mirrors
+# LAND_WEATHER_DIST's central tendency in backend/training/generate_synthetic_data.py.
 LAND_DEFAULT_CONDITIONS = {
     "weather_condition": "Berawan",
     "wave_category": "Tenang",
@@ -44,6 +47,14 @@ LAND_DEFAULT_CONDITIONS = {
 # below the 33C "equipment-stress-relevant" threshold in feature_pipeline.py
 # so it contributes zero extra risk without needing a special case there.
 PORT_AMBIENT_TEMP_DEFAULT_C = 30.0
+
+
+def _quality_status(remaining_pct: float) -> str:
+    if remaining_pct >= 70:
+        return "Baik"
+    if remaining_pct >= 30:
+        return "Menurun"
+    return "Kritis"
 
 
 def _port_info(port) -> dict:
@@ -123,9 +134,34 @@ async def _resolve_cargo_temperature(
     return simulation
 
 
+async def _resolve_land_conditions(client: httpx.AsyncClient, candidate: dict, target_time: dt.datetime) -> dict:
+    """Best-effort real weather for darat routes via Open-Meteo, sampled at the
+    route's midpoint -- falls back to LAND_DEFAULT_CONDITIONS on any failure (no
+    geometry, timeout, Open-Meteo down), so this is additive and never a new
+    failure mode for /predict-route."""
+    geometry = candidate.get("geometry") or []
+    if not geometry:
+        return dict(LAND_DEFAULT_CONDITIONS)
+    mid_lat, mid_lon = geometry[len(geometry) // 2]
+    try:
+        weathercode = await fetch_weathercode(client, mid_lat, mid_lon, target_time)
+    except Exception:
+        # Broad on purpose: fetch_weathercode's response cache touches Postgres
+        # (app.core.db.get_cached/set_cached), so a DB outage must fall back here
+        # the same way an Open-Meteo/network failure does -- never a new failure
+        # mode for /predict-route.
+        weathercode = None
+    if weathercode is None:
+        return dict(LAND_DEFAULT_CONDITIONS)
+    conditions = dict(LAND_DEFAULT_CONDITIONS)
+    conditions["weather_condition"] = weathercode_to_condition(weathercode)
+    conditions["weather_data_quality"] = "forecast"
+    return conditions
+
+
 async def _resolve_conditions(client: httpx.AsyncClient, candidate: dict, target_time: dt.datetime) -> dict:
     if candidate["transport_mode"] == "darat":
-        return dict(LAND_DEFAULT_CONDITIONS)
+        return await _resolve_land_conditions(client, candidate, target_time)
     try:
         return await get_sea_leg_conditions(client, candidate["sea_waypoints"], target_time)
     except (httpx.HTTPError, KeyError, TypeError, ValueError):
@@ -191,8 +227,19 @@ async def enrich_candidate(
     ideal_c = (commodity["temp_ideal_min_c"] + commodity["temp_ideal_max_c"]) / 2
     baseline = estimate_historical_baseline(candidate["transport_mode"], candidate["distance_km"])
     port_pair = candidate.get("port_pair")
-    conditions, port_temperature, cargo_sim = await asyncio.gather(
-        _resolve_conditions(client, candidate, departure_time),
+
+    # Resolved first (not in the gather below) because total_delay_hours -- which folds in the
+    # weather-attributable component -- must be known before simulating cargo temperature exposure
+    # and computing estimated_arrival; port ambient temp and cargo-temp simulation still run
+    # concurrently with each other.
+    conditions = await _resolve_conditions(client, candidate, departure_time)
+    weather_data_quality = conditions.pop("weather_data_quality")
+    weather_delay_hours, weather_delay_data_quality = estimate_weather_delay_hours(
+        candidate["transport_mode"], conditions["weather_condition"]
+    )
+    total_delay_hours = expected_delay_hours + weather_delay_hours
+
+    port_temperature, cargo_sim = await asyncio.gather(
         _resolve_port_ambient_temp_c(client, port_pair, departure_time),
         _resolve_cargo_temperature(
             client,
@@ -201,15 +248,20 @@ async def enrich_candidate(
             departure_time,
             cold_chain_equipment,
             insulation_quality,
-            expected_delay_hours,
+            total_delay_hours,
         ),
     )
     port_ambient_temp_c, port_data_quality = port_temperature
-    weather_data_quality = conditions.pop("weather_data_quality")
 
     risk_hotspot = None
     if conditions.get("hotspot_lat") is not None:
         risk_hotspot = {"lat": conditions["hotspot_lat"], "lon": conditions["hotspot_lon"]}
+
+    shelf_life_hours = commodity["shelf_life_hours_at_ideal_temp"]
+    remaining_shelf_life_hours = max(0.0, shelf_life_hours - cargo_sim["effective_consumed_hours"])
+    remaining_shelf_life_pct = (
+        max(0.0, min(100.0, remaining_shelf_life_hours / shelf_life_hours * 100)) if shelf_life_hours > 0 else 0.0
+    )
 
     return {
         "shipment_id": shipment_id,
@@ -221,9 +273,9 @@ async def enrich_candidate(
         "transport_mode": candidate["transport_mode"],
         "distance_km": candidate["distance_km"],
         "estimated_duration_hours": candidate["estimated_duration_hours"],
-        "expected_delay_hours": expected_delay_hours,
+        "expected_delay_hours": total_delay_hours,
         "estimated_arrival": departure_time
-        + dt.timedelta(hours=candidate["estimated_duration_hours"] + expected_delay_hours),
+        + dt.timedelta(hours=candidate["estimated_duration_hours"] + total_delay_hours),
         "wave_height_m": conditions["wave_height_m"],
         "wave_category": conditions["wave_category"],
         "wind_speed_kmh": conditions["wind_speed_kmh"],
@@ -247,6 +299,11 @@ async def enrich_candidate(
         "max_cargo_temp_excess_c": round(max(0.0, cargo_sim["max_cargo_temp_c"] - ideal_c), 2),
         "cargo_temp_profile": cargo_sim.get("profile", []),
         "cargo_temperature_data_quality": cargo_sim["data_quality"],
+        "remaining_shelf_life_hours": round(remaining_shelf_life_hours, 2),
+        "remaining_shelf_life_pct": round(remaining_shelf_life_pct, 1),
+        "quality_status": _quality_status(remaining_shelf_life_pct),
+        "weather_delay_hours": round(weather_delay_hours, 2),
+        "weather_delay_data_quality": weather_delay_data_quality,
     }
 
 
