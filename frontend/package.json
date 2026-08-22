@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@radix-ui/react-popover": "^1.1.23",
+    "cmdk": "^1.1.1",
     "leaflet": "^1.9.4",
     "next": "16.3.0",
     "react": "19.2.8",

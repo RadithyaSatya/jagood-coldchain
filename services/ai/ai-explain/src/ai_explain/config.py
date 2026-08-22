@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -16,7 +17,8 @@ class Settings(BaseSettings):
     service_name: str = "Jagood ColdChain AI Explain"
     llm_base_url: str = "http://localhost:11434/v1"
     llm_api_key: str | None = None
-    llm_model: str = "qwen3:4b-instruct"
+    llm_model: str = "qwen3:1.7b"
+    llm_reasoning_effort: Literal["none", "low", "medium", "high"] = "none"
     llm_timeout_seconds: float = Field(default=60.0, gt=0, le=300)
     llm_readiness_timeout_seconds: float = Field(default=3.0, gt=0, le=30)
     llm_temperature: float = Field(default=0.2, ge=0, le=1)

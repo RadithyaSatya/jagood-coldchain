@@ -30,7 +30,7 @@ macOS, Ollama native memberikan respons paling cepat:
 
 ```bash
 brew services start ollama
-ollama pull qwen3:4b-instruct
+ollama pull qwen3:1.7b
 ```
 
 Jika Ollama tidak tersedia, lanjutkan demo. AI Explain tetap hidup dan mengembalikan ringkasan

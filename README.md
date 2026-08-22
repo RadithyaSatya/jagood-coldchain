@@ -124,7 +124,7 @@ chat (minutes per reply instead of seconds). Running Ollama natively lets it use
 ```bash
 brew install ollama
 brew services start ollama
-ollama pull qwen3:4b-instruct   # or whatever OLLAMA_MODEL is set to in .env
+ollama pull qwen3:1.7b   # or whatever OLLAMA_MODEL is set to in .env
 
 docker compose up --build
 ```

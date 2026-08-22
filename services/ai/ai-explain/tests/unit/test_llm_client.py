@@ -15,6 +15,7 @@ async def test_complete_uses_openai_compatible_contract() -> None:
         assert payload["model"] == "Qwen/Qwen3-4B-Instruct-2507"
         assert payload["stream"] is False
         assert payload["max_tokens"] == 300
+        assert payload["reasoning_effort"] == "none"
         return httpx.Response(
             200,
             json={"choices": [{"message": {"content": "A supported explanation."}}]},

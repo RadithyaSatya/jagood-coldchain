@@ -48,7 +48,7 @@ services:
     restart: "no"
     environment:
       OLLAMA_HOST: http://ollama:11434
-    command: ["pull", "${OLLAMA_MODEL:-qwen3:4b-instruct}"]
+    command: ["pull", "${OLLAMA_MODEL:-qwen3:1.7b}"]
     depends_on:
       ollama:
         condition: service_healthy

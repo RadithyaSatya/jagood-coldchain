@@ -18,6 +18,7 @@ class OpenAICompatibleLLM:
         self._models_url = settings.models_url
         self._readiness_timeout = settings.llm_readiness_timeout_seconds
         self._temperature = settings.llm_temperature
+        self._reasoning_effort = settings.llm_reasoning_effort
         self._client = client or httpx.AsyncClient(timeout=settings.llm_timeout_seconds)
         self._owns_client = client is None
         self._headers = (
@@ -99,6 +100,7 @@ class OpenAICompatibleLLM:
                 {"role": message.role, "content": message.content} for message in messages
             ],
             "temperature": self._temperature,
+            "reasoning_effort": self._reasoning_effort,
             "max_tokens": max_tokens,
             "stream": stream,
         }

@@ -52,15 +52,15 @@ export default function AIExplainPanel({ context }: { context: AIExplainContext 
   }
 
   return (
-    <section className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-4 dark:border-sky-900 dark:bg-sky-950/30">
+    <section className={`ai-panel ${context.source === "scenario_simulator" ? "ai-panel--scenario" : ""}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">Jelaskan dengan AI Explain</h3>
-          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+          <h3>Jelaskan dengan AI Explain</h3>
+          <p>
             AI hanya menjelaskan hasil model dan SHAP di atas; AI tidak menghitung skor risiko.
           </p>
         </div>
-        <span className="rounded-full bg-sky-100 px-2 py-1 text-xs font-medium text-sky-800 dark:bg-sky-900 dark:text-sky-200">
+        <span className="context-chip">
           {context.source === "scenario_simulator" ? "Konteks skenario" : "Konteks rute"}
         </span>
       </div>
@@ -70,28 +70,36 @@ export default function AIExplainPanel({ context }: { context: AIExplainContext 
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           maxLength={1000}
+          disabled={loading}
           aria-label="Pertanyaan untuk AI Explain"
-          className="min-w-0 flex-1 rounded border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="form-control min-w-0 flex-1"
         />
         <button
           type="submit"
           disabled={loading || !question.trim()}
-          className="rounded bg-sky-700 px-4 py-2 text-sm font-medium text-white hover:bg-sky-600 disabled:opacity-50"
+          className="secondary-action"
         >
           {loading ? "Menjelaskan..." : "Jelaskan"}
         </button>
       </form>
 
+      {loading && (
+        <div className="operation-loading operation-loading--inline" role="status" aria-live="polite">
+          <span className="loading-spinner" aria-hidden />
+          <span>Menunggu penjelasan AI Explain...</span>
+        </div>
+      )}
+
       {error && (
-        <div className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+        <div className="app-alert mt-3" role="alert">
           {error}
         </div>
       )}
 
       {response && (
-        <div className="mt-3 rounded border border-sky-200 bg-white px-4 py-3 dark:border-sky-900 dark:bg-zinc-950">
-          <p className="whitespace-pre-wrap text-sm leading-6 text-zinc-800 dark:text-zinc-200">{response.answer}</p>
-          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="ui-card mt-3">
+          <p className="whitespace-pre-wrap text-sm leading-6 text-slate-800">{response.answer}</p>
+          <p className="mt-2 text-xs text-slate-500">
             {response.handled_by === "llm"
               ? `Dijelaskan oleh ${response.model ?? "AI Explain"}`
               : response.handled_by === "fallback"

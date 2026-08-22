@@ -1,7 +1,7 @@
 import type { RouteCandidate } from "@/lib/types";
 
-const WIDTH = 400;
-const HEIGHT = 140;
+const WIDTH = 320;
+const HEIGHT = 104;
 const PAD_LEFT = 34;
 const PAD_RIGHT = 12;
 const PAD_TOP = 14;
@@ -38,7 +38,7 @@ export default function CargoTempChart({ route }: { route: RouteCandidate }) {
       <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
         Simulasi suhu kargo sepanjang perjalanan (tanpa reefer)
       </p>
-      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="w-full" role="img" aria-label="Grafik suhu kargo terhadap waktu">
+      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="cargo-temp-chart" role="img" aria-label="Grafik suhu kargo terhadap waktu">
         <line
           x1={PAD_LEFT} y1={idealY} x2={WIDTH - PAD_RIGHT} y2={idealY}
           stroke="#898781" strokeWidth={1} strokeDasharray="3 3"
