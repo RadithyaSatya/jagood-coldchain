@@ -46,6 +46,27 @@ def _load_golden_case() -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _environmental_data_source(route: dict) -> str:
+    if route["transport_mode"] == "darat" and route["environmental_data_quality"] == "configured":
+        return "Default darat terkonfigurasi"
+    return {
+        "forecast": "BMKG maritim & pelabuhan",
+        "partial": "BMKG sebagian + fallback",
+        "fallback": "Fallback netral (BMKG tidak tersedia)",
+        "configured": "Default terkonfigurasi",
+    }[route["environmental_data_quality"]]
+
+
+def _cargo_temperature_source(route: dict) -> str:
+    return {
+        "assumed": "Asumsi reefer di suhu ideal",
+        "forecast": "Open-Meteo sepanjang rute",
+        "mixed": "Open-Meteo + fallback sintetis",
+        "synthetic": "Fallback suhu sintetis",
+        "unavailable": "Suhu ambient tidak tersedia",
+    }[route["cargo_temperature_data_quality"]]
+
+
 def _scenario_explain_context(route_request: dict, scenario: dict) -> dict:
     """Mirror the typed context sent by frontend/src/lib/aiExplain.ts."""
     simulated = scenario["simulated"]
@@ -70,6 +91,8 @@ def _scenario_explain_context(route_request: dict, scenario: dict) -> dict:
                 f"{simulated['max_cargo_temp_excess_c']:.1f}°C"
             ),
             "affected_factors": affected_factors,
+            "environmental_data_source": _environmental_data_source(simulated),
+            "cargo_temperature_source": _cargo_temperature_source(simulated),
             "shap_summary": simulated["risk_explanation_summary"],
         },
     }
@@ -144,5 +167,7 @@ def test_offline_golden_demo(monkeypatch):
     assert explanation["handled_by"] == expected["ai_handled_by"]
     assert explanation["model"] is None
     assert explain_context["facts"]["risk_delta"] in explanation["answer"]
+    assert expected["environmental_data_source"] in explanation["answer"]
+    assert expected["cargo_temperature_source"] in explanation["answer"]
     assert scenario["recommendation"] in explanation["answer"]
     assert "hasil terstruktur dari sistem analitik" in explanation["answer"]
