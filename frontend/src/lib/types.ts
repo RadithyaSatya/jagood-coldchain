@@ -131,6 +131,37 @@ export interface ScenarioResponse {
   recommendation: string;
 }
 
+export interface ScenarioChangesPayload {
+  delay_hours?: number;
+  transport_mode?: TransportModePreference;
+  cold_chain_equipment?: ColdChainEquipment;
+  insulation_quality?: InsulationQuality;
+}
+
+export interface FinalRecommendationResponse {
+  route_plan: PredictRouteResponse;
+  scenario: ScenarioResponse | null;
+  final_recommendation: {
+    route_id: string;
+    risk_level: string;
+    risk_probability: number;
+    recommendation: string;
+    provenance: {
+      routing: string;
+      environment: string;
+      cargo_temperature: string;
+    };
+  };
+  explanation_context: {
+    shipment_id?: string;
+    source: "smart_route_planner" | "scenario_simulator";
+    product: string;
+    facts: Record<string, string | number | boolean>;
+    risk_level: string;
+    recommendation?: string;
+  };
+}
+
 export interface City {
   label: string;
   lat: number;

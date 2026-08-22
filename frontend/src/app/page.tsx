@@ -18,6 +18,7 @@ import type {
   City,
   ColdChainEquipment,
   Commodity,
+  FinalRecommendationResponse,
   InsulationQuality,
   PredictRouteResponse,
   RankingPreference,
@@ -164,10 +165,10 @@ export default function Home() {
         insulation_quality: insulationQuality,
         ranking_preference: rankingPreference,
       };
-      const res = await fetch(`${API_BASE}/predict-route`, {
+      const res = await fetch("/api/final-recommendation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestPayload),
+        body: JSON.stringify({ shipment: requestPayload }),
       });
 
       if (!res.ok) {
@@ -175,7 +176,8 @@ export default function Home() {
         throw new Error(body.detail ?? `Request gagal (HTTP ${res.status})`);
       }
 
-      const data: PredictRouteResponse = await res.json();
+      const finalResult = (await res.json()) as FinalRecommendationResponse;
+      const data: PredictRouteResponse = finalResult.route_plan;
       setResult(data);
       setResultRequest({ ...requestPayload, shipment_id: data.shipment_id });
       setResultRanking(rankingPreference);

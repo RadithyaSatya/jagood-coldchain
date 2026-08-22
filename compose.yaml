@@ -48,6 +48,7 @@ services:
     restart: unless-stopped
     environment:
       AI_EXPLAIN_API_BASE_URL: "http://ai-explain:8000"
+      ROUTE_PLANNER_API_BASE_URL: "http://route-planner:8000"
     ports:
       - "${PLANNER_WEB_PORT:-3000}:3000"
     depends_on:
