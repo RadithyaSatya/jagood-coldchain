@@ -17,6 +17,8 @@ CargoTemperatureDataQuality = Literal[
     "synthetic",
     "unavailable",
 ]
+QualityStatus = Literal["Baik", "Menurun", "Kritis"]
+WeatherDelayDataQuality = Literal["bootstrap", "learned"]
 
 
 class Coordinate(BaseModel):
@@ -89,7 +91,9 @@ class RouteCandidate(BaseModel):
     estimated_duration_hours: float
     expected_delay_hours: float = Field(
         default=0,
-        description="Additional expected in-transit delay beyond the route's normal travel duration.",
+        description="Additional expected in-transit delay beyond the route's normal travel duration. "
+        "On a normal (non-scenario) prediction this now includes weather_delay_hours below; on "
+        "/simulate-scenario it also includes the user-requested scenario delay on top of that.",
     )
     estimated_arrival: datetime = Field(
         description="Projected arrival = departure_time + estimated_duration_hours + expected_delay_hours. Inherits that "
@@ -128,6 +132,31 @@ class RouteCandidate(BaseModel):
     cargo_temperature_data_quality: CargoTemperatureDataQuality = Field(
         description="'assumed' for reefer, or 'forecast', 'mixed', 'synthetic', or 'unavailable' "
         "for passive-cargo ambient inputs.",
+    )
+    remaining_shelf_life_hours: float = Field(
+        description="Estimated remaining shelf life in hours -- commodity_shelf_life_hours minus the "
+        "Q10-based effective_consumed_hours from the cargo temperature simulation. MVP proxy derived "
+        "from simplified assumptions; not a food-safety guarantee or regulatory shelf-life determination."
+    )
+    remaining_shelf_life_pct: float = Field(
+        description="remaining_shelf_life_hours as a percentage of the commodity's "
+        "shelf_life_hours_at_ideal_temp (0-100, clamped)."
+    )
+    quality_status: QualityStatus = Field(
+        description="Coarse banding of remaining_shelf_life_pct ('Baik' >=70%, 'Menurun' 30-70%, "
+        "'Kritis' <30%) for at-a-glance display -- an MVP heuristic threshold, not a scientifically "
+        "validated food-quality standard."
+    )
+    weather_delay_hours: float = Field(
+        description="Portion of expected_delay_hours attributed to detected weather conditions along "
+        "the route, for this transport_mode/weather severity. Starts from a small hardcoded bootstrap "
+        "table and is gradually replaced by real checkpoint-derived observations as they accumulate "
+        "(see weather_delay_data_quality) -- an MVP estimate, not a validated traffic/weather model."
+    )
+    weather_delay_data_quality: WeatherDelayDataQuality = Field(
+        description="'bootstrap' = weather_delay_hours came from the hardcoded default table (not "
+        "enough real checkpoint-derived observations yet for this transport_mode/severity); "
+        "'learned' = blended with real observations reported via checkpoints/outcomes."
     )
 
     geometry: list[list[float]] = Field(default_factory=list, description="Route path as [lat, lon] pairs, in travel order, for map rendering")

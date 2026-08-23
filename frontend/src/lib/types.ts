@@ -76,6 +76,9 @@ export interface RouteCandidate {
   max_cargo_temp_excess_c: number;
   cargo_temp_profile: CargoTempPoint[];
   cargo_temperature_data_quality: "assumed" | "forecast" | "mixed" | "synthetic" | "unavailable";
+  remaining_shelf_life_hours: number;
+  remaining_shelf_life_pct: number;
+  quality_status: "Baik" | "Menurun" | "Kritis";
 
   geometry: [number, number][];
   risk_hotspot: RiskHotspot | null;
@@ -127,4 +130,11 @@ export interface City {
   label: string;
   lat: number;
   lon: number;
+}
+
+export interface CheckpointReport {
+  lat: number;
+  lon: number;
+  recorded_at: string;
+  checkpoint_label?: string;
 }

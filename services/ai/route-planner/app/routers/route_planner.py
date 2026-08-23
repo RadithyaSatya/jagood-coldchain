@@ -8,7 +8,7 @@ from app.schemas.route_schema import (
     ScenarioRequest,
     ScenarioResponse,
 )
-from app.services import commodity_service
+from app.services import commodity_service, shipment_service
 from app.services.planning_service import NoRouteCandidatesError, build_route_plan
 from app.services.scenario_service import simulate_scenario
 
@@ -38,12 +38,15 @@ async def predict_route(request: RouteRequest) -> dict:
         raise HTTPException(status_code=404, detail=f"Unknown commodity_type: {request.commodity_type}")
 
     try:
-        return await build_route_plan(request)
+        plan = await build_route_plan(request)
     except NoRouteCandidatesError:
         raise HTTPException(
             status_code=422,
             detail="No route candidates could be generated between the given origin and destination.",
         )
+
+    await shipment_service.record_prediction(request, plan)
+    return plan
 
 
 @router.post("/simulate-scenario", response_model=ScenarioResponse)
