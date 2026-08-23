@@ -11,6 +11,8 @@ htmlcov/
 .env
 services/ai/route-planner/.env
 services/ai/route-planner/app_cache.db
+services/ai/ai-explain/finetuning/artifacts/fused/
+services/ai/ai-explain/finetuning/artifacts/adapters/0*_adapters.safetensors
 
 # Node / Next.js
 frontend/node_modules/

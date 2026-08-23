@@ -1,6 +1,6 @@
 # Jagood ColdChain
 
-Jagood ColdChain is a hackathon decision-support prototype for planning cold-chain food delivery. It combines an XGBoost risk classifier, deterministic route/scenario logic, SHAP-based factor ranking, and an optional LLM explanation layer.
+Jagood ColdChain is a hackathon decision-support prototype for planning cold-chain food delivery. It combines an XGBoost risk classifier, deterministic route/scenario logic, SHAP-based factor ranking, and a task-specific LoRA-fine-tuned explanation layer.
 
 Food products such as fresh produce, seafood, dairy, meat, and frozen goods require stable temperatures throughout their journey. Route changes, delays, or transportation disruptions can reduce food quality, shorten shelf life, and cause significant losses. Jagood ColdChain helps users identify these risks earlier and make better-informed decisions.
 
@@ -22,7 +22,7 @@ remain future work.
 
 ### AI Explain — implemented with fallback
 
-Explains structured planner/scenario results using an OpenAI-compatible local LLM. It does not calculate risk or routes. When the LLM is unavailable, the service returns a deterministic summary of the supplied analytical facts.
+Explains structured planner/scenario results using a LoRA-fine-tuned Llama 3.2 1B model through an OpenAI-compatible local runtime. It does not calculate risk or routes. When the model is unavailable, the service returns a deterministic summary of the supplied analytical facts. Training data, configuration, adapter weights, and held-out results are included under [`finetuning/`](services/ai/ai-explain/finetuning/).
 
 ### Scoped Cold-Chain Chatbot
 
@@ -130,10 +130,14 @@ chat (minutes per reply instead of seconds). Running Ollama natively lets it use
 ```bash
 brew install ollama
 brew services start ollama
-ollama pull qwen3:1.7b   # or whatever OLLAMA_MODEL is set to in .env
+bash services/ai/ai-explain/finetuning/export_ollama.sh
 
 docker compose up --build
 ```
+
+The export step creates `llama-jagood-ai-explain:latest` from the checked-in LoRA adapter. It is a
+one-time step unless the adapter changes. It temporarily needs several gigabytes of free disk space;
+generated fused weights are gitignored.
 
 `ai-explain` reaches the host's Ollama through `host.docker.internal:11434`.
 
@@ -147,8 +151,9 @@ compose service:
 docker compose -f compose.yaml -f compose.ollama-container.yml up --build
 ```
 
-This pulls the model into the container on first run (can take several minutes) and works out of
-the box, but is CPU-only unless you uncomment the NVIDIA `deploy.resources` block in
+This pulls the Llama 3.2 1B base and builds the checked-in JaGOOD LoRA adapter inside the model
+volume on first run. It can take several minutes and works out of the box, but is CPU-only unless
+you uncomment the NVIDIA `deploy.resources` block in
 [`compose.ollama-container.yml`](compose.ollama-container.yml) on a Linux host with a GPU.
 
 ### Both options

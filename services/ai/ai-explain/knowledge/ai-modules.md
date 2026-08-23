@@ -29,8 +29,11 @@ tidak menerima GPS, tidak melacak kapal/truk, dan tidak mendeteksi delay shipmen
 
 ## AI Explain
 
-Status: tersedia dengan LLM opsional dan fallback deterministik.
+Status: tersedia dengan Llama 3.2 1B yang di-*fine-tune* menggunakan LoRA dan fallback
+deterministik.
 
 AI Explain menerima hasil terstruktur dari planner atau simulator dan mengubahnya menjadi bahasa
 natural. LLM tidak menghitung prediction, skor, atau rute. Jika LLM tidak tersedia, service
-merangkum fakta terstruktur tanpa mengarang nilai baru.
+merangkum fakta terstruktur tanpa mengarang nilai baru. Dataset, adapter, konfigurasi training,
+dan evaluasi held-out tersedia di folder `finetuning/`. Evaluasi tersebut mengukur spesialisasi
+pada tugas sintetis terstruktur, bukan akurasi operasional pengiriman nyata.

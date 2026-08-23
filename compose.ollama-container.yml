@@ -48,7 +48,15 @@ services:
     restart: "no"
     environment:
       OLLAMA_HOST: http://ollama:11434
-    command: ["pull", "${OLLAMA_MODEL:-qwen3:1.7b}"]
+      OLLAMA_MODEL_NAME: "${OLLAMA_MODEL:-llama-jagood-ai-explain:latest}"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama pull llama3.2:1b
+        ollama create "$$OLLAMA_MODEL_NAME" -f /finetuning/Modelfile
+    volumes:
+      - ollama-models:/root/.ollama
+      - ./services/ai/ai-explain/finetuning:/finetuning:ro
     depends_on:
       ollama:
         condition: service_healthy

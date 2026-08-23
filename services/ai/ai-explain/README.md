@@ -1,8 +1,9 @@
 # AI Explain
 
 Implemented FastAPI service for scoped cold-chain explanations and chat. It accepts trusted,
-structured results from JaGOOD's analytical pipeline and uses an OpenAI-compatible local LLM to
-express those facts in Indonesian or English.
+structured results from JaGOOD's analytical pipeline and uses a task-specific LoRA-fine-tuned
+Llama 3.2 1B model through Ollama's OpenAI-compatible API to express those facts in Indonesian or
+English.
 
 AI Explain does not calculate risk, choose routes, retrieve shipment telemetry, or repair missing
 analytical data. Prompts explicitly restrict the model to supplied shipment context or the local
@@ -43,3 +44,13 @@ Run tests with:
 The knowledge base under `knowledge/` uses deterministic keyword retrieval, not embeddings or a
 vector database. Retrieved documents provide product information only and never replace the
 planner's calculations.
+
+## Fine-tuning evidence
+
+The reproducible training pipeline, deterministic synthetic dataset, held-out evaluation, learned
+adapter, and Ollama export instructions are in [`finetuning/`](finetuning/). The checked-in adapter
+is the result of genuine LoRA parameter optimization, not prompt engineering. Reported metrics are
+limited to the held-out synthetic explanation task and are not evidence of shipment accuracy.
+
+Built with Llama 3.2. Attribution and base-model terms are recorded in
+[`finetuning/NOTICE`](finetuning/NOTICE).

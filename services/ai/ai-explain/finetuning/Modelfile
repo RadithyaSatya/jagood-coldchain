@@ -1,0 +1,5 @@
+FROM llama3.2:1b
+ADAPTER ./artifacts/adapters
+
+PARAMETER temperature 0.2
+PARAMETER num_ctx 4096
