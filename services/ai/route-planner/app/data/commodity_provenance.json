@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "dataset": {
     "name": "JaGOOD MVP Commodity Profiles",
-    "classification": "DEMO",
+    "classification": "REFERENCE",
     "owner": "JaGOOD project team",
     "purpose": "Provide commodity inputs for route-risk inference and scenario simulation.",
     "important_fields": [
@@ -13,12 +13,13 @@
       "delay_tolerance_hours",
       "temp_sensitivity_level"
     ],
-    "preprocessing": "No automated external-data ingestion. Values were manually curated as hackathon assumptions and are loaded without numerical transformation.",
+    "preprocessing": "temp_ideal_min_c, temp_ideal_max_c, and shelf_life_hours_at_ideal_temp were cross-checked on 2026-08-22 against public food-safety guidance (FDA, USDA FSIS, UC Davis Postharvest Research Center, IDFA); two values (Salmon Segar, Tuna Segar) were corrected to match the cited FDA fresh-fish guidance. delay_tolerance_hours and temp_sensitivity_level have no equivalent in public consumer/food-safety literature -- those sources describe safe storage duration under ideal refrigeration, not tolerance to in-transit temperature/time deviation, so these two fields remain internal MVP engineering estimates. Values are loaded without numerical transformation.",
     "foodkeeper_derived": false,
     "limitations": [
-      "These profiles are demonstration assumptions, not observed shipment outcomes.",
-      "The values have not been validated for regulatory, food-safety, or commercial decision-making.",
-      "Shelf life and delay tolerance are simplified model inputs and must not be presented as guaranteed remaining product life."
+      "temp_ideal_min_c, temp_ideal_max_c, and shelf_life_hours_at_ideal_temp are grounded in cited public food-safety guidance, but that guidance targets consumer/commercial refrigeration safety, not cold-chain logistics specifically -- treat them as reasonable proxies, not regulatory transport standards.",
+      "delay_tolerance_hours and temp_sensitivity_level are not derivable from the cited sources and remain internal MVP judgment calls, not literature-backed values.",
+      "Values have not been validated against actual Indonesian cold-chain shipment outcomes; see app/services/historical_baseline.py and the shipment_records/corridor_baseline_stats tables for how real outcome data is (separately) collected going forward.",
+      "Shelf life and delay tolerance are simplified model inputs and must not be presented as guaranteed remaining product life or a food-safety certification."
     ]
   },
   "sources": [
@@ -30,51 +31,158 @@
       "source_uri": null,
       "accessed_on": null,
       "license": "Project-authored",
-      "notes": "Internal manually curated assumptions. This source is not FoodKeeper and is not a real-world measurement dataset."
+      "notes": "Internal manually curated assumptions for commodity_type selection, delay_tolerance_hours, and temp_sensitivity_level -- fields with no public literature equivalent."
+    },
+    {
+      "source_id": "fda-seafood-safety-2026",
+      "title": "Selecting and Serving Fresh and Frozen Seafood Safely",
+      "classification": "REFERENCE",
+      "publisher": "U.S. Food and Drug Administration (FDA)",
+      "source_uri": "https://www.fda.gov/food/buy-store-serve-safe-food/selecting-and-serving-fresh-and-frozen-seafood-safely",
+      "accessed_on": "2026-08-22",
+      "license": "U.S. Government public domain",
+      "notes": "Fresh fish/seafood: store at 40F (4C) or below, use within 2 days of purchase. Applied to Salmon Segar, Udang Segar, Tuna Segar."
+    },
+    {
+      "source_id": "usda-frozen-seafood-2026",
+      "title": "Frozen seafood storage guidance (0F/-18C indefinite safety; 6-12 month best-quality window)",
+      "classification": "REFERENCE",
+      "publisher": "U.S. Department of Agriculture (USDA)",
+      "source_uri": "https://www.fda.gov/food/buy-store-serve-safe-food/selecting-and-serving-fresh-and-frozen-seafood-safely",
+      "accessed_on": "2026-08-22",
+      "license": "U.S. Government public domain",
+      "notes": "Applied to Udang Beku."
+    },
+    {
+      "source_id": "usda-fsis-poultry-fresh-2026",
+      "title": "The Poultry Label Says \"Fresh\"",
+      "classification": "REFERENCE",
+      "publisher": "USDA Food Safety and Inspection Service (FSIS)",
+      "source_uri": "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/poultry/poultry-label-says-fresh",
+      "accessed_on": "2026-08-22",
+      "license": "U.S. Government public domain",
+      "notes": "Fresh raw poultry: 40F (4C) or below, use within 1-2 days. Applied to Ayam Segar."
+    },
+    {
+      "source_id": "usda-fsis-beef-2026",
+      "title": "Ground Beef and Food Safety",
+      "classification": "REFERENCE",
+      "publisher": "USDA Food Safety and Inspection Service (FSIS)",
+      "source_uri": "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/meat/ground-beef-and-food-safety",
+      "accessed_on": "2026-08-22",
+      "license": "U.S. Government public domain",
+      "notes": "Whole-muscle fresh beef cuts: 3-5 days at 40F (4C) or below (ground beef only 1-2 days -- this dataset models whole-cut beef). Applied to Daging Sapi Segar."
+    },
+    {
+      "source_id": "fda-milk-storage-2026",
+      "title": "Pasteurized milk refrigeration guidance",
+      "classification": "REFERENCE",
+      "publisher": "U.S. Food and Drug Administration (FDA) / U.S. Dairy",
+      "source_uri": "https://www.usdairy.com/news-articles/how-long-can-milk-sit-out",
+      "accessed_on": "2026-08-22",
+      "license": "Publicly available industry/regulatory guidance",
+      "notes": "Ideal storage 34-38F (1-3C), FDA ceiling 45F; 5-7 days at or below 40F. Applied to Susu Segar."
+    },
+    {
+      "source_id": "ucdavis-postharvest-leafy-greens-2026",
+      "title": "Spinach and Lettuce (Romaine and Loose-Leaf) produce facts sheets",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/spinach",
+      "accessed_on": "2026-08-22",
+      "license": "Publicly available academic extension resource",
+      "notes": "Spinach/kale/chard: 3-5 days refrigerated (loose-leaf lettuce near 0C can last much longer, ~21 days -- this dataset conservatively models the faster-decaying leafy-green subtype). Applied to Sayuran Daun Segar."
+    },
+    {
+      "source_id": "idfa-ice-cream-2026",
+      "title": "Tips on Storing & Handling Ice Cream",
+      "classification": "REFERENCE",
+      "publisher": "International Dairy Foods Association (IDFA)",
+      "source_uri": "https://www.idfa.org/tips-on-storing-handling-ice-cream",
+      "accessed_on": "2026-08-22",
+      "license": "Publicly available industry guidance",
+      "notes": "0F (-18C) or colder; best quality 2-4 months. Applied to Es Krim."
+    },
+    {
+      "source_id": "fda-fresh-cut-produce-2026",
+      "title": "Guide to Minimize Food Safety Hazards of Fresh-cut Produce",
+      "classification": "REFERENCE",
+      "publisher": "U.S. Food and Drug Administration (FDA)",
+      "source_uri": "https://www.fda.gov/media/117526/download",
+      "accessed_on": "2026-08-22",
+      "license": "U.S. Government public domain",
+      "notes": "Fresh-cut produce held at or below 41F (5C); shelf life 7-20 days across produce types, though the 7-day figure documented there is specifically for melons/tomatoes/leafy greens -- browning-prone cut fruit (e.g. mango, papaya) is not explicitly covered, so this dataset keeps a conservative shelf-life estimate rather than the upper end of that range. Applied to Buah Potong Segar."
     }
   ],
   "field_provenance": {
     "commodity_type": {
       "classification": "DEMO",
       "source_ids": ["jagood-mvp-assumptions-v1"],
-      "method": "Manually selected Indonesian commodity labels for the MVP."
+      "method": "Manually selected Indonesian commodity labels for the MVP; which commodities to cover is a product choice, not a literature-derived fact."
     },
     "temp_ideal_min_c": {
-      "classification": "DEMO",
-      "source_ids": ["jagood-mvp-assumptions-v1"],
-      "method": "Manually curated storage-temperature assumption; no external record-level lineage is available."
+      "classification": "REFERENCE",
+      "source_ids": [
+        "fda-seafood-safety-2026",
+        "usda-frozen-seafood-2026",
+        "usda-fsis-poultry-fresh-2026",
+        "usda-fsis-beef-2026",
+        "fda-milk-storage-2026",
+        "ucdavis-postharvest-leafy-greens-2026",
+        "idfa-ice-cream-2026",
+        "fda-fresh-cut-produce-2026"
+      ],
+      "method": "Cross-checked against each commodity's cited public food-safety source; where the source gives a ceiling only (e.g. \"40F or below\"), the minimum retains its prior ice-storage-practice value since no source specifies a lower bound for unfrozen fresh product."
     },
     "temp_ideal_max_c": {
-      "classification": "DEMO",
-      "source_ids": ["jagood-mvp-assumptions-v1"],
-      "method": "Manually curated storage-temperature assumption; no external record-level lineage is available."
+      "classification": "REFERENCE",
+      "source_ids": [
+        "fda-seafood-safety-2026",
+        "usda-frozen-seafood-2026",
+        "usda-fsis-poultry-fresh-2026",
+        "usda-fsis-beef-2026",
+        "fda-milk-storage-2026",
+        "ucdavis-postharvest-leafy-greens-2026",
+        "idfa-ice-cream-2026",
+        "fda-fresh-cut-produce-2026"
+      ],
+      "method": "Matched to each commodity's cited maximum safe refrigeration/freezer temperature; Salmon Segar and Tuna Segar were corrected from 2C to 4C on 2026-08-22 to match the FDA fresh-fish ceiling of 40F (4C)."
     },
     "shelf_life_hours_at_ideal_temp": {
-      "classification": "DEMO",
-      "source_ids": ["jagood-mvp-assumptions-v1"],
-      "method": "Manually curated hackathon assumption used as a relative risk feature."
+      "classification": "REFERENCE",
+      "source_ids": [
+        "fda-seafood-safety-2026",
+        "usda-frozen-seafood-2026",
+        "usda-fsis-poultry-fresh-2026",
+        "usda-fsis-beef-2026",
+        "fda-milk-storage-2026",
+        "ucdavis-postharvest-leafy-greens-2026",
+        "idfa-ice-cream-2026",
+        "fda-fresh-cut-produce-2026"
+      ],
+      "method": "Matched to each commodity's cited storage duration at ideal/safe refrigeration temperature; Salmon Segar and Tuna Segar were corrected from 72h/96h to 48h on 2026-08-22 to match the FDA fresh-fish guidance of 2 days. Used as a relative risk feature, not a food-safety guarantee."
     },
     "delay_tolerance_hours": {
       "classification": "DEMO",
       "source_ids": ["jagood-mvp-assumptions-v1"],
-      "method": "Manually defined operational threshold used by the synthetic label function."
+      "method": "No public source found (as of 2026-08-22 research pass) that defines tolerance to in-transit temperature/time deviation specifically; public guidance covers safe storage duration under ideal refrigeration, not cold-chain delay tolerance. Manually defined operational threshold used by the synthetic label function."
     },
     "temp_sensitivity_level": {
       "classification": "DEMO",
       "source_ids": ["jagood-mvp-assumptions-v1"],
-      "method": "Manually assigned Low/Medium/High category used by feature engineering."
+      "method": "No public source found (as of 2026-08-22 research pass) that categorizes commodities into a Low/Medium/High transport temperature-sensitivity tier. Manually assigned category used by feature engineering."
     }
   },
   "records": {
-    "Salmon Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
-    "Udang Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
-    "Udang Beku": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
-    "Ayam Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
-    "Daging Sapi Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
-    "Susu Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
-    "Sayuran Daun Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
-    "Tuna Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
-    "Es Krim": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]},
-    "Buah Potong Segar": {"classification": "DEMO", "source_ids": ["jagood-mvp-assumptions-v1"]}
+    "Salmon Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-seafood-safety-2026"]},
+    "Udang Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-seafood-safety-2026"]},
+    "Udang Beku": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-frozen-seafood-2026"]},
+    "Ayam Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-fsis-poultry-fresh-2026"]},
+    "Daging Sapi Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-fsis-beef-2026"]},
+    "Susu Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-milk-storage-2026"]},
+    "Sayuran Daun Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-postharvest-leafy-greens-2026"]},
+    "Tuna Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-seafood-safety-2026"]},
+    "Es Krim": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "idfa-ice-cream-2026"]},
+    "Buah Potong Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-fresh-cut-produce-2026"]}
   }
 }

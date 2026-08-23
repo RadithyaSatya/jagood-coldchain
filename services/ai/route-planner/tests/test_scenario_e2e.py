@@ -14,8 +14,15 @@ class UnavailableORSClient:
         raise requests.ConnectionError("ORS unavailable during offline test")
 
 
+async def _unavailable_weathercode(*args, **kwargs):
+    return None
+
+
 def test_delay_scenario_compares_model_outputs(monkeypatch):
     monkeypatch.setattr(route_generator, "_get_client", lambda: UnavailableORSClient())
+    # Forces the LAND_DEFAULT_CONDITIONS fallback so expected_delay_hours below stays
+    # deterministic (weather_delay_hours=0) regardless of real-world weather at test time.
+    monkeypatch.setattr(enrichment_service, "fetch_weathercode", _unavailable_weathercode)
 
     response = client.post(
         "/simulate-scenario",

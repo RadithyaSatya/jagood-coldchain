@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AIExplainPanel from "@/components/AIExplainPanel";
 import CargoTempChart from "@/components/CargoTempChart";
+import QualityBadge from "@/components/QualityBadge";
 import RiskBadge from "@/components/RiskBadge";
 import RiskExplanation from "@/components/RiskExplanation";
 import { buildScenarioExplainContext } from "@/lib/aiExplain";
@@ -42,7 +43,10 @@ function ScenarioRouteCard({ title, route }: { title: string; route: RouteCandid
     <div className="rounded-lg border border-slate-200 bg-white p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-semibold">{title}</h3>
-        <RiskBadge level={route.risk_level} />
+        <div className="flex items-center gap-1.5">
+          <RiskBadge level={route.risk_level} />
+          <QualityBadge status={route.quality_status} />
+        </div>
       </div>
       <dl className="mt-3 grid grid-cols-2 gap-2 text-sm text-slate-600">
         <div>
@@ -64,6 +68,12 @@ function ScenarioRouteCard({ title, route }: { title: string; route: RouteCandid
         <div>
           <dt className="text-xs uppercase tracking-wide">Cold chain</dt>
           <dd>{route.cold_chain_equipment}</dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase tracking-wide">Sisa umur simpan</dt>
+          <dd className="font-semibold text-zinc-900 dark:text-zinc-100">
+            {route.remaining_shelf_life_hours.toFixed(1)} jam ({route.remaining_shelf_life_pct.toFixed(0)}%)
+          </dd>
         </div>
       </dl>
       <RiskExplanation summary={route.risk_explanation_summary} factors={route.risk_explanation_factors} />

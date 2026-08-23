@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers.route_planner import router as route_planner_router
+from app.routers.shipments import router as shipments_router
 
 app = FastAPI(title="JaGOOD Smart Route Planner", version="1.0")
 
@@ -13,3 +14,4 @@ app.add_middleware(
 )
 
 app.include_router(route_planner_router)
+app.include_router(shipments_router)

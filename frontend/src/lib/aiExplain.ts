@@ -97,6 +97,8 @@ export function buildRouteExplainContext(
       ...(route.quality_estimation_data_quality
         ? { quality_estimation_data_quality: route.quality_estimation_data_quality }
         : {}),
+      remaining_shelf_life: `${route.remaining_shelf_life_hours.toFixed(1)} jam (${route.remaining_shelf_life_pct.toFixed(0)}%)`,
+      quality_status: route.quality_status,
       shap_summary: route.risk_explanation_summary,
       ...(shapFactors ? { shap_factors: shapFactors } : {}),
     },
@@ -160,6 +162,9 @@ export function buildScenarioExplainContext(
       ...(scenario.simulated.quality_estimation_data_quality
         ? { quality_estimation_data_quality: scenario.simulated.quality_estimation_data_quality }
         : {}),
+      baseline_remaining_shelf_life: `${scenario.baseline.remaining_shelf_life_hours.toFixed(1)} jam (${scenario.baseline.remaining_shelf_life_pct.toFixed(0)}%)`,
+      simulated_remaining_shelf_life: `${scenario.simulated.remaining_shelf_life_hours.toFixed(1)} jam (${scenario.simulated.remaining_shelf_life_pct.toFixed(0)}%)`,
+      simulated_quality_status: scenario.simulated.quality_status,
       ...(affectedFactors ? { affected_factors: affectedFactors } : {}),
       shap_summary: scenario.simulated.risk_explanation_summary,
       ...(shapFactors ? { shap_factors: shapFactors } : {}),

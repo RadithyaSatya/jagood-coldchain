@@ -5,8 +5,10 @@ import { useEffect, useState } from "react";
 import AIExplainPanel from "@/components/AIExplainPanel";
 import AppHeader from "@/components/AppHeader";
 import CargoTempChart from "@/components/CargoTempChart";
+import CheckpointPanel from "@/components/CheckpointPanel";
 import ParameterLegend from "@/components/ParameterLegend";
 import RiskBadge from "@/components/RiskBadge";
+import QualityBadge from "@/components/QualityBadge";
 import RiskExplanation from "@/components/RiskExplanation";
 import SearchSelect from "@/components/SearchSelect";
 import ScenarioSimulator from "@/components/ScenarioSimulator";
@@ -127,7 +129,10 @@ function AlternativeRouteCard({
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-semibold">{MODE_LABELS[candidate.transport_mode] ?? candidate.transport_mode}</span>
-        <RiskBadge level={candidate.risk_level} />
+        <div className="flex items-center gap-1.5">
+          <RiskBadge level={candidate.risk_level} />
+          <QualityBadge status={candidate.quality_status} />
+        </div>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600 sm:grid-cols-3">
         <div>Jarak: {candidate.distance_km.toFixed(0)} km</div>
@@ -136,6 +141,9 @@ function AlternativeRouteCard({
         <div>Skor: {(candidate.risk_probability * 100).toFixed(0)}%</div>
         <div>Routing: {candidate.data_quality === "estimated" ? "Fallback estimasi" : "Tanpa fallback"}</div>
         <div>Lingkungan: {environmentalDataLabel(candidate)}</div>
+        <div>
+          Sisa umur simpan: {candidate.remaining_shelf_life_hours.toFixed(1)} jam ({candidate.remaining_shelf_life_pct.toFixed(0)}%)
+        </div>
       </div>
       <RiskExplanation summary={candidate.risk_explanation_summary} factors={candidate.risk_explanation_factors} />
       <CargoTempChart route={candidate} />
@@ -427,7 +435,10 @@ export default function Home() {
                   <span className="text-lg font-semibold">
                     {MODE_LABELS[result.recommended_route.transport_mode] ?? result.recommended_route.transport_mode}
                   </span>
-                  <RiskBadge level={result.recommended_route.risk_level} />
+                  <div className="flex items-center gap-1.5">
+                    <RiskBadge level={result.recommended_route.risk_level} />
+                    <QualityBadge status={result.recommended_route.quality_status} />
+                  </div>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600 sm:grid-cols-3">
                   <div>Jarak: {result.recommended_route.distance_km.toFixed(0)} km</div>
@@ -435,6 +446,10 @@ export default function Home() {
                   <div>Tiba: {formatArrival(result.recommended_route.estimated_arrival)}</div>
                   <div>Risiko: {(result.recommended_route.risk_probability * 100).toFixed(0)}%</div>
                   <div>Confidence: {(result.recommended_route.confidence_score * 100).toFixed(0)}%</div>
+                  <div>
+                    Sisa umur simpan: {result.recommended_route.remaining_shelf_life_hours.toFixed(1)} jam (
+                    {result.recommended_route.remaining_shelf_life_pct.toFixed(0)}%)
+                  </div>
                 </div>
                 {result.recommended_route.trigger_reason && (
                   <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
@@ -471,6 +486,17 @@ export default function Home() {
                     />
                   ))}
                 </div>
+              </div>
+            )}
+
+            {selectedRouteId && (
+              <div>
+                <h2 className="result-section-title">Lacak Perjalanan Rute Terpilih</h2>
+                <CheckpointPanel
+                  key={`${result.shipment_id}-${selectedRouteId}`}
+                  shipmentId={result.shipment_id}
+                  routeId={selectedRouteId}
+                />
               </div>
             )}
 

@@ -22,14 +22,14 @@ def test_commodities_endpoint_returns_known_shape():
     assert len(body) > 0
     assert "commodity_type" in body[0]
     assert "temp_sensitivity_level" in body[0]
-    assert body[0]["provenance"]["record_classification"] == "DEMO"
+    assert body[0]["provenance"]["record_classification"] == "REFERENCE"
 
 
-def test_commodity_provenance_endpoint_discloses_demo_assumptions():
+def test_commodity_provenance_endpoint_discloses_reference_sources():
     response = client.get("/commodities/provenance")
     assert response.status_code == 200
     body = response.json()
-    assert body["dataset"]["classification"] == "DEMO"
+    assert body["dataset"]["classification"] == "REFERENCE"
     assert body["dataset"]["foodkeeper_derived"] is False
     assert body["record_count"] > 0
 

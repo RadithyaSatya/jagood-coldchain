@@ -67,6 +67,16 @@ export default function CargoTempChart({ route }: { route: RouteCandidate }) {
           Suhu kargo diperkirakan melebihi suhu ideal hingga {route.max_cargo_temp_excess_c.toFixed(1)}°C selama perjalanan.
         </p>
       )}
+      <p
+        className={`text-xs ${
+          route.quality_status === "Baik"
+            ? "text-zinc-500 dark:text-zinc-400"
+            : "text-red-700 dark:text-red-400"
+        }`}
+      >
+        Sisa umur simpan diperkirakan {route.remaining_shelf_life_hours.toFixed(1)} jam (
+        {route.remaining_shelf_life_pct.toFixed(0)}%, {route.quality_status}) -- proxy MVP, bukan jaminan keamanan pangan.
+      </p>
     </div>
   );
 }

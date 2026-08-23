@@ -2,8 +2,8 @@
   {
     "commodity_type": "Salmon Segar",
     "temp_ideal_min_c": -1,
-    "temp_ideal_max_c": 2,
-    "shelf_life_hours_at_ideal_temp": 72,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 48,
     "delay_tolerance_hours": 6,
     "temp_sensitivity_level": "High"
   },
@@ -58,8 +58,8 @@
   {
     "commodity_type": "Tuna Segar",
     "temp_ideal_min_c": -1,
-    "temp_ideal_max_c": 2,
-    "shelf_life_hours_at_ideal_temp": 96,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 48,
     "delay_tolerance_hours": 4,
     "temp_sensitivity_level": "High"
   },
