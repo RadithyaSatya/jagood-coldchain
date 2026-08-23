@@ -34,8 +34,8 @@ export default function CargoTempChart({ route }: { route: RouteCandidate }) {
   const last = profile[profile.length - 1];
 
   return (
-    <div className="mt-3 border-t border-zinc-100 pt-3 dark:border-zinc-800">
-      <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+    <div className="mt-3 border-t border-slate-200 pt-3">
+      <p className="mb-1 text-xs font-medium text-slate-500">
         Simulasi suhu kargo sepanjang perjalanan (tanpa reefer)
       </p>
       <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="cargo-temp-chart" role="img" aria-label="Grafik suhu kargo terhadap waktu">
@@ -63,7 +63,7 @@ export default function CargoTempChart({ route }: { route: RouteCandidate }) {
         </text>
       </svg>
       {route.max_cargo_temp_excess_c > 0 && (
-        <p className="text-xs text-red-700 dark:text-red-400">
+        <p className="text-xs text-red-700">
           Suhu kargo diperkirakan melebihi suhu ideal hingga {route.max_cargo_temp_excess_c.toFixed(1)}°C selama perjalanan.
         </p>
       )}

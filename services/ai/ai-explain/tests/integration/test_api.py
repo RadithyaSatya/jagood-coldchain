@@ -131,7 +131,7 @@ async def test_chat_endpoint_calls_llm_for_allowed_question(fake_llm: FakeLLM) -
 
 
 @pytest.mark.asyncio
-async def test_scenario_context_is_forwarded_to_llm_without_recalculation(
+async def test_scenario_context_returns_deterministic_summary_without_recalculation(
     fake_llm: FakeLLM,
 ) -> None:
     fake_llm.response = "Risiko naik 49.92 poin persentase karena pendingin berubah menjadi pasif."
@@ -160,11 +160,10 @@ async def test_scenario_context_is_forwarded_to_llm_without_recalculation(
 
     assert response.status_code == 200
     assert response.json()["intent"] == "scenario_explanation"
-    assert response.json()["handled_by"] == "llm"
-    prompt = fake_llm.calls[0][0][1].content
-    assert '"source": "scenario_simulator"' in prompt
-    assert '"risk_delta": "49.92 poin persentase"' in prompt
-    assert "reefer -> pasif" in prompt
+    assert response.json()["handled_by"] == "rule"
+    assert "49.92 poin persentase" in response.json()["answer"]
+    assert "reefer -> pasif" in response.json()["answer"]
+    assert fake_llm.calls == []
 
 
 @pytest.mark.asyncio

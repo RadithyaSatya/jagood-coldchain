@@ -136,7 +136,65 @@ def rule_answer(request: ChatRequest, intent: ChatIntent) -> str | None:
             "available data."
         )
 
+    if (
+        intent is ChatIntent.SCENARIO_EXPLANATION
+        and request.shipment_context is not None
+        and request.shipment_context.source.value == "scenario_simulator"
+    ):
+        return _scenario_summary(request)
+
     return None
+
+
+def _scenario_summary(request: ChatRequest) -> str:
+    context = request.shipment_context
+    assert context is not None
+    facts = context.facts
+    baseline_level = _risk_label(facts.get("baseline_risk_level"), request.language.value)
+    simulated_level = _risk_label(facts.get("simulated_risk_level"), request.language.value)
+    baseline_probability = facts.get("baseline_risk_probability", facts.get("baseline_risk", "-"))
+    simulated_probability = facts.get(
+        "simulated_risk_probability", facts.get("simulated_risk", "-")
+    )
+    risk_delta = facts.get("risk_delta")
+    affected_factors = facts.get("affected_factors")
+
+    if request.language.value == "id":
+        parts = [
+            f"Risiko berubah dari {baseline_level} ({baseline_probability}) menjadi "
+            f"{simulated_level} ({simulated_probability})."
+        ]
+        if risk_delta is not None:
+            parts.append(f"Selisih risiko: {risk_delta}.")
+        if affected_factors:
+            parts.append(f"Perubahan utama: {str(affected_factors).rstrip('.')}.")
+        if context.recommendation:
+            parts.append(f"Saran: {context.recommendation.rstrip('.')}.")
+        return "\n\n".join(parts)
+
+    parts = [
+        f"Risk changed from {baseline_level} ({baseline_probability}) to "
+        f"{simulated_level} ({simulated_probability})."
+    ]
+    if risk_delta is not None:
+        parts.append(f"Risk difference: {risk_delta}.")
+    if affected_factors:
+        parts.append(f"Main changes: {str(affected_factors).rstrip('.')}.")
+    if context.recommendation:
+        parts.append(f"Suggested action: {context.recommendation.rstrip('.')}.")
+    return "\n\n".join(parts)
+
+
+def _risk_label(value: object, language: str) -> str:
+    normalized = str(value or "unknown").casefold()
+    labels = {
+        "low": {"id": "rendah", "en": "low"},
+        "medium": {"id": "sedang", "en": "medium"},
+        "high": {"id": "tinggi", "en": "high"},
+        "critical": {"id": "kritis", "en": "critical"},
+        "unknown": {"id": "tidak diketahui", "en": "unknown"},
+    }
+    return labels.get(normalized, labels["unknown"])[language]
 
 
 def missing_knowledge_answer(request: ChatRequest) -> str:

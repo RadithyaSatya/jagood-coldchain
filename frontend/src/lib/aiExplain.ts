@@ -13,6 +13,26 @@ export interface AIExplainContext {
   recommendation?: string;
 }
 
+const SCENARIO_FACTOR_LABELS: Record<string, string> = {
+  expected_delay_hours: "Keterlambatan tambahan",
+  transport_mode: "Moda transportasi",
+  cold_chain_equipment: "Peralatan cold chain",
+  insulation_quality: "Kualitas insulasi",
+  max_cargo_temp_excess_c: "Paparan suhu di atas batas ideal",
+  distance_km: "Jarak rute",
+  wave_height_m: "Tinggi gelombang",
+  weather_condition: "Kondisi cuaca",
+};
+
+function formatScenarioFactorValue(factor: string, value: number | string): string {
+  if (typeof value !== "number") return value;
+  if (factor.endsWith("_hours")) return `${value.toFixed(1)} jam`;
+  if (factor.endsWith("_km")) return `${value.toFixed(1)} km`;
+  if (factor.endsWith("_c")) return `${value.toFixed(1)}°C`;
+  if (factor === "wave_height_m") return `${value.toFixed(2)} m`;
+  return value.toFixed(2);
+}
+
 function normalizeRiskLevel(value: string): AIExplainRiskLevel {
   const normalized = value.toLowerCase();
   if (normalized === "low" || normalized === "medium" || normalized === "high" || normalized === "critical") {
@@ -89,7 +109,10 @@ export function buildScenarioExplainContext(
   scenario: ScenarioResponse,
 ): AIExplainContext {
   const affectedFactors = scenario.affected_factors
-    .map((factor) => `${factor.factor}: ${factor.baseline_value} -> ${factor.simulated_value}`)
+    .map(
+      (factor) =>
+        `${SCENARIO_FACTOR_LABELS[factor.factor] ?? factor.factor}: ${formatScenarioFactorValue(factor.factor, factor.baseline_value)} → ${formatScenarioFactorValue(factor.factor, factor.simulated_value)}`,
+    )
     .join("; ")
     .slice(0, 500);
   const shapFactors = formatShapFactors(scenario.simulated);

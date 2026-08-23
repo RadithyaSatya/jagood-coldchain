@@ -14,6 +14,14 @@ const DEFAULT_QUESTIONS = {
   scenario_simulator: "Jelaskan dampak skenario ini dibandingkan baseline dan tindakan yang disarankan.",
 };
 
+function presentAnswer(answer: string): string {
+  return answer
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*]\s+/gm, "• ")
+    .trim();
+}
+
 export default function AIExplainPanel({ context }: { context: AIExplainContext }) {
   const [question, setQuestion] = useState(DEFAULT_QUESTIONS[context.source]);
   const [loading, setLoading] = useState(false);
@@ -41,11 +49,11 @@ export default function AIExplainPanel({ context }: { context: AIExplainContext 
       });
       if (!result.ok) {
         const body = await result.json().catch(() => ({}));
-        throw new Error(body.detail ?? `AI Explain gagal (HTTP ${result.status})`);
+        throw new Error(body.detail ?? `Ringkasan tidak dapat dibuat (HTTP ${result.status})`);
       }
       setResponse((await result.json()) as AIExplainResponse);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "AI Explain gagal karena kesalahan tak terduga.");
+      setError(err instanceof Error ? err.message : "Ringkasan tidak dapat dibuat karena terjadi kesalahan.");
     } finally {
       setLoading(false);
     }
@@ -55,9 +63,9 @@ export default function AIExplainPanel({ context }: { context: AIExplainContext 
     <section className={`ai-panel ${context.source === "scenario_simulator" ? "ai-panel--scenario" : ""}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3>Jelaskan dengan AI Explain</h3>
+          <h3>Ringkasan Keputusan</h3>
           <p>
-            AI hanya menjelaskan hasil model dan SHAP di atas; AI tidak menghitung skor risiko.
+            Membantu memahami hasil berdasarkan data rute di atas tanpa menghitung ulang skor risiko.
           </p>
         </div>
         <span className="context-chip">
@@ -71,7 +79,7 @@ export default function AIExplainPanel({ context }: { context: AIExplainContext 
           onChange={(e) => setQuestion(e.target.value)}
           maxLength={1000}
           disabled={loading}
-          aria-label="Pertanyaan untuk AI Explain"
+          aria-label="Pertanyaan tentang hasil keputusan"
           className="form-control min-w-0 flex-1"
         />
         <button
@@ -86,7 +94,7 @@ export default function AIExplainPanel({ context }: { context: AIExplainContext 
       {loading && (
         <div className="operation-loading operation-loading--inline" role="status" aria-live="polite">
           <span className="loading-spinner" aria-hidden />
-          <span>Menunggu penjelasan AI Explain...</span>
+          <span>Menyiapkan ringkasan keputusan...</span>
         </div>
       )}
 
@@ -98,13 +106,13 @@ export default function AIExplainPanel({ context }: { context: AIExplainContext 
 
       {response && (
         <div className="ui-card mt-3">
-          <p className="whitespace-pre-wrap text-sm leading-6 text-slate-800">{response.answer}</p>
+          <p className="whitespace-pre-wrap text-sm leading-6 text-slate-800">{presentAnswer(response.answer)}</p>
           <p className="mt-2 text-xs text-slate-500">
             {response.handled_by === "llm"
-              ? `Dijelaskan oleh ${response.model ?? "AI Explain"}`
+              ? "Ringkasan dibuat dari data hasil analisis"
               : response.handled_by === "fallback"
-                ? "Ringkasan fallback tanpa LLM"
-                : "Jawaban guardrail otomatis"}
+                ? "Ringkasan otomatis berdasarkan data yang tersedia"
+                : "Jawaban otomatis berdasarkan batasan sistem"}
           </p>
         </div>
       )}

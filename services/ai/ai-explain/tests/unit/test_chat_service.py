@@ -112,12 +112,12 @@ async def test_contextual_chat_falls_back_to_structured_facts_on_llm_timeout() -
 
     response = await service.chat(request)
 
-    assert response.handled_by == "fallback"
+    assert response.handled_by == "rule"
     assert response.model is None
     assert "49.92%" in response.answer
     assert "48.92 poin persentase" in response.answer
     assert "Gunakan reefer aktif." in response.answer
-    assert "hanya memakai hasil terstruktur" in response.answer
+    assert llm.calls == []
 
 
 @pytest.mark.asyncio

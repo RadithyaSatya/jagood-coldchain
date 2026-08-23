@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     });
   } catch {
     return Response.json(
-      { detail: "AI Explain service is unavailable." },
+      { detail: "Layanan ringkasan keputusan tidak tersedia." },
       { status: 502 },
     );
   }

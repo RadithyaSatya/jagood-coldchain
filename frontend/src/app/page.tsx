@@ -5,12 +5,9 @@ import { useEffect, useState } from "react";
 import AIExplainPanel from "@/components/AIExplainPanel";
 import AppHeader from "@/components/AppHeader";
 import CargoTempChart from "@/components/CargoTempChart";
-import FinalRecommendation from "@/components/FinalRecommendation";
 import ParameterLegend from "@/components/ParameterLegend";
-import ProductQualitySummary from "@/components/ProductQualitySummary";
 import RiskBadge from "@/components/RiskBadge";
 import RiskExplanation from "@/components/RiskExplanation";
-import RouteComparison from "@/components/RouteComparison";
 import SearchSelect from "@/components/SearchSelect";
 import ScenarioSimulator from "@/components/ScenarioSimulator";
 import { buildRouteExplainContext } from "@/lib/aiExplain";
@@ -26,7 +23,6 @@ import type {
   RankingPreference,
   RouteCandidate,
   RouteRequestPayload,
-  ScenarioResponse,
   TransportModePreference,
 } from "@/lib/types";
 
@@ -143,7 +139,6 @@ function AlternativeRouteCard({
       </div>
       <RiskExplanation summary={candidate.risk_explanation_summary} factors={candidate.risk_explanation_factors} />
       <CargoTempChart route={candidate} />
-      <ProductQualitySummary route={candidate} />
     </button>
   );
 }
@@ -171,7 +166,6 @@ export default function Home() {
   // re-submitting can't mislabel how the listed routes were ordered.
   const [resultRanking, setResultRanking] = useState<"risiko" | "kecepatan">("risiko");
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
-  const [scenarioResult, setScenarioResult] = useState<ScenarioResponse | null>(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/commodities`)
@@ -197,7 +191,6 @@ export default function Home() {
     setError(null);
     setResult(null);
     setResultRequest(null);
-    setScenarioResult(null);
 
     try {
       const requestPayload: RouteRequestPayload = {
@@ -260,6 +253,46 @@ export default function Home() {
                 <h2 id="planner-title">Tentukan titik dan detail pengiriman</h2>
               </div>
             </div>
+
+            <div className="map-controls" aria-label="Kontrol pemilihan titik peta">
+              <button
+                type="button"
+                disabled={formBusy}
+                onClick={() => setPickMode("origin")}
+                className={`map-point-button ${pickMode === "origin" ? "map-point-button--active" : ""}`}
+              >
+                Pilih titik asal di peta
+              </button>
+              <button
+                type="button"
+                disabled={formBusy}
+                onClick={() => setPickMode("destination")}
+                className={`map-point-button ${pickMode === "destination" ? "map-point-button--active" : ""}`}
+              >
+                Pilih titik tujuan di peta
+              </button>
+              <span className="map-controls__hint">Klik peta atau seret penanda A/B untuk memperbarui titik.</span>
+            </div>
+
+            <div className="planner-map" aria-busy={mapLoading}>
+              <RouteMap
+                origin={origin}
+                destination={destination}
+                onOriginChange={handleOriginChange}
+                onDestinationChange={handleDestinationChange}
+                pickMode={formBusy ? null : pickMode}
+                routes={allRoutes}
+                recommendedRouteId={result?.recommended_route.route_id}
+                selectedRouteId={selectedRouteId ?? undefined}
+                onSelectRoute={setSelectedRouteId}
+                onReady={() => setMapLoading(false)}
+              />
+              {mapLoading && <ForecastMapLoading />}
+              <div className="map-forecast-overlay">
+                <ParameterLegend route={selectedRoute} />
+              </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="planner-form" aria-busy={formBusy}>
               <div className="form-field">
                 Asal
@@ -363,45 +396,6 @@ export default function Home() {
               </button>
             </form>
             {loading && <RouteSearchLoading />}
-
-            <div className="map-controls" aria-label="Kontrol pemilihan titik peta">
-              <button
-                type="button"
-                disabled={formBusy}
-                onClick={() => setPickMode("origin")}
-                className={`map-point-button ${pickMode === "origin" ? "map-point-button--active" : ""}`}
-              >
-                Pilih titik asal di peta
-              </button>
-              <button
-                type="button"
-                disabled={formBusy}
-                onClick={() => setPickMode("destination")}
-                className={`map-point-button ${pickMode === "destination" ? "map-point-button--active" : ""}`}
-              >
-                Pilih titik tujuan di peta
-              </button>
-              <span className="map-controls__hint">Klik peta atau seret penanda A/B untuk memperbarui titik.</span>
-            </div>
-
-            <div className="planner-map" aria-busy={mapLoading}>
-              <RouteMap
-                origin={origin}
-                destination={destination}
-                onOriginChange={handleOriginChange}
-                onDestinationChange={handleDestinationChange}
-                pickMode={formBusy ? null : pickMode}
-                routes={allRoutes}
-                recommendedRouteId={result?.recommended_route.route_id}
-                selectedRouteId={selectedRouteId ?? undefined}
-                onSelectRoute={setSelectedRouteId}
-                onReady={() => setMapLoading(false)}
-              />
-              {mapLoading && <ForecastMapLoading />}
-              <div className="map-forecast-overlay">
-                <ParameterLegend route={selectedRoute} />
-              </div>
-            </div>
           </section>
 
         {error && (
@@ -412,19 +406,6 @@ export default function Home() {
 
         {result && (
           <section id="hasil-rute" className="results-section" aria-label="Hasil perencanaan rute">
-            <FinalRecommendation
-              route={result.recommended_route}
-              rankingPreference={resultRanking}
-              scenario={scenarioResult}
-            />
-
-            <RouteComparison
-              routes={allRoutes}
-              recommendedRouteId={result.recommended_route.route_id}
-              rankingPreference={resultRanking}
-              selectedRouteId={selectedRouteId}
-              onSelectRoute={setSelectedRouteId}
-            />
             <div>
               <h2 className="result-section-title">
                 Rute Direkomendasikan{" "}
@@ -465,10 +446,8 @@ export default function Home() {
                   factors={result.recommended_route.risk_explanation_factors}
                 />
                 <CargoTempChart route={result.recommended_route} />
-                <ProductQualitySummary route={result.recommended_route} />
               </button>
               <AIExplainPanel
-                key={`${result.shipment_id}:${result.recommended_route.route_id}`}
                 context={buildRouteExplainContext(
                   result.shipment_id,
                   resultRequest?.commodity_type ?? commodityType,
@@ -496,13 +475,7 @@ export default function Home() {
             )}
 
             <div id="simulasi">
-              {resultRequest && (
-                <ScenarioSimulator
-                  key={result.shipment_id}
-                  baseline={resultRequest}
-                  onResult={setScenarioResult}
-                />
-              )}
+              {resultRequest && <ScenarioSimulator key={result.shipment_id} baseline={resultRequest} />}
             </div>
           </section>
         )}

@@ -5,6 +5,7 @@ import pytest
 
 from ai_explain.config import Settings
 from ai_explain.llm import LLMMessage, OpenAICompatibleLLM
+from ai_explain.llm.errors import LLMServiceError
 
 
 @pytest.mark.asyncio
@@ -33,6 +34,30 @@ async def test_complete_uses_openai_compatible_contract() -> None:
     result = await llm.complete([LLMMessage(role="user", content="Explain")], 300)
 
     assert result == "A supported explanation."
+    await client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_complete_rejects_truncated_response() -> None:
+    async def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "message": {"content": "An unfinished explanation"},
+                        "finish_reason": "length",
+                    }
+                ]
+            },
+        )
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    llm = OpenAICompatibleLLM(Settings(), client=client)
+
+    with pytest.raises(LLMServiceError, match="output token limit"):
+        await llm.complete([LLMMessage(role="user", content="Explain")], 64)
+
     await client.aclose()
 
 

@@ -1,5 +1,4 @@
 import { WAVE_SCALE, waveColor } from "@/lib/wavePalette";
-import { environmentalDataLabel } from "@/lib/dataProvenance";
 import type { RouteCandidate } from "@/lib/types";
 
 export default function ParameterLegend({ route }: { route?: RouteCandidate }) {
@@ -17,7 +16,7 @@ export default function ParameterLegend({ route }: { route?: RouteCandidate }) {
         )}
       </div>
       <details className="map-forecast-panel__details">
-        <summary>Lihat skala dan sumber data</summary>
+        <summary>Lihat skala tinggi gelombang</summary>
         <ul className="wave-scale">
           {WAVE_SCALE.map((band) => (
             <li key={band.label}>
@@ -28,11 +27,6 @@ export default function ParameterLegend({ route }: { route?: RouteCandidate }) {
           ))}
         </ul>
         <p>Warna lapisan luar rute laut menunjukkan tinggi gelombang. Garis tengah tetap menunjukkan risiko rute.</p>
-        {route && <p>Sumber kondisi rute: {environmentalDataLabel(route)}.</p>}
-        <p>
-          BMKG digunakan untuk cuaca/gelombang perairan dan suhu pelabuhan. Suhu ambient sepanjang rute pasif
-          menggunakan Open-Meteo atau fallback sintetis. Rute darat dapat memakai kondisi netral terkonfigurasi.
-        </p>
       </details>
     </aside>
   );

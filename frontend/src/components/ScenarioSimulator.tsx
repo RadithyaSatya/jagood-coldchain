@@ -3,7 +3,6 @@
 import { useState } from "react";
 import AIExplainPanel from "@/components/AIExplainPanel";
 import CargoTempChart from "@/components/CargoTempChart";
-import ProductQualitySummary from "@/components/ProductQualitySummary";
 import RiskBadge from "@/components/RiskBadge";
 import RiskExplanation from "@/components/RiskExplanation";
 import { buildScenarioExplainContext } from "@/lib/aiExplain";
@@ -40,21 +39,21 @@ function formatFactorValue(factor: string, value: number | string): string {
 
 function ScenarioRouteCard({ title, route }: { title: string; route: RouteCandidate }) {
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-950">
+    <div className="rounded-lg border border-slate-200 bg-white p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-semibold">{title}</h3>
         <RiskBadge level={route.risk_level} />
       </div>
-      <dl className="mt-3 grid grid-cols-2 gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+      <dl className="mt-3 grid grid-cols-2 gap-2 text-sm text-slate-600">
         <div>
           <dt className="text-xs uppercase tracking-wide">Skor risiko</dt>
-          <dd className="font-semibold text-zinc-900 dark:text-zinc-100">
+          <dd className="font-semibold text-slate-900">
             {(route.risk_probability * 100).toFixed(2)}%
           </dd>
         </div>
         <div>
           <dt className="text-xs uppercase tracking-wide">Delay tambahan</dt>
-          <dd className="font-semibold text-zinc-900 dark:text-zinc-100">
+          <dd className="font-semibold text-slate-900">
             {route.expected_delay_hours.toFixed(1)} jam
           </dd>
         </div>
@@ -69,18 +68,11 @@ function ScenarioRouteCard({ title, route }: { title: string; route: RouteCandid
       </dl>
       <RiskExplanation summary={route.risk_explanation_summary} factors={route.risk_explanation_factors} />
       <CargoTempChart route={route} />
-      <ProductQualitySummary route={route} />
     </div>
   );
 }
 
-export default function ScenarioSimulator({
-  baseline,
-  onResult,
-}: {
-  baseline: RouteRequestPayload;
-  onResult?: (result: ScenarioResponse | null) => void;
-}) {
+export default function ScenarioSimulator({ baseline }: { baseline: RouteRequestPayload }) {
   const [delayHours, setDelayHours] = useState(12);
   const [transportMode, setTransportMode] = useState<"" | TransportModePreference>("");
   const [equipment, setEquipment] = useState<"" | ColdChainEquipment>(
@@ -98,7 +90,6 @@ export default function ScenarioSimulator({
     setLoading(true);
     setError(null);
     setResult(null);
-    onResult?.(null);
 
     const changes: Record<string, string | number> = { delay_hours: delayHours };
     if (transportMode) changes.transport_mode = transportMode;
@@ -115,9 +106,7 @@ export default function ScenarioSimulator({
         const body = await response.json().catch(() => ({}));
         throw new Error(body.detail ?? `Simulasi gagal (HTTP ${response.status})`);
       }
-      const scenario = (await response.json()) as ScenarioResponse;
-      setResult(scenario);
-      onResult?.(scenario);
+      setResult((await response.json()) as ScenarioResponse);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Simulasi gagal karena kesalahan tak terduga.");
     } finally {
@@ -235,21 +224,21 @@ export default function ScenarioSimulator({
               <span
                 className={`text-lg font-bold ${
                   deltaPoints > 0
-                    ? "text-red-600 dark:text-red-400"
+                    ? "text-red-600"
                     : deltaPoints < 0
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-zinc-600 dark:text-zinc-400"
+                      ? "text-emerald-600"
+                      : "text-slate-600"
                 }`}
               >
                 {deltaLabel}
               </span>
             </div>
-            <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300">{result.recommendation}</p>
+            <p className="mt-2 text-sm text-slate-700">{result.recommendation}</p>
 
             {result.affected_factors.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-sm font-semibold">Faktor yang berubah</h3>
-                <ul className="mt-2 space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
+                <ul className="mt-2 space-y-1 text-sm text-slate-600">
                   {result.affected_factors.map((factor) => (
                     <li key={factor.factor}>
                       {FACTOR_LABELS[factor.factor] ?? factor.factor}: {formatFactorValue(factor.factor, factor.baseline_value)} →{" "}
@@ -261,7 +250,6 @@ export default function ScenarioSimulator({
             )}
           </div>
           <AIExplainPanel
-            key={result.scenario_id}
             context={buildScenarioExplainContext(
               baseline.shipment_id ?? result.scenario_id,
               baseline.commodity_type,

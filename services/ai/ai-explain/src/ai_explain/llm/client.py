@@ -58,7 +58,10 @@ class OpenAICompatibleLLM:
             raise LLMServiceError("inference server request failed") from exc
 
         try:
-            content = response.json()["choices"][0]["message"]["content"]
+            choice = response.json()["choices"][0]
+            if choice.get("finish_reason") == "length":
+                raise LLMServiceError("inference response reached the output token limit")
+            content = choice["message"]["content"]
         except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
             raise LLMServiceError("inference server returned an invalid response") from exc
 
