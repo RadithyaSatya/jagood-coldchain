@@ -2,23 +2,26 @@
 
 Status: **done and verified working** (see [Verification results](#verification-results)).
 
-The Smart Route Planner stack (Postgres, the FastAPI backend, the Next.js
-frontend) now runs fully containerized via Docker Compose. The backend's
+The JaGOOD stack (Postgres, internal FastAPI services, the public FastAPI gateway, and web
+frontends) runs fully containerized via Docker Compose. The Route Planner's
 BMKG API response cache moved from SQLite to PostgreSQL, and Postgres itself
 runs as a container rather than a local file.
 
 ## Architecture
 
 ```
-infrastructure/docker-compose.yml
-├── postgres          postgres:16-alpine, port 5432, volume-backed
-├── route-planner      services/ai/route-planner (FastAPI + XGBoost), port 8000
-└── frontend           frontend (Next.js, standalone build), port 3000
+compose.yaml
+├── postgres           postgres:16-alpine, host port 5432, volume-backed
+├── route-planner      internal FastAPI + XGBoost service
+├── ai-explain         internal FastAPI explanation service
+├── platform-gateway   public FastAPI gateway, host port 8080
+├── planner-web        Next.js dashboard, host port 3000
+└── web                chatbot UI, host port 3001
 ```
 
 - `route-planner` depends on `postgres` being healthy (`pg_isready` healthcheck)
   before it starts.
-- `frontend` is built with `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`
+- `planner-web` is built with `NEXT_PUBLIC_API_BASE_URL=http://localhost:8080`
   baked in at build time (a `NEXT_PUBLIC_*` var is inlined into the client
   bundle, so it must point at whatever the *browser* can reach -- not the
   internal Docker network hostname).
@@ -55,7 +58,7 @@ docker compose up --build -d
 Or from the repo root: `make docker-up`.
 
 - Frontend: http://localhost:3000
-- Backend + Swagger UI: http://localhost:8000/docs
+- Platform gateway + Swagger UI: http://localhost:8080/docs
 - Postgres: `localhost:5432` (credentials from `infrastructure/.env`)
 
 Useful commands:
@@ -75,47 +78,22 @@ containerizing it, while still using Postgres instead of SQLite.
 
 ## Verification results
 
-Run on 2026-08-05 after the stack came up clean:
+Verified on 2026-08-23 with the platform gateway architecture:
 
-```
-$ docker compose ps
-NAME                             STATUS                    PORTS
-infrastructure-postgres-1        Up (healthy)              0.0.0.0:5432->5432/tcp
-infrastructure-route-planner-1   Up                        0.0.0.0:8000->8000/tcp
-infrastructure-frontend-1        Up                        0.0.0.0:3000->3000/tcp
-
-$ curl http://localhost:8000/health
-{"status":"ok"}
-
-$ curl -o /dev/null -w "%{http_code}" http://localhost:8000/docs
-200
-
-$ curl -X POST http://localhost:8000/predict-route -H "Content-Type: application/json" -d '{...Jakarta->Surabaya, Salmon Segar...}'
-{"shipment_id":"shp-4c247e14b1fd","recommended_route":{"route_id":"darat-1","transport_mode":"darat",
-"distance_km":770.3,"estimated_duration_hours":10.14,"risk_level":"Low", ...},"alternative_routes":[...]}
-
-$ curl -o /dev/null -w "%{http_code}" http://localhost:3000/
-200
-
-$ docker compose exec postgres psql -U route_planner -d route_planner -c "\dt"
- Schema |    Name    | Type  |     Owner
---------+------------+-------+---------------
- public | bmkg_cache | table | route_planner
-
-$ docker compose exec postgres psql -U route_planner -d route_planner \
-    -c "SELECT cache_key, fetched_at FROM bmkg_cache LIMIT 5;"
-                     cache_key                      |          fetched_at
-----------------------------------------------------+-------------------------------
- geojson:wilayah_perairan                           | 2026-08-05 17:01:08.978593+00
- perairan:I.07_Perairan Gresik - Surabaya.json      | 2026-08-05 17:01:09.143473+00
- index:perairan_list                                | 2026-08-05 17:01:09.240786+00
- ...
+```bash
+docker compose config
+docker compose up -d --build platform-gateway
+curl http://localhost:8080/health
+curl http://localhost:8080/ready
+curl http://localhost:8080/commodities/provenance
+curl http://localhost:8080/openapi.json
 ```
 
-Confirms: Postgres container healthy, `route-planner` connects to it and
-creates/uses the `bmkg_cache` table (real BMKG API responses cached, not
-SQLite), `predict-route` returns a correct end-to-end response, and the
-frontend serves successfully -- all through Docker only.
+The gateway returned HTTP 200 for health/readiness, exposed the combined OpenAPI title
+`JaGOOD Platform API Gateway`, forwarded commodity provenance, and successfully processed an
+end-to-end `POST /final-recommendation` request through the internal Route Planner. Gateway unit
+tests also cover Route Planner query forwarding, AI Explain SSE forwarding, Final Recommendation
+orchestration, readiness, and upstream-error mapping.
 
 ## Known gotchas
 

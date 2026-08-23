@@ -3,6 +3,8 @@
 import { useState } from "react";
 import type { AIExplainContext } from "@/lib/aiExplain";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+
 interface AIExplainResponse {
   answer: string;
   handled_by: "rule" | "llm" | "fallback";
@@ -37,7 +39,7 @@ export default function AIExplainPanel({ context }: { context: AIExplainContext 
     setError(null);
     setResponse(null);
     try {
-      const result = await fetch("/api/ai-explain/chat", {
+      const result = await fetch(`${API_BASE}/v1/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -28,8 +28,8 @@ services:
       BMKG_BASE_URL: "${BMKG_BASE_URL:-https://peta-maritim.bmkg.go.id/public_api}"
       BMKG_CACHE_TTL_SECONDS: "${BMKG_CACHE_TTL_SECONDS:-10800}"
       DATABASE_URL: "postgresql+psycopg2://${POSTGRES_USER:-route_planner}:${POSTGRES_PASSWORD:-route_planner}@postgres:5432/${POSTGRES_DB:-route_planner}"
-    ports:
-      - "${ROUTE_PLANNER_PORT:-8000}:8000"
+    expose:
+      - "8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -40,21 +40,40 @@ services:
       start_period: 15s
       retries: 5
 
-  planner-web:
+  platform-gateway:
     build:
-      context: ./frontend
-      args:
-        NEXT_PUBLIC_API_BASE_URL: "http://localhost:${ROUTE_PLANNER_PORT:-8000}"
+      context: ./backend
     restart: unless-stopped
+    init: true
     environment:
-      AI_EXPLAIN_API_BASE_URL: "http://ai-explain:8000"
-      ROUTE_PLANNER_API_BASE_URL: "http://route-planner:8000"
+      ROUTE_PLANNER_BASE_URL: "http://route-planner:8000"
+      AI_EXPLAIN_BASE_URL: "http://ai-explain:8000"
+      GATEWAY_TIMEOUT_SECONDS: "300"
+      GATEWAY_CORS_ORIGINS: "http://localhost:${PLANNER_WEB_PORT:-3000},http://localhost:${JAGOOD_WEB_PORT:-3001}"
     ports:
-      - "${PLANNER_WEB_PORT:-3000}:3000"
+      - "${GATEWAY_PORT:-8080}:8000"
     depends_on:
       route-planner:
         condition: service_healthy
       ai-explain:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 5
+
+  planner-web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: "http://localhost:${GATEWAY_PORT:-8080}"
+    restart: unless-stopped
+    ports:
+      - "${PLANNER_WEB_PORT:-3000}:3000"
+    depends_on:
+      platform-gateway:
         condition: service_healthy
 
   # Ollama itself runs natively on the host (not containerized): Docker Desktop/OrbStack on
@@ -78,8 +97,8 @@ services:
       AI_EXPLAIN_KNOWLEDGE_DIR: /home/app/knowledge
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    ports:
-      - "${AI_EXPLAIN_PORT:-8001}:8000"
+    expose:
+      - "8000"
     security_opt:
       - no-new-privileges:true
 
@@ -90,7 +109,7 @@ services:
     ports:
       - "${JAGOOD_WEB_PORT:-3001}:80"
     depends_on:
-      ai-explain:
+      platform-gateway:
         condition: service_healthy
     security_opt:
       - no-new-privileges:true

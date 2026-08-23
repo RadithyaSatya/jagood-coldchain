@@ -10,8 +10,9 @@ menjalankan preprocessing dan model XGBoost, mengurutkan kandidat, lalu menghitu
 Scenario Simulator menjalankan ulang pipeline yang sama untuk kondisi counterfactual. AI Explain
 hanya menjelaskan hasil terstruktur tersebut; LLM tidak menghitung rute atau risiko.
 
-Data training dan label risiko bersifat sintetis. Profil komoditas saat ini adalah asumsi `DEMO`.
-Output menunjukkan integrasi dan perilaku sistem, bukan probabilitas kerusakan yang sudah
+Data training dan label risiko bersifat sintetis. Temperatur ideal dan umur simpan komoditas
+memiliki referensi publik, sedangkan toleransi delay dan sensitivitas temperatur tetap asumsi
+`DEMO`. Output menunjukkan integrasi dan perilaku sistem, bukan probabilitas kerusakan yang sudah
 tervalidasi di dunia nyata.
 
 ## 2. Persiapan sebelum presentasi
@@ -39,26 +40,25 @@ deterministik berbasis fakta.
 ### Preflight wajib
 
 ```bash
-curl -sS http://localhost:8000/health
-curl -sS http://localhost:8000/commodities/provenance
-curl -sS http://localhost:8001/health
-curl -i http://localhost:8001/ready
+curl -sS http://localhost:8080/health
+curl -sS http://localhost:8080/ready
+curl -sS http://localhost:8080/commodities/provenance
+curl -i http://localhost:8080/ai-explain/ready
 ```
 
 Hasil yang dapat diterima:
 
-- route planner `/health`: HTTP 200 dan `{"status":"ok"}`;
-- commodity provenance: `classification` bernilai `DEMO` dan `foodkeeper_derived` bernilai
-  `false`;
-- AI Explain `/health`: HTTP 200;
-- AI Explain `/ready`: HTTP 200 jika LLM siap, atau HTTP 503 dengan
+- gateway `/health`: HTTP 200 dan service `jagood-platform-gateway`;
+- gateway `/ready`: HTTP 200 ketika Route Planner dan AI Explain dapat dijangkau;
+- commodity provenance: klasifikasi dataset `REFERENCE`, dengan atribut asumsi internal tetap
+  ditandai `DEMO`, dan `foodkeeper_derived` bernilai `false`;
+- `/ai-explain/ready`: HTTP 200 jika LLM siap, atau HTTP 503 dengan
   `fallback_available: true` jika LLM tidak tersedia.
 
 Buka sebelum presentasi:
 
 - dashboard utama: <http://localhost:3000>
-- route-planner Swagger: <http://localhost:8000/docs>
-- AI Explain Swagger: <http://localhost:8001/docs>
+- platform gateway Swagger: <http://localhost:8080/docs>
 
 ## 3. Alur demo utama
 
@@ -123,8 +123,8 @@ bukan Monte Carlo dan bukan model scenario terpisah.
 
 Klik **Jelaskan** pada hasil scenario.
 
-- Jika LLM siap, UI menampilkan nama model.
-- Jika LLM gagal/tidak tersedia, UI menampilkan **Ringkasan fallback tanpa LLM**.
+- Jika LLM siap, UI menampilkan ringkasan berdasarkan data hasil analisis.
+- Jika LLM gagal/tidak tersedia, UI menampilkan ringkasan otomatis berdasarkan data yang tersedia.
 
 Keduanya merupakan hasil demo yang valid. Tunjukkan bahwa jawaban menyebut nilai scenario yang
 sama dengan hasil analitik. AI Explain tidak boleh memperkenalkan skor atau fakta baru.
@@ -142,9 +142,10 @@ Jika koneksi ORS/BMKG/Open-Meteo tidak stabil, gunakan:
 | Cold chain | Reefer |
 | Urutan | Risiko kerusakan terendah |
 
-Jalur ini menghindari BMKG maritim dan Open-Meteo. Jika ORS gagal, jarak/waktu memakai fallback
-estimasi dan UI menandainya. Model inference, ranking, SHAP, scenario comparison, dan AI Explain
-fallback tetap berjalan.
+Jalur ini menghindari BMKG maritim. Cuaca darat tetap mencoba Open-Meteo dan memakai fallback
+terkonfigurasi jika tidak tersedia. Jika ORS gagal, jarak/waktu memakai fallback estimasi dan UI
+menandainya. Model inference, ranking, SHAP, scenario comparison, dan AI Explain fallback tetap
+berjalan.
 
 Golden test menggunakan prinsip yang sama dan sengaja mematikan ORS serta LLM:
 
@@ -161,7 +162,7 @@ GitHub Actions juga menjalankannya melalui job `offline golden demo / pytest`.
 
 ```bash
 docker compose ps
-docker compose logs --tail=100 postgres route-planner ai-explain planner-web
+docker compose logs --tail=100 postgres route-planner ai-explain platform-gateway planner-web
 ```
 
 Pastikan PostgreSQL sehat sebelum route planner. Bangun ulang bila kontrak API/frontend baru saja
@@ -173,12 +174,12 @@ docker compose up --build -d
 
 ### Dashboard gagal memuat komoditas
 
-Periksa `http://localhost:8000/health` dan browser console. Gunakan port default `3000` dan `8000`
+Periksa `http://localhost:8080/ready` dan browser console. Gunakan port default `3000` dan `8080`
 agar sesuai build-time API URL serta konfigurasi CORS.
 
 ### AI Explain lama atau gagal
 
-Periksa `http://localhost:8001/ready`. HTTP 503 dengan `fallback_available: true` berarti demo
+Periksa `http://localhost:8080/ai-explain/ready`. HTTP 503 dengan `fallback_available: true` berarti demo
 dapat dilanjutkan. Jika ingin respons LLM, pastikan model pada `.env` sama dengan hasil
 `ollama list`.
 
@@ -201,9 +202,10 @@ nilai netral menjaga continuity ketika BMKG gagal, tetapi tidak dianggap setara 
 
 - akurasi kerusakan atau food-safety sudah tervalidasi di dunia nyata;
 - profil komoditas berasal dari FoodKeeper;
-- sistem memantau GPS/IoT atau shipment aktif;
+- sistem melakukan streaming GPS/IoT atau monitoring armada real-time;
 - sistem mempunyai model prediksi delay terpisah;
-- sistem menghitung remaining shelf life atau economic loss;
+- proxy sisa umur simpan merupakan jaminan keamanan pangan atau hasil tervalidasi;
+- sistem menghitung economic loss;
 - scenario menggunakan Monte Carlo;
 - status pelabuhan adalah status operasional resmi;
 - geometri `searoute-py` layak untuk navigasi kapal.
@@ -212,8 +214,8 @@ nilai netral menjaga continuity ketika BMKG gagal, tetapi tidak dianggap setara 
 
 - [ ] Working tree/branch yang dipresentasikan sudah benar.
 - [ ] Semua container yang dibutuhkan berstatus running/healthy.
-- [ ] Dashboard dan dua halaman Swagger sudah terbuka.
-- [ ] `/commodities/provenance` menunjukkan data `DEMO`.
+- [ ] Dashboard dan halaman Swagger gateway sudah terbuka.
+- [ ] `/commodities/provenance` menunjukkan pemisahan atribut `REFERENCE` dan `DEMO`.
 - [ ] Jalur Jakarta–Makassar sudah dicoba sekali.
 - [ ] Jalur aman Jakarta–Surabaya sudah dicoba sekali.
 - [ ] Status `/ready` AI Explain sudah diketahui: LLM atau fallback.

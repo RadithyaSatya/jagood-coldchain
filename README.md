@@ -14,9 +14,11 @@ Ranks generated route candidates using travel time and a model-estimated quality
 
 Re-runs the same analytical pipeline for changes to delay, transport mode, cooling equipment, or insulation. It is a deterministic counterfactual comparison, not Monte Carlo simulation or a separately trained scenario model.
 
-### Transportation Monitoring — not implemented
+### Transportation Checkpoints — implemented with MVP limitations
 
-The repository does not ingest live GPS, IoT sensors, or stored shipment telemetry. Monitoring remains future work.
+Stores route predictions and actual outcomes, and accepts manual browser-geolocation checkpoints
+for a selected route. Continuous GPS/IoT telemetry, authentication, and real-time fleet monitoring
+remain future work.
 
 ### AI Explain — implemented with fallback
 
@@ -31,7 +33,7 @@ the language model, while shipment calculations remain owned by the application.
 The API accepts up to 10 previous messages and an optional structured shipment context:
 
 ```bash
-curl http://localhost:8001/v1/chat \
+curl http://localhost:8080/v1/chat \
   -H 'Content-Type: application/json' \
   -d '{
     "language": "id",
@@ -75,12 +77,12 @@ For presentation preparation, use the [hackathon demo runbook](docs/DEMO_RUNBOOK
 
 ```
 frontend/               web UI (Next.js) -- currently the Smart Route Planner demo dashboard
-backend/                reserved for a future platform-level API gateway (not implemented yet)
+backend/                FastAPI platform gateway and Final Recommendation orchestration
 services/
   ai/
     route-planner/       Smart Route Planner -- implemented (FastAPI + XGBoost), see its README
     scenario-simulator/  implemented in route-planner for the MVP
-    monitoring/          not implemented yet
+    monitoring/          continuous telemetry not implemented; checkpoint workflow lives in route-planner
     ai-explain/          AI explanation and scoped chatbot service (FastAPI)
   weather/               not implemented yet (BMKG integration currently lives inside route-planner)
   notification/          not implemented yet
@@ -91,6 +93,10 @@ infrastructure/          Docker Compose deployment configuration
 ```
 
 ### Implemented modules
+
+The platform API gateway at [`backend/`](backend/) is the single public API for both web
+interfaces. It proxies the internal services, exposes combined readiness, and owns Final
+Recommendation orchestration.
 
 The Smart Route Planner is available as a FastAPI + XGBoost backend at
 [`services/ai/route-planner/`](services/ai/route-planner/) and the Next.js dashboard at
@@ -104,8 +110,8 @@ also be sent to AI Explain directly from the main dashboard.
 
 ## Run the Complete Stack
 
-Docker Compose at the repository root runs PostgreSQL, Smart Route Planner,
-the planner dashboard, AI Explain, and the chatbot together. Ollama (the LLM
+Docker Compose at the repository root runs PostgreSQL, the FastAPI platform gateway,
+Smart Route Planner, the planner dashboard, AI Explain, and the chatbot together. Ollama (the LLM
 runtime behind AI Explain) is *not* containerized by default -- see why below.
 
 Optionally copy the environment template and fill in `ORS_API_KEY` for real
@@ -148,15 +154,14 @@ the box, but is CPU-only unless you uncomment the NVIDIA `deploy.resources` bloc
 ### Both options
 
 - Smart Route Planner: `http://localhost:3000`
-- Route Planner API docs: `http://localhost:8000/docs`
+- Platform API and Swagger: `http://localhost:8080/docs`
 - Cold-chain chatbot: `http://localhost:3001`
-- AI Explain API docs: `http://localhost:8001/docs`
 
 Run `docker compose down` (add the same `-f` flags as above if you used Option B) to stop the
 stack. Port numbers and the Ollama model can be changed in `.env`; see
 [`.env.example`](.env.example) for all supported settings.
 
-For standalone chatbot frontend development, keep AI Explain running on port 8001 and run:
+For standalone chatbot frontend development, keep the platform gateway running on port 8080 and run:
 
 ```bash
 cd apps/jagood-web

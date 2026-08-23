@@ -57,7 +57,7 @@ const RouteMap = dynamic(() => import("@/components/RouteMap"), {
   loading: () => null,
 });
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
 const MODE_LABELS: Record<string, string> = {
   darat: "Darat",
@@ -211,7 +211,7 @@ export default function Home() {
         insulation_quality: insulationQuality,
         ranking_preference: rankingPreference,
       };
-      const res = await fetch("/api/final-recommendation", {
+      const res = await fetch(`${API_BASE}/final-recommendation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shipment: requestPayload }),

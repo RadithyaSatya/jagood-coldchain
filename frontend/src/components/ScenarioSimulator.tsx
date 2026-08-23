@@ -16,7 +16,7 @@ import type {
   TransportModePreference,
 } from "@/lib/types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
 const FACTOR_LABELS: Record<string, string> = {
   expected_delay_hours: "Keterlambatan tambahan",
