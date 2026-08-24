@@ -496,6 +496,11 @@ export default function Home() {
                   key={`${result.shipment_id}-${selectedRouteId}`}
                   shipmentId={result.shipment_id}
                   routeId={selectedRouteId}
+                  estimatedDurationHours={
+                    [result.recommended_route, ...result.alternative_routes].find(
+                      (route) => route.route_id === selectedRouteId,
+                    )?.estimated_duration_hours ?? 0
+                  }
                 />
               </div>
             )}
