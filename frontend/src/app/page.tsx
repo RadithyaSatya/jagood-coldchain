@@ -496,6 +496,7 @@ export default function Home() {
                   key={`${result.shipment_id}-${selectedRouteId}`}
                   shipmentId={result.shipment_id}
                   routeId={selectedRouteId}
+                  routeLabel={MODE_LABELS[selectedRoute?.transport_mode ?? ""] ?? selectedRoute?.transport_mode ?? "Rute terpilih"}
                   estimatedDurationHours={
                     [result.recommended_route, ...result.alternative_routes].find(
                       (route) => route.route_id === selectedRouteId,
