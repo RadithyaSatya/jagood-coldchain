@@ -1,175 +1,181 @@
-# Jagood ColdChain
+# JaGOOD (Jaga Food) ColdChain
 
-Jagood ColdChain is a hackathon decision-support prototype for planning cold-chain food delivery. It combines an XGBoost risk classifier, deterministic route/scenario logic, SHAP-based factor ranking, and a task-specific LoRA-fine-tuned explanation layer.
+JaGOOD is an AI-powered decision-support MVP for planning cold-chain food delivery. It helps a user compare route candidates, estimate shipment risk, simulate a disruption, and understand the recommendation before dispatch.
 
-Food products such as fresh produce, seafood, dairy, meat, and frozen goods require stable temperatures throughout their journey. Route changes, delays, or transportation disruptions can reduce food quality, shorten shelf life, and cause significant losses. Jagood ColdChain helps users identify these risks earlier and make better-informed decisions.
+The project addresses COMPFEST 18 AI Innovation Challenge's **Smart Logistics** area. Its core AI pipeline combines an XGBoost risk classifier, SHAP-based prediction explanations, deterministic route and scenario calculations, and a task-specific LoRA-fine-tuned Llama 3.2 1B explanation layer.
 
-## Key Features
+## Core MVP Flow
 
-### Smart Route Planner — implemented with MVP limitations
-
-Ranks generated route candidates using travel time and a model-estimated quality-risk category. The dashboard compares risk score, duration, distance, routing fallback, and environmental-data quality side by side. The model was trained on synthetic labels, so its output demonstrates the pipeline rather than validated real-world spoilage probability.
-
-### Scenario Simulator — implemented
-
-Re-runs the same analytical pipeline for changes to delay, transport mode, cooling equipment, or insulation. It is a deterministic counterfactual comparison, not Monte Carlo simulation or a separately trained scenario model.
-
-### Transportation Checkpoints — implemented with MVP limitations
-
-Stores route predictions and actual outcomes, and accepts manual browser-geolocation checkpoints
-for a selected route. Continuous GPS/IoT telemetry, authentication, and real-time fleet monitoring
-remain future work.
-
-### AI Explain — implemented with fallback
-
-Explains structured planner/scenario results using a LoRA-fine-tuned Llama 3.2 1B model through an OpenAI-compatible local runtime. It does not calculate risk or routes. When the model is unavailable, the service returns a deterministic summary of the supplied analytical facts. Training data, configuration, adapter weights, and held-out results are included under [`finetuning/`](services/ai/ai-explain/finetuning/).
-
-### Scoped Cold-Chain Chatbot
-
-Supports multi-turn questions about shipment status, risk, routes, recommendations, and
-simulation results. A rule-based intent allowlist rejects unrelated topics before they reach
-the language model, while shipment calculations remain owned by the application.
-
-The API accepts up to 10 previous messages and an optional structured shipment context:
-
-```bash
-curl http://localhost:8080/v1/chat \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "language": "id",
-    "message": "Kenapa risiko pengiriman ini sedang?",
-    "shipment_context": {
-      "shipment_id": "SHP-123",
-      "source": "scenario_simulator",
-      "product": "Salmon Segar",
-      "facts": {"risk_delta": "48.92 poin persentase"},
-      "risk_level": "medium"
-    }
-  }'
+```text
+Shipment input
+    -> route candidates and environmental enrichment
+    -> XGBoost risk inference and SHAP factors
+    -> risk-based route recommendation
+    -> optional deterministic scenario comparison
+    -> grounded natural-language explanation
 ```
 
-Use `POST /v1/chat/stream` for an SSE response. Clients should send the returned user and
-assistant messages back through `history`; the service deliberately does not maintain server-side
-session state.
+The submission demo focuses on this synchronous flow. JaGOOD is not a production navigation, food-safety certification, continuous GPS/IoT tracking, or real-time fleet-monitoring system.
 
-Jagood product questions use a lightweight Markdown knowledge base from
-`services/ai/ai-explain/knowledge/`. Relevant sections are selected locally and
-returned through the chat response's `sources` field. Add or update `.md` files in that directory
-to maintain the chatbot's knowledge; no embedding model or vector database is required.
+## Core Features
 
-## Goals
+- **Smart Route Planner:** ranks land or multimodal route candidates by estimated cold-chain risk or travel time.
+- **Cold-Chain Risk Prediction:** classifies each candidate as `Low`, `Medium`, or `High` using a saved XGBoost model.
+- **SHAP Explainability:** reports the factors that tend to raise or lower each model prediction.
+- **Scenario Simulator:** compares the baseline against changes in delay, transport mode, cooling equipment, or insulation.
+- **Quality Proxy:** estimates remaining shelf life using a Q10-based temperature-exposure calculation.
+- **AI Explain:** uses a LoRA-fine-tuned Llama 3.2 1B model to explain structured analytical results. A deterministic fallback is available when the local LLM is unavailable.
 
-These are intended product outcomes, not benefits already proven by the current MVP:
+## AI and Data Scope
 
-- Reduce the risk of food spoilage during delivery.
-- Support more effective distribution planning.
-- Provide early warnings for potential disruptions.
-- Enable decision-making based on clear and relevant information.
-- Improve transparency across the cold-chain transportation process.
+- The XGBoost model is trained on synthetic shipment data and synthetic labels. Its output demonstrates the inference pipeline and supports relative route comparison; it is not a validated probability of real-world spoilage.
+- Commodity storage temperatures and shelf-life values include field-level provenance. Some delay-tolerance and temperature-sensitivity values remain documented MVP assumptions.
+- BMKG is used for maritime and port conditions, while Open-Meteo is used for land weather and ambient temperature. Clearly labelled fallback values keep the local demo operational when an external API is unavailable.
+- Route and risk calculations are owned by the analytical engine. The language model explains those results and does not invent route or risk values.
+- LoRA training data, configuration, adapter weights, and held-out evaluation results are included in [`services/ai/ai-explain/finetuning/`](services/ai/ai-explain/finetuning/).
 
-## Project Status
+## Architecture
 
-Jagood ColdChain is a hackathon MVP, not a production food-safety, navigation, or shipment-monitoring system. See the [current capability and claim matrix](docs/CAPABILITY_MATRIX.md) before evaluating feature or data claims.
+```text
+Planner UI
+    -> FastAPI Platform Gateway
+        -> Route Planner (routing, XGBoost, SHAP, scenario, quality proxy)
+        -> AI Explain (fine-tuned Llama adapter or deterministic fallback)
+        -> PostgreSQL
+```
 
-For presentation preparation, use the [hackathon demo runbook](docs/DEMO_RUNBOOK.md), which includes preflight checks, the primary judge flow, and a route that remains demonstrable when external services are unavailable.
+All frontend requests go through the FastAPI Platform Gateway. The Route Planner and AI Explain services remain separate internal modules and are packaged with Docker Compose for local reproduction.
 
 ## Repository Layout
 
-```
-frontend/               web UI (Next.js) -- currently the Smart Route Planner demo dashboard
-backend/                FastAPI platform gateway and Final Recommendation orchestration
-services/
-  ai/
-    route-planner/       Smart Route Planner -- implemented (FastAPI + XGBoost), see its README
-    scenario-simulator/  implemented in route-planner for the MVP
-    monitoring/          continuous telemetry not implemented; checkpoint workflow lives in route-planner
-    ai-explain/          AI explanation and scoped chatbot service (FastAPI)
-  weather/               not implemented yet (BMKG integration currently lives inside route-planner)
-  notification/          not implemented yet
-  authentication/        not implemented yet
-datasets/                shared datasets (empty for now -- route-planner's data lives with it)
-docs/                    project-wide docs
-infrastructure/          Docker Compose deployment configuration
+```text
+frontend/                         Next.js planner interface
+backend/                          FastAPI platform gateway
+services/ai/route-planner/        routing and analytical inference service
+services/ai/ai-explain/           explanation service and LoRA artifacts
+apps/jagood-web/                  optional cold-chain chatbot interface
+tests/golden_demo/                deterministic offline core-flow test
+compose.yaml                      default local stack
+compose.ollama-container.yml      Docker-only Ollama override
 ```
 
-### Implemented modules
+## Quick Start with Docker Compose
 
-The platform API gateway at [`backend/`](backend/) is the single public API for both web
-interfaces. It proxies the internal services, exposes combined readiness, and owns Final
-Recommendation orchestration.
+### Requirements
 
-The Smart Route Planner is available as a FastAPI + XGBoost backend at
-[`services/ai/route-planner/`](services/ai/route-planner/) and the Next.js dashboard at
-[`frontend/`](frontend/). See that service's README for setup, Swagger API docs, and known
-limitations.
+- Docker Engine or Docker Desktop with Docker Compose v2
+- At least 8 GB RAM recommended
+- Internet access on the first run to download container images and the Llama 3.2 1B base model
+- An OpenRouteService API key is optional; the planner has a labelled routing fallback
 
-The AI Explain service and scoped cold-chain chatbot are available at
-[`services/ai/ai-explain/`](services/ai/ai-explain/). A standalone React interface for the
-chatbot is available at [`apps/jagood-web/`](apps/jagood-web/), and planner/scenario results can
-also be sent to AI Explain directly from the main dashboard.
+### Option 1: Docker-only setup
 
-## Run the Complete Stack
-
-Docker Compose at the repository root runs PostgreSQL, the FastAPI platform gateway,
-Smart Route Planner, the planner dashboard, AI Explain, and the chatbot together. Ollama (the LLM
-runtime behind AI Explain) is *not* containerized by default -- see why below.
-
-Optionally copy the environment template and fill in `ORS_API_KEY` for real
-OpenRouteService road routing:
+This option requires only Docker and includes Ollama in the Compose stack.
 
 ```bash
+git clone https://github.com/RadithyaSatya/jagood-coldchain.git
+cd jagood-coldchain
 cp .env.example .env
+docker compose -f compose.yaml -f compose.ollama-container.yml up --build
 ```
 
-### Option A -- native Ollama on the host (recommended on macOS)
+The first run downloads the base model and creates `llama-jagood-ai-explain:latest` from the checked-in LoRA adapter, so startup can take several minutes. On macOS, containerized inference uses the CPU and may respond slowly; the native Ollama option below is recommended for an interactive demonstration.
 
-Docker Desktop/OrbStack on macOS run Linux containers inside a VM with no access to Metal, so
-a containerized Ollama is CPU-only -- workable for a health check, far too slow for interactive
-chat (minutes per reply instead of seconds). Running Ollama natively lets it use the host GPU:
+### Option 2: Native Ollama on macOS
+
+Running Ollama natively allows it to use Apple Metal acceleration.
 
 ```bash
 brew install ollama
 brew services start ollama
-bash services/ai/ai-explain/finetuning/export_ollama.sh
 
+git clone https://github.com/RadithyaSatya/jagood-coldchain.git
+cd jagood-coldchain
+cp .env.example .env
+bash services/ai/ai-explain/finetuning/export_ollama.sh
 docker compose up --build
 ```
 
-The export step creates `llama-jagood-ai-explain:latest` from the checked-in LoRA adapter. It is a
-one-time step unless the adapter changes. It temporarily needs several gigabytes of free disk space;
-generated fused weights are gitignored.
+The export script creates `llama-jagood-ai-explain:latest` from the included adapter. Training is not required to run the demonstration.
 
-`ai-explain` reaches the host's Ollama through `host.docker.internal:11434`.
+### OpenRouteService configuration
 
-### Option B -- containerized Ollama (Linux / no local Ollama install)
+The competition `.env.example` includes a shared, quota-limited demo key for live road geometry, so no additional routing credential is required during judging. If the demo key is unavailable or has exhausted its quota, the application remains usable through its labelled distance and route fallback.
 
-For a judge/reviewer who'd rather not install anything beyond Docker, CI, or a Linux host with
-NVIDIA Container Toolkit GPU passthrough configured, use the override that restores Ollama as a
-compose service:
+Do not add personal or production credentials to the repository. The shared competition key must be rotated after judging.
+
+## Verify the Running MVP
+
+Wait until all services are healthy:
 
 ```bash
-docker compose -f compose.yaml -f compose.ollama-container.yml up --build
+docker compose ps
+curl http://localhost:8080/ready
 ```
 
-This pulls the Llama 3.2 1B base and builds the checked-in JaGOOD LoRA adapter inside the model
-volume on first run. It can take several minutes and works out of the box, but is CPU-only unless
-you uncomment the NVIDIA `deploy.resources` block in
-[`compose.ollama-container.yml`](compose.ollama-container.yml) on a Linux host with a GPU.
-
-### Both options
-
-- Smart Route Planner: `http://localhost:3000`
-- Platform API and Swagger: `http://localhost:8080/docs`
-- Cold-chain chatbot: `http://localhost:3001`
-
-Run `docker compose down` (add the same `-f` flags as above if you used Option B) to stop the
-stack. Port numbers and the Ollama model can be changed in `.env`; see
-[`.env.example`](.env.example) for all supported settings.
-
-For standalone chatbot frontend development, keep the platform gateway running on port 8080 and run:
+When using the Docker-only option, include both Compose files in the `ps` command:
 
 ```bash
-cd apps/jagood-web
-npm install
-npm run dev
+docker compose -f compose.yaml -f compose.ollama-container.yml ps
+```
+
+Open the core interfaces:
+
+- Planner MVP: `http://localhost:3000`
+- FastAPI Gateway and Swagger: `http://localhost:8080/docs`
+- Optional chatbot: `http://localhost:3001`
+
+Recommended core demonstration:
+
+1. Enter the origin, destination, commodity, transport preference, and cold-chain conditions.
+2. Generate and compare the recommended route and alternatives.
+3. Review the predicted risk, confidence, data provenance, and SHAP factors.
+4. Change delay or cold-chain conditions in the Scenario Simulator.
+5. Compare the baseline and simulated risk, then request an AI explanation.
+
+## Stop the Stack
+
+For the default native-Ollama setup:
+
+```bash
+docker compose down
+```
+
+For the Docker-only setup:
+
+```bash
+docker compose -f compose.yaml -f compose.ollama-container.yml down
+```
+
+These commands retain the PostgreSQL and Ollama volumes. Add `--volumes` only when stored local data and downloaded models are no longer needed.
+
+## Validation
+
+Validate the Compose configuration:
+
+```bash
+docker compose config --quiet
+docker compose -f compose.yaml -f compose.ollama-container.yml config --quiet
+```
+
+The repository also includes automated tests for the Route Planner, AI Explain service, platform gateway, and deterministic offline golden demo. The GitHub Actions workflow runs these checks on `main` and pull requests.
+
+## Known MVP Limitations
+
+- Model-risk metrics measure learning on synthetic labels, not field performance.
+- Route output is decision support, not official navigation guidance.
+- The Q10 result is a quality-retention proxy, not a food-safety guarantee or certified expiry estimate.
+- Port condition flags indicate environmental risk and are not official port-closure status.
+- External routing and weather services can fail or rate-limit requests; labelled fallbacks are provided.
+- The first uncached route request can be slower than subsequent requests.
+- Authentication, notifications, continuous telemetry, and operational validation with real shipment outcomes are outside the core submission demo.
+
+## Development History
+
+All competition work is maintained in the public GitHub repository. Commit messages should follow Conventional Commits, for example:
+
+```text
+feat: add route risk comparison
+fix: handle unavailable weather service
+refactor: simplify scenario calculation
 ```
