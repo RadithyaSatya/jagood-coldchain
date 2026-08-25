@@ -158,6 +158,8 @@ def _scenario_summary(request: ChatRequest) -> str:
     )
     risk_delta = facts.get("risk_delta")
     affected_factors = facts.get("affected_factors")
+    environmental_data_source = facts.get("environmental_data_source")
+    cargo_temperature_source = facts.get("cargo_temperature_source")
 
     if request.language.value == "id":
         parts = [
@@ -168,8 +170,13 @@ def _scenario_summary(request: ChatRequest) -> str:
             parts.append(f"Selisih risiko: {risk_delta}.")
         if affected_factors:
             parts.append(f"Perubahan utama: {str(affected_factors).rstrip('.')}.")
+        if environmental_data_source:
+            parts.append(f"Sumber data lingkungan: {environmental_data_source}.")
+        if cargo_temperature_source:
+            parts.append(f"Sumber suhu kargo: {cargo_temperature_source}.")
         if context.recommendation:
             parts.append(f"Saran: {context.recommendation.rstrip('.')}.")
+        parts.append("Ringkasan ini hanya memakai hasil terstruktur dari sistem analitik.")
         return "\n\n".join(parts)
 
     parts = [
@@ -180,8 +187,13 @@ def _scenario_summary(request: ChatRequest) -> str:
         parts.append(f"Risk difference: {risk_delta}.")
     if affected_factors:
         parts.append(f"Main changes: {str(affected_factors).rstrip('.')}.")
+    if environmental_data_source:
+        parts.append(f"Environmental data source: {environmental_data_source}.")
+    if cargo_temperature_source:
+        parts.append(f"Cargo-temperature source: {cargo_temperature_source}.")
     if context.recommendation:
         parts.append(f"Suggested action: {context.recommendation.rstrip('.')}.")
+    parts.append("This summary only uses structured results from the analytical system.")
     return "\n\n".join(parts)
 
 
