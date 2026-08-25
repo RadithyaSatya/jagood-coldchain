@@ -17,13 +17,56 @@ _FACT_PRIORITY = (
     "estimated_remaining_shelf_life",
     "estimated_remaining_shelf_life_percent",
     "quality_retention_proxy",
+    "remaining_shelf_life",
+    "cold_chain_equipment",
+    "weather_condition",
+    "wave_condition",
     "environmental_data_source",
     "cargo_temperature_source",
+    "primary_risk_factor",
     "shap_summary",
 )
 
+_FACT_LABELS_ID = {
+    "risk_probability": "Perkiraan risiko",
+    "baseline_risk_probability": "Risiko awal",
+    "simulated_risk_probability": "Risiko setelah skenario",
+    "risk_delta": "Perubahan risiko",
+    "expected_delay": "Perkiraan keterlambatan",
+    "estimated_remaining_shelf_life": "Perkiraan sisa umur simpan",
+    "estimated_remaining_shelf_life_percent": "Persentase sisa umur simpan",
+    "quality_retention_proxy": "Perkiraan kualitas yang tersisa",
+    "remaining_shelf_life": "Sisa umur simpan",
+    "cold_chain_equipment": "Sistem pendingin",
+    "weather_condition": "Kondisi cuaca",
+    "wave_condition": "Kondisi gelombang",
+    "environmental_data_source": "Sumber informasi lingkungan",
+    "cargo_temperature_source": "Sumber informasi suhu kargo",
+    "shap_summary": "Faktor yang memengaruhi risiko",
+    "primary_risk_factor": "Faktor risiko utama",
+}
 
-def _select_facts(facts: dict, limit: int = 8) -> list[tuple[str, object]]:
+_FACT_LABELS_EN = {
+    "risk_probability": "Estimated risk",
+    "baseline_risk_probability": "Baseline risk",
+    "simulated_risk_probability": "Risk after the scenario",
+    "risk_delta": "Risk change",
+    "expected_delay": "Estimated delay",
+    "estimated_remaining_shelf_life": "Estimated remaining shelf life",
+    "estimated_remaining_shelf_life_percent": "Remaining shelf-life percentage",
+    "quality_retention_proxy": "Estimated retained quality",
+    "remaining_shelf_life": "Remaining shelf life",
+    "cold_chain_equipment": "Cooling system",
+    "weather_condition": "Weather condition",
+    "wave_condition": "Wave condition",
+    "environmental_data_source": "Environmental information source",
+    "cargo_temperature_source": "Cargo-temperature information source",
+    "shap_summary": "Factors affecting risk",
+    "primary_risk_factor": "Primary risk factor",
+}
+
+
+def _select_facts(facts: dict, limit: int = 10) -> list[tuple[str, object]]:
     selected: list[tuple[str, object]] = []
     seen: set[str] = set()
 
@@ -57,28 +100,43 @@ def deterministic_fallback_answer(request: ChatRequest) -> str:
         )
 
     facts = _select_facts(context.facts)
-    fact_text = "; ".join(f"{key.replace('_', ' ')}: {value}" for key, value in facts)
     risk = _RISK_LABELS[context.risk_level.value][language]
 
     if language == "id":
-        parts = [f"Ringkasan otomatis {context.product}: tingkat risiko {risk}."]
-        if fact_text:
-            parts.append(f"Data tersedia: {fact_text}.")
+        parts = [f"Pengiriman {context.product} berada pada risiko {risk}."]
+        parts.extend(_friendly_fact_sentences(facts, _FACT_LABELS_ID))
         if context.recommendation:
             parts.append(f"Rekomendasi: {context.recommendation}")
         parts.append(
-            "Layanan AI generatif sedang tidak tersedia; ringkasan ini hanya memakai "
-            "hasil terstruktur dari sistem analitik."
+            "Ringkasan ini dibuat langsung dari hasil analisis sistem tanpa mengubah "
+            "angka yang tersedia."
         )
         return " ".join(parts)
 
-    parts = [f"Automatic summary for {context.product}: {risk} risk level."]
-    if fact_text:
-        parts.append(f"Available data: {fact_text}.")
+    parts = [f"The {context.product} shipment is at {risk} risk."]
+    parts.extend(_friendly_fact_sentences(facts, _FACT_LABELS_EN))
     if context.recommendation:
         parts.append(f"Recommendation: {context.recommendation}")
     parts.append(
-        "The generative AI service is unavailable; this summary only uses structured "
-        "results from the analytical system."
+        "This summary comes directly from the analytical results and preserves the "
+        "available figures."
     )
     return " ".join(parts)
+
+
+def _friendly_fact_sentences(
+    facts: list[tuple[str, object]], labels: dict[str, str]
+) -> list[str]:
+    sentences: list[str] = []
+    for key, raw_value in facts:
+        label = labels.get(key)
+        if label is None:
+            continue
+        value = str(raw_value).strip().rstrip(".")
+        if key == "cold_chain_equipment":
+            if value.casefold() == "reefer":
+                value = "pendingin aktif (reefer)"
+            elif value.casefold() == "pasif":
+                value = "pendingin pasif"
+        sentences.append(f"{label}: {value}.")
+    return sentences

@@ -159,6 +159,42 @@ async def test_fallback_prioritizes_quality_and_data_provenance_facts() -> None:
 
 
 @pytest.mark.asyncio
+async def test_awkward_model_output_uses_safe_friendly_fallback() -> None:
+    llm = FakeLLM(
+        "Data sistem berupa reefer dan sistem berupa Cerah. Faktor utama berupa Reiker."
+    )
+    service = ChatService(llm)
+    request = ChatRequest.model_validate(
+        {
+            "message": "Jelaskan risiko rute ini",
+            "shipment_context": {
+                "source": "smart_route_planner",
+                "product": "Salmon Segar",
+                "facts": {
+                    "expected_delay": "0.0 jam",
+                    "cold_chain_equipment": "pendingin aktif (reefer)",
+                    "weather_condition": "Cerah",
+                    "environmental_data_source": (
+                        "data BMKG yang dilengkapi estimasi cadangan"
+                    ),
+                },
+                "risk_level": "low",
+            },
+        }
+    )
+
+    response = await service.chat(request)
+
+    assert response.handled_by == "fallback"
+    assert "Salmon Segar" in response.answer
+    assert "0.0 jam" in response.answer
+    assert "pendingin aktif (reefer)" in response.answer
+    assert "data BMKG yang dilengkapi estimasi cadangan" in response.answer
+    assert "sistem berupa" not in response.answer.casefold()
+    assert "Reiker" not in response.answer
+
+
+@pytest.mark.asyncio
 async def test_stream_falls_back_without_emitting_partial_llm_output() -> None:
     llm = FakeLLM(error=LLMTimeoutError("offline"))
     service = ChatService(llm)
