@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.env
+services/ai/route-planner/.env
+services/ai/route-planner/app_cache.db
+services/ai/ai-explain/finetuning/artifacts/fused/
+services/ai/ai-explain/finetuning/artifacts/adapters/0*_adapters.safetensors
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+apps/jagood-web/node_modules/
+apps/jagood-web/dist/
+
+# Docker / infrastructure
+infrastructure/.env
+
+# OS
+.DS_Store
+Thumbs.db

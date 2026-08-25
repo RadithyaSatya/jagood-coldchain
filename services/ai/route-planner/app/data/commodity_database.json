@@ -1,0 +1,250 @@
+[
+  {
+    "commodity_type": "Salmon Segar",
+    "temp_ideal_min_c": -1,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 48,
+    "delay_tolerance_hours": 6,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Udang Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 48,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Udang Beku",
+    "temp_ideal_min_c": -20,
+    "temp_ideal_max_c": -18,
+    "shelf_life_hours_at_ideal_temp": 4320,
+    "delay_tolerance_hours": 48,
+    "temp_sensitivity_level": "Low"
+  },
+  {
+    "commodity_type": "Ayam Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 48,
+    "delay_tolerance_hours": 6,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Daging Sapi Segar",
+    "temp_ideal_min_c": -1,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 120,
+    "delay_tolerance_hours": 12,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Susu Segar",
+    "temp_ideal_min_c": 1,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 168,
+    "delay_tolerance_hours": 8,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Bayam Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 72,
+    "delay_tolerance_hours": 6,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Kangkung Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 48,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Sawi Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 960,
+    "delay_tolerance_hours": 8,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Tuna Segar",
+    "temp_ideal_min_c": -1,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 48,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Es Krim",
+    "temp_ideal_min_c": -20,
+    "temp_ideal_max_c": -18,
+    "shelf_life_hours_at_ideal_temp": 2160,
+    "delay_tolerance_hours": 2,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Semangka Potong",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 5,
+    "shelf_life_hours_at_ideal_temp": 168,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Mangga Potong",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 5,
+    "shelf_life_hours_at_ideal_temp": 48,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Pepaya Potong",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 5,
+    "shelf_life_hours_at_ideal_temp": 48,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Nanas Potong",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 5,
+    "shelf_life_hours_at_ideal_temp": 48,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Kepiting Segar",
+    "temp_ideal_min_c": -1,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 48,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Cumi-cumi Segar",
+    "temp_ideal_min_c": -1,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 48,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Telur Ayam Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 504,
+    "delay_tolerance_hours": 2,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Daging Ayam Beku",
+    "temp_ideal_min_c": -20,
+    "temp_ideal_max_c": -18,
+    "shelf_life_hours_at_ideal_temp": 4320,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "Low"
+  },
+  {
+    "commodity_type": "Keju Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 168,
+    "delay_tolerance_hours": 2,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Yogurt",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 168,
+    "delay_tolerance_hours": 2,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Wortel Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 336,
+    "delay_tolerance_hours": 8,
+    "temp_sensitivity_level": "Low"
+  },
+  {
+    "commodity_type": "Tomat Segar",
+    "temp_ideal_min_c": 10,
+    "temp_ideal_max_c": 13,
+    "shelf_life_hours_at_ideal_temp": 336,
+    "delay_tolerance_hours": 8,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Daging Sapi Beku",
+    "temp_ideal_min_c": -20,
+    "temp_ideal_max_c": -18,
+    "shelf_life_hours_at_ideal_temp": 4320,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "Low"
+  },
+  {
+    "commodity_type": "Kentang Segar",
+    "temp_ideal_min_c": 4,
+    "temp_ideal_max_c": 10,
+    "shelf_life_hours_at_ideal_temp": 336,
+    "delay_tolerance_hours": 8,
+    "temp_sensitivity_level": "Low"
+  },
+  {
+    "commodity_type": "Brokoli Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 720,
+    "delay_tolerance_hours": 6,
+    "temp_sensitivity_level": "Medium"
+  },
+  {
+    "commodity_type": "Jamur Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 4,
+    "shelf_life_hours_at_ideal_temp": 168,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Anggur Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 2,
+    "shelf_life_hours_at_ideal_temp": 336,
+    "delay_tolerance_hours": 8,
+    "temp_sensitivity_level": "Low"
+  },
+  {
+    "commodity_type": "Stroberi Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 1,
+    "shelf_life_hours_at_ideal_temp": 120,
+    "delay_tolerance_hours": 2,
+    "temp_sensitivity_level": "High"
+  },
+  {
+    "commodity_type": "Cabai Segar",
+    "temp_ideal_min_c": 5,
+    "temp_ideal_max_c": 7.5,
+    "shelf_life_hours_at_ideal_temp": 504,
+    "delay_tolerance_hours": 12,
+    "temp_sensitivity_level": "Low"
+  },
+  {
+    "commodity_type": "Kerang Segar",
+    "temp_ideal_min_c": 0,
+    "temp_ideal_max_c": 5,
+    "shelf_life_hours_at_ideal_temp": 72,
+    "delay_tolerance_hours": 4,
+    "temp_sensitivity_level": "High"
+  }
+]

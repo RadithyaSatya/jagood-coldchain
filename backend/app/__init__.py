@@ -1,0 +1,1 @@
+"""JaGOOD platform API gateway."""

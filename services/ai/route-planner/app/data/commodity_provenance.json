@@ -1,0 +1,419 @@
+{
+  "schema_version": "1.0",
+  "dataset": {
+    "name": "JaGOOD MVP Commodity Profiles",
+    "classification": "REFERENCE",
+    "owner": "JaGOOD project team",
+    "purpose": "Provide commodity inputs for route-risk inference and scenario simulation.",
+    "important_fields": [
+      "commodity_type",
+      "temp_ideal_min_c",
+      "temp_ideal_max_c",
+      "shelf_life_hours_at_ideal_temp",
+      "delay_tolerance_hours",
+      "temp_sensitivity_level"
+    ],
+    "preprocessing": "temp_ideal_min_c, temp_ideal_max_c, and shelf_life_hours_at_ideal_temp were cross-checked on 2026-08-22/23 against public food-safety guidance (FDA, USDA/USDA FSIS, UC Davis Postharvest Research Center, IDFA, and one commercial produce reference for a commodity with no government/academic source); several values were corrected or set to match cited guidance. delay_tolerance_hours and temp_sensitivity_level have almost no equivalent in public consumer/food-safety literature -- those sources mostly describe safe storage duration under ideal refrigeration, not tolerance to in-transit temperature/time deviation. Two categories of exception were found and applied where they exist: FDA's explicit cut-melon 4-hour room-temperature-abuse limit, and USDA's general dairy/egg 2-hour room-temperature rule -- both used for delay_tolerance_hours on the specific commodities they cover. Values are loaded without numerical transformation.",
+    "foodkeeper_derived": false,
+    "limitations": [
+      "temp_ideal_min_c, temp_ideal_max_c, and shelf_life_hours_at_ideal_temp are grounded in cited public food-safety guidance, but that guidance targets consumer/commercial refrigeration safety, not cold-chain logistics specifically -- treat them as reasonable proxies, not regulatory transport standards.",
+      "delay_tolerance_hours and temp_sensitivity_level are internal MVP judgment calls for most commodities; only Semangka Potong, Telur Ayam Segar, Keju Segar, and Yogurt have a delay_tolerance_hours value matching a direct public citation (FDA cut-melon rule / USDA 2-hour dairy-and-egg rule) -- the field's overall classification stays DEMO since the current schema has no per-record field override and most commodities still lack any citation for it.",
+      "Kangkung Segar and Wortel Segar rely on a commercial industry reference and a partial citation (freezing-injury threshold only, no explicit shelf-life duration found) respectively -- weaker-tier grounding than the FDA/USDA/UC Davis sources used elsewhere, called out explicitly in their source notes.",
+      "Tomat Segar's ideal temperature (10-13C) is intentionally warmer than every other commodity in this dataset -- tomatoes are chilling-sensitive and develop quality defects when refrigerated near 0-4C like most other items here; this is a genuine horticultural distinction, not an error.",
+      "Values have not been validated against actual Indonesian cold-chain shipment outcomes; see app/services/historical_baseline.py and the shipment_records/corridor_baseline_stats tables for how real outcome data is (separately) collected going forward.",
+      "Shelf life and delay tolerance are simplified model inputs and must not be presented as guaranteed remaining product life or a food-safety certification."
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "jagood-mvp-assumptions-v1",
+      "title": "JaGOOD hackathon MVP commodity assumptions",
+      "classification": "DEMO",
+      "publisher": "JaGOOD project team",
+      "source_uri": null,
+      "accessed_on": null,
+      "license": "Project-authored",
+      "notes": "Internal manually curated assumptions for commodity_type selection and for delay_tolerance_hours/temp_sensitivity_level on commodities with no public literature equivalent."
+    },
+    {
+      "source_id": "fda-seafood-safety-2026",
+      "title": "Selecting and Serving Fresh and Frozen Seafood Safely",
+      "classification": "REFERENCE",
+      "publisher": "U.S. Food and Drug Administration (FDA)",
+      "source_uri": "https://www.fda.gov/food/buy-store-serve-safe-food/selecting-and-serving-fresh-and-frozen-seafood-safely",
+      "accessed_on": "2026-08-22",
+      "license": "U.S. Government public domain",
+      "notes": "Fresh fish/seafood: store at 40F (4C) or below, use within 2 days of purchase. Applied to Salmon Segar, Udang Segar, Tuna Segar, and -- as the closest available general-seafood guidance -- Kepiting Segar and Cumi-cumi Segar (no crab- or squid-specific FDA/USDA storage guidance found)."
+    },
+    {
+      "source_id": "usda-frozen-seafood-2026",
+      "title": "Frozen seafood storage guidance (0F/-18C indefinite safety; 6-12 month best-quality window)",
+      "classification": "REFERENCE",
+      "publisher": "U.S. Department of Agriculture (USDA)",
+      "source_uri": "https://www.fda.gov/food/buy-store-serve-safe-food/selecting-and-serving-fresh-and-frozen-seafood-safely",
+      "accessed_on": "2026-08-22",
+      "license": "U.S. Government public domain",
+      "notes": "Applied to Udang Beku."
+    },
+    {
+      "source_id": "usda-fsis-poultry-fresh-2026",
+      "title": "The Poultry Label Says \"Fresh\"",
+      "classification": "REFERENCE",
+      "publisher": "USDA Food Safety and Inspection Service (FSIS)",
+      "source_uri": "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/poultry/poultry-label-says-fresh",
+      "accessed_on": "2026-08-22",
+      "license": "U.S. Government public domain",
+      "notes": "Fresh raw poultry: 40F (4C) or below, use within 1-2 days. Applied to Ayam Segar."
+    },
+    {
+      "source_id": "usda-fsis-frozen-poultry-2026",
+      "title": "Chicken from Farm to Table",
+      "classification": "REFERENCE",
+      "publisher": "USDA Food Safety and Inspection Service (FSIS)",
+      "source_uri": "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/poultry/chicken-farm-table",
+      "accessed_on": "2026-08-23",
+      "license": "U.S. Government public domain",
+      "notes": "Frozen at 0F (-18C) is safe indefinitely; best quality within about 1 year for whole poultry. This dataset uses the more conservative ~180-day figure (matching Udang Beku's convention) rather than the full 1-year best-quality window. Applied to Daging Ayam Beku."
+    },
+    {
+      "source_id": "usda-fsis-beef-2026",
+      "title": "Ground Beef and Food Safety",
+      "classification": "REFERENCE",
+      "publisher": "USDA Food Safety and Inspection Service (FSIS)",
+      "source_uri": "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/meat/ground-beef-and-food-safety",
+      "accessed_on": "2026-08-22",
+      "license": "U.S. Government public domain",
+      "notes": "Whole-muscle fresh beef cuts: 3-5 days at 40F (4C) or below (ground beef only 1-2 days -- this dataset models whole-cut beef). Applied to Daging Sapi Segar."
+    },
+    {
+      "source_id": "fda-milk-storage-2026",
+      "title": "Pasteurized milk refrigeration guidance",
+      "classification": "REFERENCE",
+      "publisher": "U.S. Food and Drug Administration (FDA) / U.S. Dairy",
+      "source_uri": "https://www.usdairy.com/news-articles/how-long-can-milk-sit-out",
+      "accessed_on": "2026-08-22",
+      "license": "Publicly available industry/regulatory guidance",
+      "notes": "Ideal storage 34-38F (1-3C), FDA ceiling 45F; 5-7 days at or below 40F. Applied to Susu Segar."
+    },
+    {
+      "source_id": "usda-dairy-storage-2026",
+      "title": "How long can you keep dairy products like yogurt, milk, and cheese in the refrigerator? / general dairy 2-hour room-temperature rule",
+      "classification": "REFERENCE",
+      "publisher": "USDA Food Safety and Inspection Service (FSIS) / U.S. Dairy",
+      "source_uri": "https://ask.fsis.usda.gov/article/How-long-can-you-keep-dairy-products-like-yogurt-milk-and-cheese-in-the-refrigerator",
+      "accessed_on": "2026-08-23",
+      "license": "U.S. Government / publicly available industry guidance",
+      "notes": "Soft cheese: ~1 week refrigerated. Yogurt: 1-2 weeks refrigerated (this dataset uses the conservative 1-week end). Dairy generally should not sit at room temperature more than 2 hours -- that figure is applied to delay_tolerance_hours for Keju Segar and Yogurt specifically, the same way FDA's cut-melon rule is applied to Semangka Potong. Applied to Keju Segar, Yogurt."
+    },
+    {
+      "source_id": "usda-shell-eggs-2026",
+      "title": "Shell Eggs from Farm to Table",
+      "classification": "REFERENCE",
+      "publisher": "USDA Food Safety and Inspection Service (FSIS)",
+      "source_uri": "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/eggs/shell-eggs-farm-table",
+      "accessed_on": "2026-08-23",
+      "license": "U.S. Government public domain",
+      "notes": "Refrigerate at 40F (4C) or below; raw shell eggs keep 3-5 weeks refrigerated (this dataset uses the conservative 3-week/21-day end). USDA also states refrigerated eggs should not sit out more than 2 hours -- applied to delay_tolerance_hours for Telur Ayam Segar, the same pattern as the melon and dairy exceptions above. Applied to Telur Ayam Segar."
+    },
+    {
+      "source_id": "ucdavis-postharvest-leafy-greens-2026",
+      "title": "Spinach produce facts sheet",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/spinach",
+      "accessed_on": "2026-08-22",
+      "license": "Publicly available academic extension resource",
+      "notes": "Spinach: 3-5 days refrigerated at 0C. Applied to Bayam Segar."
+    },
+    {
+      "source_id": "specialtyproduce-water-spinach-2026",
+      "title": "Water Spinach Information and Facts",
+      "classification": "REFERENCE",
+      "publisher": "Specialty Produce (commercial produce industry reference, not a government or academic body)",
+      "source_uri": "https://specialtyproduce.com/produce/Water_Spinach_3132.php",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available industry reference",
+      "notes": "Unwashed water spinach: 1-3 days refrigerated (up to 5 days with careful handling). Weaker-tier source than FDA/USDA/UC Davis -- no government or academic postharvest study found specifically for Ipomoea aquatica as of this research pass. Applied to Kangkung Segar; conservative low end (2 days) used for shelf_life_hours_at_ideal_temp."
+    },
+    {
+      "source_id": "ucdavis-bokchoy-2026",
+      "title": "Bok Choy (Pak Choi, Pok Choi) produce facts sheet",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/bok-choy",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available academic extension resource",
+      "notes": "Bok choy (closest documented analog to Indonesian sawi/pakcoy) stored at 0C can keep up to 40 days -- materially more robust than spinach/water spinach; higher temperatures accelerate yellowing, water loss, and decay. Applied to Sawi Segar."
+    },
+    {
+      "source_id": "ucdavis-carrot-2026",
+      "title": "Carrot produce facts sheet",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/carrot",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available academic extension resource",
+      "notes": "Freezing injury occurs at -1.2C (29.5F) or lower -- used only to ground the lower storage-temperature bound. No explicit multi-week shelf-life figure was found in this research pass; shelf_life_hours_at_ideal_temp for Wortel Segar (14 days) is therefore a conservative internal estimate, not a direct citation -- weaker grounding than the temperature bound. Applied to Wortel Segar."
+    },
+    {
+      "source_id": "ucdavis-tomato-2026",
+      "title": "Tomato produce facts sheet",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/tomato",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available academic extension resource",
+      "notes": "Tomatoes are chilling-sensitive: injury develops below 10C if held over 2 weeks, or below 5C if held over 6-8 days -- unlike every other commodity in this dataset, tomatoes should NOT be refrigerated near 0-4C. temp_ideal_min/max_c (10-13C) and shelf_life_hours_at_ideal_temp (14 days, the point chilling injury risk begins at the coldest safe temperature) reflect this directly. Applied to Tomat Segar."
+    },
+    {
+      "source_id": "fda-melon-supply-chain-2026",
+      "title": "Commodity Specific Food Safety Guidelines for the Melon Supply Chain",
+      "classification": "REFERENCE",
+      "publisher": "U.S. Food and Drug Administration (FDA)",
+      "source_uri": "https://www.fda.gov/media/116691/download",
+      "accessed_on": "2026-08-23",
+      "license": "U.S. Government public domain",
+      "notes": "Cut melon: store at 0-5C (32-41F); date-marked and used within 7 days; discard after 4 hours if held above 41F or product temperature exceeds 70F. The 4-hour figure is also applied to delay_tolerance_hours for Semangka Potong specifically -- one of four commodities in this dataset where that field has a direct public citation rather than being an internal DEMO estimate (see field_provenance note)."
+    },
+    {
+      "source_id": "idfa-ice-cream-2026",
+      "title": "Tips on Storing & Handling Ice Cream",
+      "classification": "REFERENCE",
+      "publisher": "International Dairy Foods Association (IDFA)",
+      "source_uri": "https://www.idfa.org/tips-on-storing-handling-ice-cream",
+      "accessed_on": "2026-08-22",
+      "license": "Publicly available industry guidance",
+      "notes": "0F (-18C) or colder; best quality 2-4 months. Applied to Es Krim."
+    },
+    {
+      "source_id": "fda-fresh-cut-produce-2026",
+      "title": "Guide to Minimize Food Safety Hazards of Fresh-cut Produce",
+      "classification": "REFERENCE",
+      "publisher": "U.S. Food and Drug Administration (FDA)",
+      "source_uri": "https://www.fda.gov/media/117526/download",
+      "accessed_on": "2026-08-22",
+      "license": "U.S. Government public domain",
+      "notes": "Fresh-cut produce held at or below 41F (5C); shelf life 7-20 days across produce types, though the 7-day figure documented there is specifically for melons/tomatoes/leafy greens -- browning-prone cut fruit (e.g. mango, papaya, pineapple) is not explicitly covered, so this dataset keeps a conservative shelf-life estimate rather than the upper end of that range. Applied to Mangga Potong, Pepaya Potong, and Nanas Potong."
+    },
+    {
+      "source_id": "usda-frozen-beef-2026",
+      "title": "Freezing and Food Safety",
+      "classification": "REFERENCE",
+      "publisher": "USDA Food Safety and Inspection Service (FSIS)",
+      "source_uri": "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/food-safety-basics/freezing-and-food-safety",
+      "accessed_on": "2026-08-23",
+      "license": "U.S. Government public domain",
+      "notes": "Frozen at 0F (-18C) or below is safe indefinitely; best quality for steaks/roasts is 4-12 months. This dataset uses a conservative ~180-day figure (matching the Beku convention used elsewhere) rather than the upper end. Applied to Daging Sapi Beku."
+    },
+    {
+      "source_id": "ucdavis-potato-2026",
+      "title": "Potato (Early Crop) produce facts sheet",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/potato",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available academic extension resource",
+      "notes": "Storage near 0C for a few weeks can cause chilling-injury discoloration (mahogany internal tissue) in some varieties -- this dataset uses a moderate 4-10C range instead of near-0C to avoid that, based on this qualitative description rather than an explicit stated ideal range. No exact multi-week shelf-life duration was found in this research pass; the 14-day figure is a conservative internal estimate, weaker grounding than the temperature guidance. Applied to Kentang Segar."
+    },
+    {
+      "source_id": "ucdavis-broccoli-2026",
+      "title": "Broccoli produce facts sheet",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/broccoli",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available academic extension resource",
+      "notes": "At 0C, storage life is at least 1 month (720h); at 5C it drops to ~14 days, and at 10C to ~5 days -- storage life is highly temperature-sensitive. Applied to Brokoli Segar."
+    },
+    {
+      "source_id": "ucdavis-mushroom-2026",
+      "title": "Mushroom produce facts sheet",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/mushroom",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available academic extension resource",
+      "notes": "Freezing injury occurs at -0.6C (30.9F) or lower -- used only to ground the lower temperature bound. No explicit shelf-life duration was found in this research pass; the 7-day figure is a conservative internal estimate reflecting mushrooms' well-known high perishability, not a direct citation. Applied to Jamur Segar."
+    },
+    {
+      "source_id": "ucdavis-grape-2026",
+      "title": "Grape (table grape) produce facts sheet",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/grape",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available academic extension resource",
+      "notes": "Gray mold (the most destructive postharvest disease of table grapes) develops even at temperatures as low as -0.5C, motivating near-freezing storage. No explicit shelf-life duration was extracted from the fact sheet in this research pass; the 14-day figure is a conservative internal estimate, weaker grounding than the temperature guidance. Applied to Anggur Segar."
+    },
+    {
+      "source_id": "ucdavis-strawberry-2026",
+      "title": "Strawberry produce facts sheet",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/strawberry",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available academic extension resource",
+      "notes": "Store at 0-1C; even under ideal conditions strawberries typically keep only 5-7 days, and delayed cooling beyond 1 hour after harvest reduces marketable fruit. Applied to Stroberi Segar; conservative 5-day end used."
+    },
+    {
+      "source_id": "ucdavis-chile-pepper-2026",
+      "title": "Chile Pepper produce facts sheet",
+      "classification": "REFERENCE",
+      "publisher": "UC Davis Postharvest Research and Extension Center",
+      "source_uri": "https://postharvest.ucdavis.edu/produce-facts-sheets/chile-pepper",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available academic extension resource",
+      "notes": "Best storage at 7.5C for 3-5 weeks; chile peppers (unlike bell peppers) are only mildly chilling-sensitive and can hold at 5C for at least 2 weeks before chilling-injury discoloration appears. Applied to Cabai Segar; conservative 3-week end used for shelf life, 5-7.5C range for ideal temperature."
+    },
+    {
+      "source_id": "fda-shellfish-2026",
+      "title": "Handling Fresh and Frozen Raw Molluscan Shellfish / state shellfish-handling guidance",
+      "classification": "REFERENCE",
+      "publisher": "State public health / shellfish sanitation agencies (Rhode Island, Washington State), consistent with FDA's National Shellfish Sanitation Program framework",
+      "source_uri": "https://datahealth.ri.gov/materialbyothers/guidelines/MolluscanShellfishHandling.pdf",
+      "accessed_on": "2026-08-23",
+      "license": "Publicly available government guidance",
+      "notes": "Live shellfish refrigerated at 35-41F (1.7-5C), stored ventilated (not sealed/submerged). Shelf life 7-10 days for hard-shell clams/oysters but only 3-4 days for mussels -- this dataset uses the shorter mussel-like figure since Indonesian \"kerang\" commonly refers to mussel-type bivalves (e.g. kerang hijau). Applied to Kerang Segar."
+    }
+  ],
+  "field_provenance": {
+    "commodity_type": {
+      "classification": "DEMO",
+      "source_ids": ["jagood-mvp-assumptions-v1"],
+      "method": "Manually selected Indonesian commodity labels for the MVP; which commodities to cover is a product choice, not a literature-derived fact."
+    },
+    "temp_ideal_min_c": {
+      "classification": "REFERENCE",
+      "source_ids": [
+        "fda-seafood-safety-2026",
+        "usda-frozen-seafood-2026",
+        "usda-fsis-poultry-fresh-2026",
+        "usda-fsis-frozen-poultry-2026",
+        "usda-fsis-beef-2026",
+        "fda-milk-storage-2026",
+        "usda-dairy-storage-2026",
+        "usda-shell-eggs-2026",
+        "ucdavis-postharvest-leafy-greens-2026",
+        "specialtyproduce-water-spinach-2026",
+        "ucdavis-bokchoy-2026",
+        "ucdavis-carrot-2026",
+        "ucdavis-tomato-2026",
+        "idfa-ice-cream-2026",
+        "fda-fresh-cut-produce-2026",
+        "fda-melon-supply-chain-2026",
+        "usda-frozen-beef-2026",
+        "ucdavis-potato-2026",
+        "ucdavis-broccoli-2026",
+        "ucdavis-mushroom-2026",
+        "ucdavis-grape-2026",
+        "ucdavis-strawberry-2026",
+        "ucdavis-chile-pepper-2026",
+        "fda-shellfish-2026"
+      ],
+      "method": "Cross-checked against each commodity's cited public food-safety source; where the source gives a ceiling only (e.g. \"40F or below\"), the minimum retains its prior ice-storage-practice value since no source specifies a lower bound for unfrozen fresh product. Tomat Segar and Cabai Segar are exceptions, using their chilling-injury thresholds (10C and 5C respectively) instead of a near-0C floor."
+    },
+    "temp_ideal_max_c": {
+      "classification": "REFERENCE",
+      "source_ids": [
+        "fda-seafood-safety-2026",
+        "usda-frozen-seafood-2026",
+        "usda-fsis-poultry-fresh-2026",
+        "usda-fsis-frozen-poultry-2026",
+        "usda-fsis-beef-2026",
+        "fda-milk-storage-2026",
+        "usda-dairy-storage-2026",
+        "usda-shell-eggs-2026",
+        "ucdavis-postharvest-leafy-greens-2026",
+        "specialtyproduce-water-spinach-2026",
+        "ucdavis-bokchoy-2026",
+        "ucdavis-carrot-2026",
+        "ucdavis-tomato-2026",
+        "idfa-ice-cream-2026",
+        "fda-fresh-cut-produce-2026",
+        "fda-melon-supply-chain-2026",
+        "usda-frozen-beef-2026",
+        "ucdavis-potato-2026",
+        "ucdavis-broccoli-2026",
+        "ucdavis-mushroom-2026",
+        "ucdavis-grape-2026",
+        "ucdavis-strawberry-2026",
+        "ucdavis-chile-pepper-2026",
+        "fda-shellfish-2026"
+      ],
+      "method": "Matched to each commodity's cited maximum safe refrigeration/freezer temperature; Salmon Segar and Tuna Segar were corrected from 2C to 4C on 2026-08-22 to match the FDA fresh-fish ceiling of 40F (4C). Cut-fruit commodities (Mangga/Pepaya/Nanas Potong) use the general FDA fresh-cut-produce ceiling rather than their whole-fruit chilling-injury thresholds. Tomat Segar and Cabai Segar use their chilling-injury-avoidance ceilings (13C and 7.5C), well above every meat/dairy/seafood commodity here."
+    },
+    "shelf_life_hours_at_ideal_temp": {
+      "classification": "REFERENCE",
+      "source_ids": [
+        "fda-seafood-safety-2026",
+        "usda-frozen-seafood-2026",
+        "usda-fsis-poultry-fresh-2026",
+        "usda-fsis-frozen-poultry-2026",
+        "usda-fsis-beef-2026",
+        "fda-milk-storage-2026",
+        "usda-dairy-storage-2026",
+        "usda-shell-eggs-2026",
+        "ucdavis-postharvest-leafy-greens-2026",
+        "specialtyproduce-water-spinach-2026",
+        "ucdavis-bokchoy-2026",
+        "ucdavis-carrot-2026",
+        "ucdavis-tomato-2026",
+        "idfa-ice-cream-2026",
+        "fda-fresh-cut-produce-2026",
+        "fda-melon-supply-chain-2026",
+        "usda-frozen-beef-2026",
+        "ucdavis-potato-2026",
+        "ucdavis-broccoli-2026",
+        "ucdavis-mushroom-2026",
+        "ucdavis-grape-2026",
+        "ucdavis-strawberry-2026",
+        "ucdavis-chile-pepper-2026",
+        "fda-shellfish-2026"
+      ],
+      "method": "Matched to each commodity's cited storage duration at ideal/safe refrigeration temperature; Salmon Segar and Tuna Segar were corrected from 72h/96h to 48h on 2026-08-22 to match the FDA fresh-fish guidance of 2 days. Sawi Segar uses UC Davis's real 40-day bok choy figure at 0C, materially longer than the other leafy greens -- a genuine postharvest-physiology difference, not an inconsistency. Mangga/Pepaya/Nanas Potong keep the conservative ~48h estimate (no fruit-specific cut-shelf-life citation found). Wortel Segar, Kentang Segar, Jamur Segar, and Anggur Segar's shelf-life figures are internal conservative estimates -- their cited sources ground only a temperature threshold (freezing/chilling injury), not an explicit multi-day duration. Brokoli Segar and Stroberi Segar have direct duration citations (720h and 120h respectively). Used as a relative risk feature, not a food-safety guarantee."
+    },
+    "delay_tolerance_hours": {
+      "classification": "DEMO",
+      "source_ids": ["jagood-mvp-assumptions-v1", "fda-melon-supply-chain-2026", "usda-dairy-storage-2026", "usda-shell-eggs-2026"],
+      "method": "No public source found (as of this research pass) that defines tolerance to in-transit temperature/time deviation specifically for most commodities; public guidance covers safe storage duration under ideal refrigeration, not cold-chain delay tolerance -- manually defined operational threshold used by the synthetic label function for those. Four exceptions have a direct public citation: Semangka Potong (4h, FDA cut-melon room-temperature-abuse limit), Keju Segar and Yogurt (2h, USDA general dairy room-temperature rule), and Telur Ayam Segar (2h, USDA shell-egg room-temperature rule). The field's overall classification stays DEMO since the current schema has no per-record field override and most commodities still lack any citation. USDA FSIS's general \"2-hour rule\" (perishable food discarded after 2h at room temperature, 1h above 32C) is a plausible broader anchor for the remaining meat/poultry/seafood commodities not yet applied here -- flagged as a follow-up, not implemented in this pass."
+    },
+    "temp_sensitivity_level": {
+      "classification": "DEMO",
+      "source_ids": ["jagood-mvp-assumptions-v1"],
+      "method": "No public source found (as of this research pass) that categorizes commodities into a Low/Medium/High transport temperature-sensitivity tier. Manually assigned category used by feature engineering."
+    }
+  },
+  "records": {
+    "Salmon Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-seafood-safety-2026"]},
+    "Udang Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-seafood-safety-2026"]},
+    "Udang Beku": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-frozen-seafood-2026"]},
+    "Ayam Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-fsis-poultry-fresh-2026"]},
+    "Daging Sapi Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-fsis-beef-2026"]},
+    "Susu Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-milk-storage-2026"]},
+    "Bayam Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-postharvest-leafy-greens-2026"]},
+    "Kangkung Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "specialtyproduce-water-spinach-2026"]},
+    "Sawi Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-bokchoy-2026"]},
+    "Tuna Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-seafood-safety-2026"]},
+    "Es Krim": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "idfa-ice-cream-2026"]},
+    "Semangka Potong": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-melon-supply-chain-2026"]},
+    "Mangga Potong": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-fresh-cut-produce-2026"]},
+    "Pepaya Potong": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-fresh-cut-produce-2026"]},
+    "Nanas Potong": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-fresh-cut-produce-2026"]},
+    "Kepiting Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-seafood-safety-2026"]},
+    "Cumi-cumi Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-seafood-safety-2026"]},
+    "Telur Ayam Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-shell-eggs-2026"]},
+    "Daging Ayam Beku": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-fsis-frozen-poultry-2026"]},
+    "Keju Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-dairy-storage-2026"]},
+    "Yogurt": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-dairy-storage-2026"]},
+    "Wortel Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-carrot-2026"]},
+    "Tomat Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-tomato-2026"]},
+    "Daging Sapi Beku": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "usda-frozen-beef-2026"]},
+    "Kentang Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-potato-2026"]},
+    "Brokoli Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-broccoli-2026"]},
+    "Jamur Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-mushroom-2026"]},
+    "Anggur Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-grape-2026"]},
+    "Stroberi Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-strawberry-2026"]},
+    "Cabai Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "ucdavis-chile-pepper-2026"]},
+    "Kerang Segar": {"classification": "REFERENCE", "source_ids": ["jagood-mvp-assumptions-v1", "fda-shellfish-2026"]}
+  }
+}

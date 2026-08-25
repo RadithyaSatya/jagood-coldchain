@@ -1,0 +1,19 @@
+{
+  "seed": 20260823,
+  "total_examples": 300,
+  "task": "grounded bilingual cold-chain explanation",
+  "splits": {
+    "train": {
+      "examples": 240,
+      "sha256": "1943fc3c720db2485348acd8afe9e54b2a359048c7564f88e932e61be66f461f"
+    },
+    "valid": {
+      "examples": 30,
+      "sha256": "37080105a85a5f136e762ba0291f28b04d478dba00a0b1c416ddbc858251dfa1"
+    },
+    "test": {
+      "examples": 30,
+      "sha256": "b461c9d0648869c686b4fd664aa024cf5c75a1d4b3f320d4ebac468b3cfe8e62"
+    }
+  }
+}

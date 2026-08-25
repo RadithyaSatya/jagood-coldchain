@@ -1,0 +1,22 @@
+[
+  {"port_id": "priok", "port_name": "Tanjung Priok", "city": "Jakarta", "lat": -6.1045, "lon": 106.8829, "island_group": "Jawa"},
+  {"port_id": "perak", "port_name": "Tanjung Perak", "city": "Surabaya", "lat": -7.2003, "lon": 112.7337, "island_group": "Jawa"},
+  {"port_id": "emas", "port_name": "Tanjung Emas", "city": "Semarang", "lat": -6.9553, "lon": 110.4203, "island_group": "Jawa"},
+  {"port_id": "merak", "port_name": "Merak", "city": "Cilegon", "lat": -5.9295, "lon": 106.0002, "island_group": "Jawa"},
+  {"port_id": "ketapang", "port_name": "Ketapang", "city": "Banyuwangi", "lat": -8.1153, "lon": 114.3839, "island_group": "Jawa"},
+  {"port_id": "bakauheni", "port_name": "Bakauheni", "city": "Lampung Selatan", "lat": -5.8676, "lon": 105.7514, "island_group": "Sumatera"},
+  {"port_id": "panjang", "port_name": "Panjang", "city": "Bandar Lampung", "lat": -5.4653, "lon": 105.3238, "island_group": "Sumatera"},
+  {"port_id": "belawan", "port_name": "Belawan", "city": "Medan", "lat": 3.7827, "lon": 98.6864, "island_group": "Sumatera"},
+  {"port_id": "boombaru", "port_name": "Boom Baru", "city": "Palembang", "lat": -2.9761, "lon": 104.7754, "island_group": "Sumatera"},
+  {"port_id": "pontianak", "port_name": "Pontianak", "city": "Pontianak", "lat": -0.0263, "lon": 109.3425, "island_group": "Kalimantan"},
+  {"port_id": "balikpapan", "port_name": "Balikpapan", "city": "Balikpapan", "lat": -1.2379, "lon": 116.8529, "island_group": "Kalimantan"},
+  {"port_id": "banjarmasin", "port_name": "Trisakti", "city": "Banjarmasin", "lat": -3.3194, "lon": 114.5907, "island_group": "Kalimantan"},
+  {"port_id": "makassar", "port_name": "Makassar (Soekarno-Hatta)", "city": "Makassar", "lat": -5.1342, "lon": 119.4128, "island_group": "Sulawesi"},
+  {"port_id": "bitung", "port_name": "Bitung", "city": "Bitung", "lat": 1.4451, "lon": 125.1809, "island_group": "Sulawesi"},
+  {"port_id": "ambon", "port_name": "Yos Sudarso", "city": "Ambon", "lat": -3.6954, "lon": 128.1814, "island_group": "Maluku"},
+  {"port_id": "sorong", "port_name": "Sorong", "city": "Sorong", "lat": -0.8768, "lon": 131.2558, "island_group": "Papua"},
+  {"port_id": "jayapura", "port_name": "Jayapura", "city": "Jayapura", "lat": -2.5337, "lon": 140.7181, "island_group": "Papua"},
+  {"port_id": "benoa", "port_name": "Benoa", "city": "Denpasar", "lat": -8.7467, "lon": 115.2166, "island_group": "Bali-Nusra"},
+  {"port_id": "lembar", "port_name": "Lembar", "city": "Lombok Barat", "lat": -8.7274, "lon": 116.0817, "island_group": "Bali-Nusra"},
+  {"port_id": "gilimanuk", "port_name": "Gilimanuk", "city": "Jembrana", "lat": -8.1622, "lon": 114.4386, "island_group": "Bali-Nusra"}
+]

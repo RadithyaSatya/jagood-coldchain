@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-route_planner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-route_planner}
+      POSTGRES_DB: ${POSTGRES_DB:-route_planner}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-route_planner}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  route-planner:
+    build:
+      context: ../services/ai/route-planner
+    env_file:
+      - ../services/ai/route-planner/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-route_planner}:${POSTGRES_PASSWORD:-route_planner}@postgres:5432/${POSTGRES_DB:-route_planner}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - route-planner
+
+volumes:
+  postgres_data:
