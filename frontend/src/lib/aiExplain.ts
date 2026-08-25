@@ -49,6 +49,15 @@ function formatShapFactors(route: RouteCandidate): string {
     .slice(0, 500);
 }
 
+function coldChainEquipmentLabel(value: string): string {
+  return value === "reefer" ? "pendingin aktif (reefer)" : "pendingin pasif";
+}
+
+function routeLabel(route: RouteCandidate): string {
+  const mode = route.transport_mode.charAt(0).toUpperCase() + route.transport_mode.slice(1);
+  return `Rute ${mode} (${route.route_id})`;
+}
+
 export function buildRouteExplainContext(
   shipmentId: string,
   product: string,
@@ -61,6 +70,7 @@ export function buildRouteExplainContext(
     product,
     risk_level: normalizeRiskLevel(route.risk_level),
     facts: {
+      recommended_route: routeLabel(route),
       route_id: route.route_id,
       transport_mode: route.transport_mode,
       distance: `${route.distance_km.toFixed(1)} km`,
@@ -72,7 +82,7 @@ export function buildRouteExplainContext(
       wave_condition: `${route.wave_category}, ${route.wave_height_m.toFixed(2)} m`,
       wind_speed: `${route.wind_speed_kmh.toFixed(1)} km/jam`,
       cargo_temp_excess: `${route.max_cargo_temp_excess_c.toFixed(1)}°C`,
-      cold_chain_equipment: route.cold_chain_equipment,
+      cold_chain_equipment: coldChainEquipmentLabel(route.cold_chain_equipment),
       data_quality: route.data_quality,
       environmental_data_quality: route.environmental_data_quality,
       environmental_data_source: environmentalDataLabel(route),
@@ -100,6 +110,9 @@ export function buildRouteExplainContext(
       remaining_shelf_life: `${route.remaining_shelf_life_hours.toFixed(1)} jam (${route.remaining_shelf_life_pct.toFixed(0)}%)`,
       quality_status: route.quality_status,
       shap_summary: route.risk_explanation_summary,
+      ...(route.risk_explanation_factors[0]
+        ? { primary_risk_factor: route.risk_explanation_factors[0].factor }
+        : {}),
       ...(shapFactors ? { shap_factors: shapFactors } : {}),
     },
   };
@@ -134,7 +147,7 @@ export function buildScenarioExplainContext(
       risk_delta: `${(scenario.risk_delta * 100).toFixed(2)} poin persentase`,
       expected_delay: `${scenario.simulated.expected_delay_hours.toFixed(1)} jam`,
       simulated_transport_mode: scenario.simulated.transport_mode,
-      simulated_cold_chain_equipment: scenario.simulated.cold_chain_equipment,
+      simulated_cold_chain_equipment: coldChainEquipmentLabel(scenario.simulated.cold_chain_equipment),
       simulated_cargo_temp_excess: `${scenario.simulated.max_cargo_temp_excess_c.toFixed(1)}°C`,
       environmental_data_quality: scenario.simulated.environmental_data_quality,
       environmental_data_source: environmentalDataLabel(scenario.simulated),
